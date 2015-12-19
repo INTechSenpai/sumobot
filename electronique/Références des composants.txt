@@ -1,0 +1,10 @@
+---- Batterie ----
+7,4V - 850mAh - 2S - 25C
+http://www.hobbyking.com/hobbyking/store/__21331__ZIPPY_Compact_850mAh_2S_25C_Lipo_Pack.html
+
+---- Détection des obstacles ----
+(à venir)
+
+
+---- Composants divers ----
+(à venir)
