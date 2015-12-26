@@ -1,0 +1,63 @@
+---------------------------------------------------------------------
+----- Description de la fonction de chacune des classes du code -----
+---------------------------------------------------------------------
+
+# PID
+	Calcule la tension à appliquer à un moteur à partir de son erreur par rapport à une consigne (ainsi que de la dérivée et de l'intégrale de l'erreur), permet d'asservir un moteur en vitesse ou en position.
+	
+# Motor
+	Représente un moteur et son dispositif de commande (pont en H)
+	Permet d'appliquer une tension donnée au moteur, de le bloquer, ou d'obtenir la température de son dispositif de commande.
+
+# Counter
+	Représente un encodeur rotatif
+	Permet de lire la distance mesurée par un encodeur rotatif, ou de lui définir une distance donnée.
+
+# Position
+	Représente la position du robot sur la table.
+	elle comporte trois composantes : x, y et l'angle d'orientation.
+
+# Trajectoire
+	Représente une trajectoire à effectuer.
+	Il s'agit d'une succession d'arcs de cercle à parcourir les uns à la suite des autres.
+	Aux arcs de cercle s'ajoutent les cas dégénérés que sont les lignes droites et les tours sur soi même.
+
+# MotionControlSystem
+	Permet de gérer les déplacements du robot de manière asservie.
+	Peut suivre une Trajectoire donnée.
+	Peut stopper le robot.
+	Indique l'état physique du robot (en mouvement, bloqué, ...)
+	Permet l'asservissement en vitesse/position du robot par l'appel à la méthode "control()" à intervalles réguliers.
+	
+# ToFSensor
+	Représente un capteur infrarouge de type ToF (Time of Flight)
+	Donne la distance lue par le capteur de proximité associé.
+	
+# InfraredSensor
+	Représente un capteur de proximité infrarouge traditionnel.
+	Donne la distance lue par le capteur de proximité associé.
+	
+# ColorSensor
+	Représente un capteur de couleur. Celui-ci peut détecter le noir et la blanc.
+	Donne la couleur détectée par le capteur.
+	
+# RelativeObstacleMap
+	Représente l'ensemble des obstacles détectés par le robot.
+	Ils sont repérés par rapport à la position du robot.
+	
+# SensorMgr
+	Gère l'ensemble des capteurs du robot.
+	Peut mettre à jour les informations lues par les capteurs, et les renseigner dans un objet RelativeObstacleMap.
+	Peut donner la position des obstacles détectés en donnant un objet RelativeObstacleMap.
+	
+# Table
+	Représente l'ensemble des obstacles auquels le robot sera confronté.
+	Elle contient à la fois les obstacles connus d'avance (bords de terrain, murs, ...) et les obstacles vus par le robot (adversaire principalement...).
+	Elle donne à chaque type d'obstacle des propriétées qui seront réutilisées par le PathFinding pour trouver le meilleur chemin (par exemple : "les bords de terrain sont dangereux" donc le PathFinding s'en éloigne le plus possible)
+	
+# PathFinding
+	Permet de calculer une Trajectoire à partir d'une Position de départ, d'une Position d'arrivée, ainsi que d'une Table.
+	Cette Trajectoire est le chemin le plus rapide permettant à notre robot de relier les points de départ et d'arrivée en prennant en compte les obstacles de la Table.
+	
+# Robot
+	Le robot collecte les informations des capteur grâce à son SensorMgr puis mets à jour la Table. Il calcule la stratégie optimale, puis en fonction de celle-ci il demande au PathFinding une Trajectoire qu'il communique à son MotionControlSystem pour qu'elle soit effectuée.
