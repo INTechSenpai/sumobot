@@ -2100,7 +2100,6 @@ design rules under a new name.</description>
 <vertex x="66.04" y="0"/>
 <vertex x="-1.27" y="0"/>
 </polygon>
-<via x="50.8" y="34.29" extent="1-16" drill="0.7"/>
 <via x="46.99" y="49.53" extent="1-16" drill="0.7"/>
 <via x="46.99" y="52.07" extent="1-16" drill="0.7"/>
 <via x="44.45" y="49.53" extent="1-16" drill="0.7"/>
