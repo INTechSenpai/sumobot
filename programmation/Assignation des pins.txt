@@ -1,0 +1,70 @@
+###### Assignation des Pins du microcontrôleur Teensy 3.2 ######
+
+
+### Contrôle des moteurs ###
+(Avec un pont en H double L298N, et des encodeurs en quadrature)
+
+Moteur gauche
+	Enable	0
+	Input1	23 (PWM)
+	Input2	22 (PWM)
+
+Moteur droit
+	Enable	1
+	Input1	21 (PWM)
+	Input2	20 (PWM)
+
+Encodeur gauche
+	InputA	15
+	InputB	14
+
+Encodeur droit
+	InputA	17
+	InputB	16
+
+
+
+### Capteurs de distance ###
+(ToF, IR, N/B)
+
+# Capteurs Noir/Blanc
+	Avant gauche	24
+	Avant droit	25
+	Arrière gauche	26
+	Arrière droit	27
+
+# Bus I2C pour capteurs IR
+	SCL	19
+	SDA	18
+
+# Capteurs ToF
+	Avant gauche
+		GPIO0	2
+		GPIO1	3
+
+	Avant droit
+		GPIO0	4
+		GPIO1	5
+
+	Gauche
+		GPIO0	6
+		GPIO1	7
+
+	Droit
+		GPIO0	8
+		GPIO1	9
+
+	Arrière gauche
+		GPIO0	10
+		GPIO1	11
+
+	Arrière droit
+		GPIO0	12
+		GPIO1	13
+
+### Divers ###
+
+Sonde tension batterie	A10
+Jumper			A11
+DEL batterie faible	29
+DEL status		30
