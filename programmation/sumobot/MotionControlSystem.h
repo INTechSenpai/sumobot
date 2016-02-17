@@ -15,6 +15,7 @@
 #include "Average.h"
 #include "Encoder.h"
 #include "Path.h"
+#include "Position.h"
 #include "utils.h"
 #include <math.h>
 
@@ -29,7 +30,7 @@
 #define ROBOT_RADIUS		50.0	// Rayon du robot, en mm
 #define FREQ_ASSERV			2000	// Fréquence d'asservissement
 #define AVERAGE_SPEED_SIZE	25		// Nombre de valeurs à utiliser dans le calcul de la moyenne glissante permettant de lisser la mesure de vitesse
-#define TRACKER_SIZE		1000	// Nombre d'états consécutifs du système à stocker pour le débug
+#define TRACKER_SIZE		1		// Nombre d'états consécutifs du système à stocker pour le débug
 
 class MotionControlSystem : public Singleton<MotionControlSystem>
 {
@@ -45,6 +46,9 @@ private:
 	// (si cet indice dépasse ta taille du tableau, la trajectoire completement parcourue)
 	volatile uint32_t currentMove;
 
+	// Position absolue du robot sur la table (en mm et radians)
+	Position currentPosition;
+	
 
 	/*
 	* 		Définition des variables d'état du système (position, vitesse, consigne, ...)
@@ -89,17 +93,6 @@ private:
 	//	Pour faire de jolies courbes de réponse du système, la vitesse moyenne c'est mieux !
 	Average<int32_t, AVERAGE_SPEED_SIZE> averageLeftSpeed;
 	Average<int32_t, AVERAGE_SPEED_SIZE> averageRightSpeed;
-
-
-
-	/*
-	* 	Variables de positionnement haut niveau (exprimmées en unités pratiques ^^)
-	*/
-	volatile float x;				// Positionnement 'x' (mm)
-	volatile float y;				// Positionnement 'y' (mm)
-	volatile float originalAngle;	// Angle d'origine	  (radians)
-									// 'originalAngle' représente un offset ajouté à l'angle courant pour que nos angles en radians coïncident avec la représentation haut niveau des angles.
-
 
 	// Variables d'état du mouvement
 	volatile bool moving;
@@ -191,12 +184,8 @@ public:
 	void getLeftSpeedTunings(float &, float &, float &) const;
 	void getRightSpeedTunings(float &, float &, float &) const;
 
-	float getAngleRadian() const;
-	void setOriginalAngle(float);
-	float getX() const;
-	float getY() const;
-	void setX(float);
-	void setY(float);
+	void setPosition(Position &);
+	Position & getPosition();
 	void resetPosition(void);
 	void setDelayToStop(uint32_t);
 

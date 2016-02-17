@@ -19,13 +19,13 @@ averageLeftSpeed(), averageRightSpeed()
 	leftSpeedControlled = true;
 	rightSpeedControlled = true;
 
-	originalAngle = 0.0;
 	rotationSetpoint = 0;
 	translationSetpoint = 0;
 	leftSpeedSetpoint = 0;
 	rightSpeedSetpoint = 0;
-	x = 0;
-	y = 0;
+
+	resetPosition();
+
 	moving = false;
 	blocked = false;
 
@@ -260,18 +260,20 @@ void MotionControlSystem::manageStop()
 
 void MotionControlSystem::updatePosition() {
 	static volatile int32_t lastDistance = 0;
+	static volatile int32_t lastAngle = 0;
 
 	float deltaDistanceMm = (currentDistance - lastDistance) * TICK_TO_MM;
 	lastDistance = currentDistance;
 
-	x += (deltaDistanceMm * cos(getAngleRadian()));
-	y += (deltaDistanceMm * sin(getAngleRadian()));
+	float deltaAngleRadian = (currentAngle - lastAngle) * TICK_TO_RADIAN;
+	lastAngle = currentAngle;
+
+	currentPosition.orientation += deltaAngleRadian;
+
+	currentPosition.x += (deltaDistanceMm * cos(currentPosition.orientation));
+	currentPosition.y += (deltaDistanceMm * sin(currentPosition.orientation));
 }
 
-
-/**
-* Ordres
-*/
 
 void MotionControlSystem::stop() {
 	translationSetpoint = currentDistance;
@@ -294,9 +296,9 @@ void MotionControlSystem::stop() {
 
 void MotionControlSystem::track()
 {
-	this->trackArray[trackerCursor].x = x;
-	this->trackArray[trackerCursor].y = y;
-	this->trackArray[trackerCursor].angle = getAngleRadian();
+	this->trackArray[trackerCursor].x = currentPosition.x;
+	this->trackArray[trackerCursor].y = currentPosition.y;
+	this->trackArray[trackerCursor].angle = currentPosition.orientation;
 
 	this->trackArray[trackerCursor].consigneVitesseGauche = leftSpeedSetpoint;
 	this->trackArray[trackerCursor].vitesseGaucheCourante = currentLeftSpeed;
@@ -426,35 +428,24 @@ void MotionControlSystem::setRightSpeedTunings(float kp, float ki, float kd) {
 /*
 * Getters/Setters des variables de position haut niveau
 */
-float MotionControlSystem::getAngleRadian() const {
-	return (currentAngle * TICK_TO_RADIAN + originalAngle);
+void MotionControlSystem::setPosition(Position & newPosition)
+{
+	currentPosition = newPosition;
 }
 
-void MotionControlSystem::setOriginalAngle(float angle) {
-	originalAngle = angle - (getAngleRadian() - originalAngle);
+Position & MotionControlSystem::getPosition()
+{
+	return currentPosition;
 }
 
-float MotionControlSystem::getX() const {
-	return x;
-}
-
-float MotionControlSystem::getY() const {
-	return y;
-}
-
-void MotionControlSystem::setX(float newX) {
-	this->x = newX;
-}
-
-void MotionControlSystem::setY(float newY) {
-	this->y = newY;
-}
 
 void MotionControlSystem::resetPosition()
 {
-	x = 0;
-	y = 0;
-	setOriginalAngle(0);
+	currentPosition.x = 0;
+	currentPosition.y = 0;
+	currentPosition.orientation = 0;
+	currentPosition.xSpeed = 0;
+	currentPosition.ySpeed = 0;
 	stop();
 }
 

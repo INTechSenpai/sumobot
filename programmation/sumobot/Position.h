@@ -9,8 +9,8 @@
 
 struct Position
 {
-	int16_t x;
-	int16_t y;
+	float x;
+	float y;
 	float orientation;
 	float xSpeed;
 	float ySpeed;
@@ -18,8 +18,8 @@ struct Position
 
 struct PositionUncertainty
 {
-	int16_t x;
-	int16_t y;
+	float x;
+	float y;
 	float orientation;
 	float xSpeed;
 	float ySpeed;
