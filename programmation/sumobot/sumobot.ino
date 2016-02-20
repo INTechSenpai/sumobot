@@ -2,21 +2,15 @@
 #include <avr/interrupt.h>
 
 #include "MotionControlSystem.h"
+#include "Motor.h"
 #include "Path.h"
 #include <vector>
 
-
-Trajectory trajectory;
-UnitMove unitMove;
-
-
-MotionControlSystem motionControlSystem;
-
+Motor motor;
 
 void setup()
 {
 	Serial.begin(9600);
-	Serial.println("C'est parti !");
 	pinMode(13, OUTPUT);
 	pinMode(29, OUTPUT);
 	pinMode(30, OUTPUT);
@@ -25,28 +19,14 @@ void setup()
 
 void loop()
 {
-	digitalWrite(13, LOW);
+	delay(1000);
 	digitalWrite(30, HIGH);
-	Serial.println("C'est parti !");
 
-	unitMove.bendRadius = INFINITE_RADIUS;
-	unitMove.length = 5000;
-	unitMove.length = 600;
+	motor.runLeft(850);
+	motor.runRight(1023);
 
-	delay(1000);
-	digitalWrite(13, HIGH);
-	digitalWrite(30, LOW);
-	Serial.println("C'est parti !");
-	motionControlSystem.setTrajectory(trajectory);
-	while (motionControlSystem.isMoving())
-	{
-		motionControlSystem.control();
-		motionControlSystem.manageStop();
-		delayMicroseconds(500);
-	}
-	Serial.println("done.");
-
-	delay(1000);
+	Serial.println(analogRead(A10));
+	
 
 }
 

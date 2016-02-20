@@ -12,12 +12,12 @@ class Motor
 public:
 	Motor()
 	{
-		pinEnableLeft = 0;
-		pinEnableRight = 1;
-		pinPwmLeft = 23;
-		pinPwmRight = 21;
-		pinDirectionLeft = 22;
-		pinDirectionRight = 20;
+		pinEnableLeft = 1;
+		pinEnableRight = 0;
+		pinPwmLeft = 21;
+		pinPwmRight = 23;
+		pinDirectionLeft = 20;
+		pinDirectionRight = 22;
 
 		pinMode(pinEnableLeft, OUTPUT);
 		pinMode(pinEnableRight, OUTPUT);
@@ -26,16 +26,19 @@ public:
 		pinMode(pinDirectionLeft, OUTPUT);
 		pinMode(pinDirectionRight, OUTPUT);
 
+
 		// La résolution des PWM est 8bits (0-255)
-		analogWriteResolution(8);
+		analogWriteResolution(10);
 
 		// Réglage de la fréquence des PWM
-		analogWriteFrequency(pinPwmLeft, 140625);
-		analogWriteFrequency(pinPwmRight, 140625);
+		analogWriteFrequency(pinPwmLeft, 35156.25);
+		analogWriteFrequency(pinPwmRight, 35156.25);
 
 		// Initialisation : Moteurs activés mais arrêtés
 		analogWrite(pinPwmLeft, 0);
 		analogWrite(pinPwmRight, 0);
+		digitalWrite(pinDirectionLeft, LOW);
+		digitalWrite(pinDirectionRight, LOW);
 
 		enableLeft(true);
 		enableRight(true);
@@ -46,14 +49,17 @@ public:
 		if (pwm >= 0)
 		{
 			digitalWrite(pinDirectionLeft, HIGH);
+			if (pwm > 1023)
+				pwm = 1023;
+			pwm = 1023 - pwm;
 		}
 		else
 		{
 			digitalWrite(pinDirectionLeft, LOW);
 			pwm = -pwm;
+			if (pwm > 1023)
+				pwm = 1023;
 		}
-		if (pwm > 255)
-			pwm = 255;
 		analogWrite(pinPwmLeft, pwm);
 	}
 
@@ -61,15 +67,19 @@ public:
 	{
 		if (pwm >= 0)
 		{
-			digitalWrite(pinDirectionRight, HIGH);
+			digitalWrite(pinDirectionRight, LOW);
+			if (pwm > 1023)
+				pwm = 1023;
 		}
 		else
 		{
-			digitalWrite(pinDirectionRight, LOW);
+			digitalWrite(pinDirectionRight, HIGH);
 			pwm = -pwm;
+			if (pwm > 1023)
+				pwm = 1023;
+			pwm = 1023 - pwm;
 		}
-		if (pwm > 255)
-			pwm = 255;
+		
 		analogWrite(pinPwmRight, pwm);
 	}
 

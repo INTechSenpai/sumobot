@@ -30,7 +30,7 @@
 #define ROBOT_RADIUS		50.0	// Rayon du robot, en mm
 #define FREQ_ASSERV			2000	// Fréquence d'asservissement
 #define AVERAGE_SPEED_SIZE	25		// Nombre de valeurs à utiliser dans le calcul de la moyenne glissante permettant de lisser la mesure de vitesse
-#define TRACKER_SIZE		1		// Nombre d'états consécutifs du système à stocker pour le débug
+#define TRACKER_SIZE		1	// Nombre d'états consécutifs du système à stocker pour le débug
 
 class MotionControlSystem : public Singleton<MotionControlSystem>
 {
@@ -156,13 +156,6 @@ public:
 	void printTracking(); // Envoie des données pour l'asserv auto
 	void printPosition();
 	void resetTracking();// Reset le tableau de tracking
-
-	int getPWMTranslation() const;
-	int getPWMRotation() const;
-	int getTranslationGoal() const;
-	int getRotationGoal() const;
-	int getLeftEncoder() const;
-	int getRightEncoder() const;
 
 	void enablePositionControl(bool);
 

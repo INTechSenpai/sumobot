@@ -5,14 +5,14 @@
 (Avec un pont en H double L298N, et des encodeurs en quadrature)
 
 Moteur gauche
-	Enable	0
-	Input1	23 (PWM)
-	Input2	22 (PWM)
-
-Moteur droit
 	Enable	1
 	Input1	21 (PWM)
 	Input2	20 (PWM)
+
+Moteur droit
+	Enable	0
+	Input1	23 (PWM)
+	Input2	22 (PWM)
 
 Encodeur gauche
 	InputA	15

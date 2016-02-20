@@ -24,8 +24,6 @@ averageLeftSpeed(), averageRightSpeed()
 	leftSpeedSetpoint = 0;
 	rightSpeedSetpoint = 0;
 
-	resetPosition();
-
 	moving = false;
 	blocked = false;
 
@@ -42,6 +40,8 @@ averageLeftSpeed(), averageRightSpeed()
 	rotationPID.setTunings(15, 0, 1000);
 	leftSpeedPID.setTunings(0.01, 0.000025, 0);
 	rightSpeedPID.setTunings(0.01, 0.000025, 0);
+	resetPosition();
+	stop();
 }
 
 void MotionControlSystem::enablePositionControl(bool enabled) {
@@ -120,16 +120,16 @@ void MotionControlSystem::control()
 
 			if (currentTrajectory[currentMove].bendRadius == 0)
 			{// Cas d'un mouvement purement rotatif
-				if ( currentTrajectory[currentMove].length >= 0 && currentAngle >= rotationSetpoint
-				  || currentTrajectory[currentMove].length <  0 && currentAngle <= rotationSetpoint )
+				if ( (currentTrajectory[currentMove].length >= 0 && currentAngle >= rotationSetpoint)
+				  || (currentTrajectory[currentMove].length <  0 && currentAngle <= rotationSetpoint) )
 				{// Rotation terminée
 					nextMove();
 				}
 			}
 			else
 			{// Cas d'une trajectoire courbe standard
-				if ( currentTrajectory[currentMove].length >= 0 && currentDistance >= translationSetpoint
-				  || currentTrajectory[currentMove].length <  0 && currentDistance <= translationSetpoint )
+				if ( (currentTrajectory[currentMove].length >= 0 && currentDistance >= translationSetpoint)
+				  || (currentTrajectory[currentMove].length <  0 && currentDistance <= translationSetpoint) )
 				{// Translation terminée
 					nextMove();
 				}
@@ -206,6 +206,7 @@ void MotionControlSystem::control()
 
 	motor.runLeft(leftPWM);
 	motor.runRight(rightPWM);
+
 }
 
 bool MotionControlSystem::isPhysicallyStopped() {

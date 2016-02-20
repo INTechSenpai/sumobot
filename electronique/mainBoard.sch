@@ -15806,7 +15806,7 @@ Source: www.kingbright.com</description>
 <label x="58.42" y="-2.54" size="1.778" layer="95" xref="yes"/>
 </segment>
 </net>
-<net name="ENABLE_GAUCHE" class="0">
+<net name="ENABLE_DROIT" class="0">
 <segment>
 <pinref part="IC1" gate="L298" pin="ENABLE_A"/>
 <wire x1="114.3" y1="40.64" x2="111.76" y2="40.64" width="0.1524" layer="91"/>
@@ -15816,7 +15816,7 @@ Source: www.kingbright.com</description>
 <pinref part="U$1" gate="G$1" pin="0"/>
 </segment>
 </net>
-<net name="ENABLE_DROIT" class="0">
+<net name="ENABLE_GAUCHE" class="0">
 <segment>
 <pinref part="IC1" gate="L298" pin="ENABLE_B"/>
 <wire x1="114.3" y1="38.1" x2="111.76" y2="38.1" width="0.1524" layer="91"/>
@@ -15826,7 +15826,7 @@ Source: www.kingbright.com</description>
 <pinref part="U$1" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="IN1_GAUCHE" class="0">
+<net name="IN1_DROIT" class="0">
 <segment>
 <pinref part="IC1" gate="L298" pin="INPUT1"/>
 <label x="96.52" y="33.02" size="1.778" layer="95" rot="R180" xref="yes"/>
@@ -15836,7 +15836,7 @@ Source: www.kingbright.com</description>
 <pinref part="U$1" gate="G$1" pin="23/A9"/>
 </segment>
 </net>
-<net name="IN2_GAUCHE" class="0">
+<net name="IN2_DROIT" class="0">
 <segment>
 <pinref part="IC1" gate="L298" pin="INPUT2"/>
 <label x="99.06" y="30.48" size="1.778" layer="95" rot="R180" xref="yes"/>
@@ -15846,7 +15846,7 @@ Source: www.kingbright.com</description>
 <pinref part="U$1" gate="G$1" pin="22/A8"/>
 </segment>
 </net>
-<net name="IN1_DROIT" class="0">
+<net name="IN1_GAUCHE" class="0">
 <segment>
 <pinref part="IC1" gate="L298" pin="INPUT3"/>
 <label x="101.6" y="27.94" size="1.778" layer="95" rot="R180" xref="yes"/>
@@ -15856,7 +15856,7 @@ Source: www.kingbright.com</description>
 <pinref part="U$1" gate="G$1" pin="21/A7"/>
 </segment>
 </net>
-<net name="IN2_DROIT" class="0">
+<net name="IN2_GAUCHE" class="0">
 <segment>
 <pinref part="IC1" gate="L298" pin="INPUT4"/>
 <label x="104.14" y="25.4" size="1.778" layer="95" rot="R180" xref="yes"/>
