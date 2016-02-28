@@ -27,7 +27,7 @@ public:
 		pinMode(pinDirectionRight, OUTPUT);
 
 
-		// La résolution des PWM est 8bits (0-255)
+		// La résolution des PWM est 10bits (0-1023)
 		analogWriteResolution(10);
 
 		// Réglage de la fréquence des PWM

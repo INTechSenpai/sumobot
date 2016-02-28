@@ -30,7 +30,7 @@
 #define ROBOT_RADIUS		50.0	// Rayon du robot, en mm
 #define FREQ_ASSERV			2000	// Fréquence d'asservissement
 #define AVERAGE_SPEED_SIZE	25		// Nombre de valeurs à utiliser dans le calcul de la moyenne glissante permettant de lisser la mesure de vitesse
-#define TRACKER_SIZE		1	// Nombre d'états consécutifs du système à stocker pour le débug
+#define TRACKER_SIZE		5	// Nombre d'états consécutifs du système à stocker pour le débug
 
 class MotionControlSystem : public Singleton<MotionControlSystem>
 {
@@ -102,6 +102,7 @@ private:
 	volatile bool positionControlled;	//  Asservissement en position
 	volatile bool leftSpeedControlled;	//	Asservissement en vitesse à gauche
 	volatile bool rightSpeedControlled;	//	Asservissement en vitesse à droite
+	volatile bool pwmControlled;		//	Mise à jour des PWM grâce à l'asservissement en vitesse
 
 	// Variables de réglage de la détection de blocage physique
 	unsigned int delayToStop;//En ms
@@ -158,11 +159,15 @@ public:
 	void resetTracking();// Reset le tableau de tracking
 
 	void enablePositionControl(bool);
+	void enableLeftSpeedControl(bool);
+	void enableRightSpeedControl(bool);
+	void enablePwmControl(bool);
 
 	void setTrajectory(const Trajectory&);
 	bool isMoving() const;
 	bool isBlocked() const;
 	void stop();
+	void setRawPWM(int16_t, int16_t);
 
 private:
 	void nextMove();

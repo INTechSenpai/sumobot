@@ -18,6 +18,7 @@ averageLeftSpeed(), averageRightSpeed()
 	positionControlled = true;
 	leftSpeedControlled = true;
 	rightSpeedControlled = true;
+	pwmControlled = true;
 
 	rotationSetpoint = 0;
 	translationSetpoint = 0;
@@ -36,16 +37,32 @@ averageLeftSpeed(), averageRightSpeed()
 	toleranceTranslation = 50;
 	toleranceRotation = 50;
 
-	translationPID.setTunings(12, 0, 1000);
-	rotationPID.setTunings(15, 0, 1000);
-	leftSpeedPID.setTunings(0.01, 0.000025, 0);
-	rightSpeedPID.setTunings(0.01, 0.000025, 0);
+	translationPID.setTunings(12, 0, 0);
+	rotationPID.setTunings(15, 0, 0);
+	leftSpeedPID.setTunings(10, 0, 0);
+	rightSpeedPID.setTunings(10, 0, 0);
 	resetPosition();
 	stop();
 }
 
-void MotionControlSystem::enablePositionControl(bool enabled) {
+void MotionControlSystem::enablePositionControl(bool enabled)
+{
 	positionControlled = enabled;
+}
+
+void MotionControlSystem::enableLeftSpeedControl(bool enable)
+{
+	leftSpeedControlled = enable;
+}
+
+void MotionControlSystem::enableRightSpeedControl(bool enable)
+{
+	rightSpeedControlled = enable;
+}
+
+void MotionControlSystem::enablePwmControl(bool enable)
+{
+	pwmControlled = enable;
 }
 
 void MotionControlSystem::setTrajectory(const Trajectory& newTrajectory)
@@ -85,7 +102,7 @@ void MotionControlSystem::control()
 	static int32_t previousRightTicks = 0;
 
 	// Récupération des informations des encodeurs (nombre de ticks)
-	int32_t rightTicks = rightEncoder.read();
+	int32_t rightTicks = -(rightEncoder.read());
 	int32_t leftTicks = leftEncoder.read();
 
 	currentLeftSpeed = (leftTicks - previousLeftTicks) * 2000; // (nb-de-tick-passés)*(freq_asserv) (ticks/sec)
@@ -204,9 +221,11 @@ void MotionControlSystem::control()
 	if (rightSpeedControlled)
 		rightSpeedPID.compute();	// Actualise la valeur de 'rightPWM'
 
-	motor.runLeft(leftPWM);
-	motor.runRight(rightPWM);
-
+	if (pwmControlled)
+	{
+		motor.runLeft(leftPWM);
+		motor.runRight(rightPWM);
+	}
 }
 
 bool MotionControlSystem::isPhysicallyStopped() {
@@ -228,7 +247,6 @@ void MotionControlSystem::manageStop()
 		{
 			if ((millis() - time) >= delayToStop)
 			{ //Si arrêté plus de 'delayToStop' ms
-				/// TODO changer la condition
 				if (currentMove >= currentTrajectory.size())
 				{// Si la trajectoire est terminée
 					blocked = false;
@@ -246,6 +264,10 @@ void MotionControlSystem::manageStop()
 				else
 				{// Sinon : il d'agit d'un blocage physique
 					blocked = true;
+					Serial.print("Pos : ");
+					Serial.println(currentDistance);
+					Serial.print("Aim : ");
+					Serial.println(translationSetpoint);
 				}
 				stop();
 			}
@@ -294,6 +316,11 @@ void MotionControlSystem::stop() {
 	rightSpeedPID.resetErrors();
 }
 
+void MotionControlSystem::setRawPWM(int16_t left, int16_t right)
+{
+	motor.runLeft(left);
+	motor.runRight(right);
+}
 
 void MotionControlSystem::track()
 {
