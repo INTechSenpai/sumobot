@@ -36,6 +36,11 @@ public:
 		int32_t result = (int32_t)(
 			kp * error + ki * integral + kd * derivative);
 
+		if (result > outMax)
+			result = outMax;
+		else if (result < outMin)
+			result = outMin;
+
 		(*output) = result;
 	}
 

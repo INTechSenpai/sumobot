@@ -1,4 +1,4 @@
-#include "ToFSensor.h"
+#include "BattControler.h"
 #include "SensorMgr.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -8,77 +8,134 @@
 #include "Path.h"
 #include <vector>
 
+#define INPUT_LENGH	64
+
+char inputBuffer[INPUT_LENGH];
+
 MotionControlSystem motionControlSystem;
+IntervalTimer lowLevelThread;
 
 Trajectory trajectory;
 UnitMove unitMove;
 
-VL6180X capteurToF;
+SensorMgr sensorMgr;
+RelativeObstacleMap obstacleMap;
 
-uint8_t gpio0 = 4;
+Position ici;
 
-ToFSensor tofSensor(42, gpio0);
+uint8_t read(char* string) {
+	static unsigned char buffer;
+	uint8_t i = 0;
+
+	do {
+		while (!Serial.available())
+		{
+
+		}
+		buffer = Serial.read();
+
+		if (i == 0 && buffer == '\r') {
+			return 0;
+		}
+
+		if (i == 0 && buffer == '\n') {
+			continue;
+		}
+
+		string[i] = buffer;
+		i++;
+	} while (string[i - 1] != '\r');
+
+	string[i - 1] = '\0';
+
+	return 0;
+}
+
+
 
 void setup()
 {
 	Serial.begin(9600);
 	pinMode(13, OUTPUT);
-	pinMode(29, OUTPUT);
-	pinMode(30, OUTPUT);
 	digitalWrite(13, HIGH);
 
 	unitMove.bendRadius = INFINITE_RADIUS;
-	unitMove.length = 5000;
-	unitMove.speed = 8000;
+	unitMove.length = 2000;
+	unitMove.speed = 1000;
 
 	trajectory.push_back(unitMove);
-	/*
-	motionControlSystem.enablePositionControl(false);
-	motionControlSystem.enablePwmControl(false);
-	//*/
 
 	Wire.begin();
+	delay(50);
 
-	tofSensor.powerON();
+	//sensorMgr.powerON();
 
+	lowLevelThread.priority(128);
+	lowLevelThread.begin(lowLevelInterrupt, 500);
 }
 
 void loop()
 {
-	delay(1000);
-	digitalWrite(30, HIGH);
+	
+	static float kp = 2, ki = 0.01, kd = 50;
+	static int speed = 5000;
 
 
-	Serial.println("go");
-
-	Serial.println(tofSensor.getMesure());
-
-
-
-	/*
-	motionControlSystem.setRawPWM(1023, 1023);
-	for (int i = 0; i < 5; i++)
+	if (Serial.available())
 	{
-		motionControlSystem.control();
-		motionControlSystem.track();
-		delayMicroseconds(500);
+		read(inputBuffer);
+		if (!strcmp(inputBuffer, "a"))
+		{
+			motionControlSystem.testAsservVitesse(speed, 1000, kp, ki, kd);
+		}
+		else if (!strcmp(inputBuffer, "speed"))
+		{
+			Serial.println("Speed ?");
+			read(inputBuffer);
+			speed = atoi(inputBuffer);
+			Serial.print("Speed= ");
+			Serial.println(speed);
+		}
+		else if (!strcmp(inputBuffer, "kp"))
+		{
+			Serial.println("Kp ?");
+			read(inputBuffer);
+			kp = atof(inputBuffer);
+			Serial.printf("Kp= %g\n", kp);
+		}
+		else if (!strcmp(inputBuffer, "ki"))
+		{
+			Serial.println("Ki ?");
+			read(inputBuffer);
+			ki = atof(inputBuffer);
+			Serial.printf("Ki= %g\n", ki);
+		}
+		else if (!strcmp(inputBuffer, "kd"))
+		{
+			Serial.println("Kd ?");
+			read(inputBuffer);
+			kd = atof(inputBuffer);
+			Serial.printf("Kd= %g\n", kd);
+		}
+		else if (!strcmp(inputBuffer, "d"))
+		{
+			Serial.printf("Kp= %g\n", kp);
+			Serial.printf("Ki= %g\n", ki);
+			Serial.printf("Kd= %g\n", kd);
+			Serial.printf("Speed= %d\n", speed);
+		}
+		Serial.println("");
 	}
-
-	motionControlSystem.printTracking();
-	//*/
-/*
-	motionControlSystem.setTrajectory(trajectory);
-	while (motionControlSystem.isMoving())
-	{
-
-		motionControlSystem.control();
-		motionControlSystem.manageStop();
-		delayMicroseconds(500);
-	}
-	Serial.println(motionControlSystem.isBlocked());
-//*/
-	//Serial.println(analogRead(A10));
 }
+
+void lowLevelInterrupt()
+{
+	static BattControler battControler;
+	battControler.control();
+}
+
+
+
 
 /* Ce bout de code permet de compiler avec std::vector */
 namespace std {
