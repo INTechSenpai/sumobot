@@ -16,6 +16,8 @@ public:
 	~ObstacleRectangle();
 	float getLongueur();
 	float getLargeur();
+	void setLongueur(float lon);
+	void setLargeur(float larg);
 
 private:
 

@@ -138,6 +138,9 @@
     <ClInclude Include="interrupt_pins.h" />
     <ClInclude Include="MotionControlSystem.h" />
     <ClInclude Include="Motor.h" />
+    <ClInclude Include="Obstacle.h" />
+    <ClInclude Include="ObstacleCercle.h" />
+    <ClInclude Include="ObstacleRectangle.h" />
     <ClInclude Include="Path.h" />
     <ClInclude Include="PID.h" />
     <ClInclude Include="Position.h" />
@@ -153,6 +156,10 @@
   <ItemGroup>
     <ClCompile Include="Encoder.cpp" />
     <ClCompile Include="MotionControlSystem.cpp" />
+    <ClCompile Include="Obstacle.cpp" />
+    <ClCompile Include="ObstacleCercle.cpp" />
+    <ClCompile Include="ObstacleRectangle.cpp" />
+    <ClCompile Include="exemple.cpp" />
     <ClCompile Include="utils.c" />
     <ClCompile Include="VL6180X.cpp" />
   </ItemGroup>

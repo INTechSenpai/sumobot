@@ -11,9 +11,11 @@ class ObstacleCercle :
 public:
 
 	ObstacleCercle();
-	ObstacleCercle(float x, float y, float orientation, float xSpeed, float ySpeed, float r);
+	ObstacleCercle(float x, float y, float orientation, float xSpeed, float ySpeed, float r); 
 	~ObstacleCercle();
 	float getRayon();
+	float setRayon();
+	void setRayon(float r);
 
 private:
 
