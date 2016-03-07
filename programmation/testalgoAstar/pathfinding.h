@@ -2,34 +2,53 @@
 #define PATHFINDING_H
 #include <utility>
 #include "mapdeuxdes.h"
-#include <map>
 #include <vector>
 #define N 10
+
+struct Position
+{
+    float x;
+    float y;
+    float orientation;
+    float xSpeed;
+    float ySpeed;
+};
+
 struct noeud {
-    std::pair<int, int> parent;
+    Position parent;
+    Position position;
     double cout_g, cout_h, cout_f;
 };
+
+
 
 class Pathfinding
 {
 public:
     Pathfinding();
-    std::vector<std::pair<int,int>> Astar(Mapdeuxdes map, std::pair<int,int> start,std::pair<int,int> goal);
+    std::vector<Position> Astar(Mapdeuxdes map, Position start, Position goal);
 
 private:
 
     //Contient les noeuds en liste fermée
-    std::map<std::pair<int, int>, noeud> ClosedSet;
+    std::vector<noeud> ClosedSet;
     //Contient les noeuds en liste ouverte
-    std::map<std::pair<int, int>, noeud> OpenSet;
+    std::vector<noeud> OpenSet;
 
     double distance(int x1, int y1, int x2, int y2);
 
-    void MettreAjourOpenSet(Mapdeuxdes map, std::pair<int,int> start,std::pair<int,int> goal);
-    std::pair<int, int> MettreAjourClosedSet();
-    bool estDansOpenSet(int i,int j);
+    void MettreAjourOpenSet(Mapdeuxdes map, Position start,Position goal);
+    Position MettreAjourClosedSet();
 
+    int chercheDansOpenSet(float x,float y,float orientation);
 
+    bool estDansOpenSet(float x, float y, float orientation);
+    bool estSurUnObstacle(float x, float y);
+
+    //yolo
+    bool PosEgales(Position p1, Position p2);
+
+    static float distanceParEtape;
 
 };
 

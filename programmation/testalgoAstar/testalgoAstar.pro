@@ -9,4 +9,4 @@ SOURCES += main.cpp \
 
 HEADERS += \
     mapdeuxdes.h \
-    pathfinding.h
+    pathfinding.h \

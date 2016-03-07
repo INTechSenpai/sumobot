@@ -1,6 +1,6 @@
 #include "pathfinding.h"
 #include "mapdeuxdes.h"
-#include <map>
+#include <vector>
 #include <math.h>
 #include <iostream>
 
@@ -11,107 +11,153 @@ double Pathfinding::distance(int x1, int y1, int x2, int y2){
     return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 }
 
-std::vector<std::pair<int,int>> Pathfinding::Astar(Mapdeuxdes map, std::pair<int,int> start,std::pair<int,int> goal) {
+//yolo
 
-    std::pair<int, int> n_courant(start.first, start.second);
+bool PosEgales(Position p1, Position p2) {
+    return (
+            (p1.orientation == p2.orientation) &&
+            (p1.x == p2.x) &&
+            (p1.y == p2.y)
+           );
+}
+
+std::vector<Position> Pathfinding::Astar(Mapdeuxdes map, Position start, Position goal) {
+
+    Position n_courant = start;
     noeud noeuddepart;
     noeuddepart.cout_g = 0;
-    noeuddepart.cout_h = distance(start.first, start.second, goal.first, goal.second);
+    noeuddepart.cout_h = distance(start.x, start.y, goal.x, goal.y);
     noeuddepart.cout_f = noeuddepart.cout_h;
-    OpenSet[start] = noeuddepart;
+    noeuddepart.position = n_courant;
+
+    OpenSet.push_back(noeuddepart);
     n_courant = MettreAjourClosedSet();
-    while (n_courant != goal) {
+    while (!PosEgales(n_courant, goal)) {
         MettreAjourOpenSet(map, n_courant, goal);
         n_courant = MettreAjourClosedSet();
     }
-    std::vector<std::pair<int, int>> chemin_solution;
+    std::vector<Position> chemin_solution;
 
-    noeud tmp = ClosedSet[goal];
-    std::pair<int, int> n;
-    n.first = tmp.parent.first;
-    n.second = tmp.parent.second;
+    noeud tmp = ClosedSet.back(); // doutes
+    Position n;
+    n.x = tmp.parent.x;
+    n.y = tmp.parent.y;
+    n.orientation = tmp.parent.orientation;
 
-    while (n != start) {
-        chemin_solution.emplace_back(n);
-        tmp = ClosedSet[tmp.parent] ;
-        n.first = tmp.parent.first;
-        n.second = tmp.parent.second;
+    while (!PosEgales(n, start)) {
+        chemin_solution.push_back(n);
+        tmp = ClosedSet[tmp.parent];
+
+        n.x = tmp.parent.x;
+        n.y = tmp.parent.y;
+        n.orientation = tmp.parent.orientation;
     }
     return chemin_solution;
 }
 
 
-void Pathfinding::MettreAjourOpenSet(Mapdeuxdes map, std::pair<int, int> start, std::pair<int, int> goal) {
+void Pathfinding::MettreAjourOpenSet(Mapdeuxdes map, Position start, Position goal) {
 
     // on ajoute à la liste ouverte les noeuds voisins et on calcule leurs coûts
-    for (int i = start.first-1; i<=start.first+1;i++) {
-        if ((i >=0)&&(i<N)) {
-            for (int j = start.second-1;j<=start.second+1;j++) {
 
+    //cas ou on avance en ligne droite de distanceParEtape
 
-                // Il faut que le noeud voisin ne dépasse pas de la map, ne soit pas un obstacle, et
-                // ne soit pas le noeud de départ.
+    Position tmp;
+    tmp.y = start.y + distanceParEtape*sin(start.orientation);
+    tmp.x = start.x + distanceParEtape*cos(start.orientation);
+    tmp.orientation = start.orientation;
+    tmp.xSpeed = 0;
+    tmp.ySpeed = 0;
 
-                if (((i!=start.first)||(j!=start.second))&&(!map.estUnObstacle(i,j))&&(j>=0)&&(j<N)) {
-                   //Il faut que l'élément ne soit pas dans la liste fermée.
+    //on vérifie que ça ne dépasse pas (à modifier)
+    if ( ((tmp.x>=0)&&(tmp.x<N)) && ((tmp.y>=0)&&(tmp.y<N)) ) {
 
-                    if (ClosedSet.find(std::pair<int, int>(i,j)) == ClosedSet.end()) {
-                        // Création du noeud
-                        noeud nouveauNoeud;
+        //on vérifie la présence d'obstacle
+        if (!estSurUnObstacle(tmp.x,tmp.y)) {
+            //on vérifie la présence dans la liste fermée.
+            if (ClosedSet.find(tmp) == ClosedSet.end()) {
+                // Création du noeud
+                noeud nouveauNoeud;
 
-                        // son parent est start et on peut alors calculer son cout.
+                // son parent est start et on peut alors calculer son cout.
 
-                        nouveauNoeud.parent = start;
-                        nouveauNoeud.cout_g = ClosedSet[start].cout_g + distance(start.first, start.second, i, j);
-                        nouveauNoeud.cout_h = distance(goal.first, goal.second, i, j);
-                        nouveauNoeud.cout_f = nouveauNoeud.cout_h + nouveauNoeud.cout_g;
+                nouveauNoeud.parent = start;
+                nouveauNoeud.cout_g = ClosedSet.front().cout_g + distance(start.x, start.y, tmp.x, tmp.y);
+                nouveauNoeud.cout_h = distance(goal.x, goal.y, tmp.x, tmp.y);
+                nouveauNoeud.cout_f = nouveauNoeud.cout_h + nouveauNoeud.cout_g;
+                nouveauNoeud.position = tmp;
 
-
-                        // Si l'élément n'est pas dans la liste ouverte, on peut ajouter le noeud
-                        if (!estDansOpenSet(i,j)) {
-                            OpenSet[std::pair<int, int>(i,j)] = nouveauNoeud;
-                        }
-
-                        // Si l'élément est déjà dans la liste ouverte
-                        // on regarde si le cout est plus bas et si oui
-                        // on change le cout et son parent
-
-                        else if (OpenSet[std::pair<int, int>(i,j)].cout_f > nouveauNoeud.cout_f) {
-                                OpenSet[std::pair<int, int>(i,j)] = nouveauNoeud;
-                           }
-
-                   }
+                // Si l'élément n'est pas dans la liste ouverte, on peut ajouter le noeud
+                if (!estDansOpenSet(tmp.x,tmp.y, tmp.orientation)) {
+                    OpenSet.push_back(nouveauNoeud);
                 }
+
+                // Si l'élément est déjà dans la liste ouverte
+                // on regarde si le cout est plus bas et si oui
+                // on change le cout et son parent
+
+                else if (OpenSet[std::pair<int, int>(i,j)].cout_f > nouveauNoeud.cout_f) {
+                        OpenSet[std::pair<int, int>(i,j)] = nouveauNoeud;
+                   }
+
             }
+
         }
     }
 }
 
-bool Pathfinding::estDansOpenSet(int i, int j) {
-    std::pair<int, int> paireAtest(i,j);
-    std::map<std::pair<int, int>, noeud>::iterator it;
-    it = OpenSet.find(paireAtest);
-    return (it!=OpenSet.end());
+bool Pathfinding::estDansOpenSet(float x, float y, float orientation) {
+    Position aTest;
+    aTest.x = x;
+    aTest.y = y;
+    aTest.orientation = orientation;
+    return (chercheDansOpenSet(x,y,orientation)!=-1);
+
 }
 
-std::pair<int, int> Pathfinding::MettreAjourClosedSet() {
+Position Pathfinding::MettreAjourClosedSet() {
     // Recherche du minimum des coûts dans OpenSet
-    double min_coutf = OpenSet.begin()->second.cout_f;
 
-    std::pair<int, int> min_noeud = OpenSet.begin()->first;
+    std::vector<noeud>::iterator min_noeud = OpenSet.begin();
 
-    for (std::map<std::pair<int, int>, noeud>::iterator i = OpenSet.begin();i!=OpenSet.end();i++) {
-        if (i->second.cout_f < min_coutf) {
-            min_coutf = i->second.cout_f;
-            min_noeud = i->first;
+    for (std::vector<noeud>::iterator i = OpenSet.begin();i!=OpenSet.end();i++) {
+        if (i->cout_f < min_noeud->cout_f) {
+            min_noeud = i;
         }
     }
 
     //ajout de ce noeud dans la liste fermée
-    ClosedSet[min_noeud] = OpenSet[min_noeud];
+    ClosedSet.push_back(*min_noeud);
 
     // il faut le supprimer de la liste ouverte, ce n'est plus une solution explorable
-    if (OpenSet.erase(min_noeud)==0)
-        std::cerr << "Erreur, le noeud n'apparait pas dans la liste ouverte, impossible à supprimer" << std::endl;
-    return min_noeud;
+    OpenSet.erase(min_noeud);
+    return min_noeud->position;
+}
+
+bool Pathfinding::estSurUnObstacle(float x, float y) {
+    return false;
+}
+
+int Pathfinding::chercheDansOpenSet(float x,float y,float orientation) {
+    if (OpenSet.empty()) {
+        return -1;
+    }
+
+    else {
+        Position positionAtest;
+        positionAtest.x = x;
+        positionAtest.y = y;
+        positionAtest.orientation = orientation;
+        int i=0;
+        while (
+               (i<OpenSet.size()) &&
+               (!PosEgales(OpenSet[i].position, positionAtest)) ) {
+
+            i++;
+        }
+        return i;
+
+
+    }
+
 }
