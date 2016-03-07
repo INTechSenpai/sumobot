@@ -28,8 +28,8 @@ averageLeftSpeed(), averageRightSpeed()
 	moving = false;
 	blocked = false;
 
-	leftSpeedPID.setOutputLimits(-255, 255);
-	rightSpeedPID.setOutputLimits(-255, 255);
+	leftSpeedPID.setOutputLimits(-1023, 1023);
+	rightSpeedPID.setOutputLimits(-1023, 1023);
 
 	movingSpeed = 0;
 
@@ -74,7 +74,7 @@ void MotionControlSystem::setTrajectory(const Trajectory& newTrajectory)
 	nextMove();
 }
 
-void MotionControlSystem::nextMove()
+inline void MotionControlSystem::nextMove()
 {
 	currentMove++;
 	if (currentMove < currentTrajectory.size())
@@ -195,7 +195,7 @@ void MotionControlSystem::control()
 				}
 
 				/* Calcul des vitesses des deux moteurs à partir de movingSpeed et de bendRadius */
-				int16_t radius = currentTrajectory[currentMove].bendRadius;
+				int32_t radius = currentTrajectory[currentMove].bendRadius;
 				if (radius == 0)
 				{
 					leftSpeedSetpoint = -movingSpeed;
@@ -203,13 +203,13 @@ void MotionControlSystem::control()
 				}
 				else if (radius > 0)
 				{
-					leftSpeedSetpoint = ((double)radius - ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius;
-					rightSpeedSetpoint = ((double)radius + ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius;
+					leftSpeedSetpoint = (int32_t)(((double)radius - ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
+					rightSpeedSetpoint = (int32_t)(((double)radius + ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
 				}
 				else
 				{
-					leftSpeedSetpoint = ((double)radius + ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius;
-					rightSpeedSetpoint = ((double)radius - ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius;
+					leftSpeedSetpoint = (int32_t)(((double)radius + ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
+					rightSpeedSetpoint = (int32_t)(((double)radius - ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
 				}
 			}
 		}
@@ -264,10 +264,6 @@ void MotionControlSystem::manageStop()
 				else
 				{// Sinon : il d'agit d'un blocage physique
 					blocked = true;
-					Serial.print("Pos : ");
-					Serial.println(currentDistance);
-					Serial.print("Aim : ");
-					Serial.println(translationSetpoint);
 				}
 				stop();
 			}
@@ -482,10 +478,39 @@ void MotionControlSystem::setDelayToStop(uint32_t delayToStop)
 	this->delayToStop = delayToStop;
 }
 
+
 bool MotionControlSystem::isMoving() const {
 	return moving;
 }
 
 bool MotionControlSystem::isBlocked() const {
 	return blocked;
+}
+
+void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float kp, float ki, float kd)
+{
+	setLeftSpeedTunings(kp, ki, kd);
+	setRightSpeedTunings(kp, ki, kd);
+	enablePositionControl(false);
+	enableLeftSpeedControl(true);
+	enableRightSpeedControl(true);
+	enablePwmControl(true);
+	leftSpeedSetpoint = speed;
+	rightSpeedSetpoint = speed;
+	resetTracking();
+	int i = 1;
+	uint32_t beginTime = millis();
+	while (millis() - beginTime < duration)
+	{
+		control();
+		if (i == 10)
+		{
+			track();
+			i = 0;
+		}
+		i++;
+		delayMicroseconds(500);
+	}
+	stop();
+	printTracking();
 }

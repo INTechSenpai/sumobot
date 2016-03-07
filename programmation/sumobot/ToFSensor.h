@@ -18,6 +18,7 @@ public:
 		i2cAddress = id;
 		this->pinStandby = pinStandby;
 		standby();
+		vlSensor.setTimeout(100);
 	}
 
 	uint32_t getMesure()
@@ -40,6 +41,7 @@ public:
 
 	void standby()
 	{
+		//vlSensor.stopContinuous();
 		pinMode(pinStandby, OUTPUT);
 		digitalWrite(pinStandby, LOW);
 		isON = false;
@@ -51,6 +53,7 @@ public:
 		vlSensor.init();
 		vlSensor.configureDefault();
 		vlSensor.setAddress(i2cAddress);
+		//vlSensor.startRangeContinuous(100);
 		isON = true;
 	}
 

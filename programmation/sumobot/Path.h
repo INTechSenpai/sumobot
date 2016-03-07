@@ -17,9 +17,9 @@
 
 #include <vector>
 
-/* Le rayon infini permet de définir une trajectoire rectiligne
- L'infini choisi est le plus grand entier possible sur un int16_t (entier signé de 16 bits) */
-#define INFINITE_RADIUS 32767
+/* Le rayon "infini" permet de définir une trajectoire rectiligne
+ */
+#define INFINITE_RADIUS 424242424
 
 /* Un mouvement élémentaire est représenté par un rayon de courbure et une longueur
 	Toutes les unités sont en ticks (unité de longueur ou d'angle selon le contexte).
