@@ -30,7 +30,7 @@
 /* ### Durée de l'attente entre deux mesures pour chaque type de capteur (en µs) ### */
 #define PERIODE_TOF	20000
 #define PERIODE_IR	50000
-#define PERIODE_SOL	10000
+#define PERIODE_SOL	20000
 
 
 class SensorMgr
@@ -107,7 +107,8 @@ public:
 				relativeObstacleMap.solAvantGauche, 
 				relativeObstacleMap.solAvantDroit, 
 				relativeObstacleMap.solArriereGauche, 
-				relativeObstacleMap.solArriereDroit
+				relativeObstacleMap.solArriereDroit,
+				true
 				);
 			ColorSensor::update();
 			solLastUpdate = now;

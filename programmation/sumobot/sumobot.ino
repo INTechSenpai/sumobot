@@ -1,5 +1,5 @@
 #include "BattControler.h"
-#include "SensorMgr.h"
+//#include "SensorMgr.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -18,8 +18,11 @@ IntervalTimer lowLevelThread;
 Trajectory trajectory;
 UnitMove unitMove;
 
-SensorMgr sensorMgr;
-RelativeObstacleMap obstacleMap;
+volatile uint32_t endTime;
+uint32_t avG, avD, arG, arD;
+
+//SensorMgr sensorMgr;
+//RelativeObstacleMap obstacleMap;
 
 Position ici;
 
@@ -65,21 +68,56 @@ void setup()
 
 	trajectory.push_back(unitMove);
 
-	Wire.begin();
+	//Wire.begin();
 	delay(50);
+
+	endTime = 0;
+
+	attachInterrupt(25, interrupt, FALLING);
 
 	//sensorMgr.powerON();
 
-	lowLevelThread.priority(128);
-	lowLevelThread.begin(lowLevelInterrupt, 500);
+	//ColorSensor::init(24, 25, 26, 27);
+
+	//lowLevelThread.priority(128);
+	//lowLevelThread.begin(lowLevelInterrupt, 500);
+}
+
+void interrupt()
+{
+	endTime = micros();
 }
 
 void loop()
 {
-	
+	uint32_t beginTime;
+	while (true)
+	{
+		pinMode(25, OUTPUT);
+		digitalWrite(25, HIGH);
+		delayMicroseconds(10);
+		pinMode(25, INPUT);
+		digitalWrite(25, LOW);
+		beginTime = micros();
+
+		delay(30);
+
+		Serial.println(beginTime);
+		Serial.println(endTime);
+	}
+
+
+
+
+	/*
+	ColorSensor::update();
+	delay(10);
+	ColorSensor::read(avG, avD, arG, arD, true);
+	Serial.printf("avG %d, avD %d, arG %d, arD %d\n", avG, avD, arG, arD);
+	*/
+
 	static float kp = 2, ki = 0.01, kd = 50;
 	static int speed = 5000;
-
 
 	if (Serial.available())
 	{
@@ -126,7 +164,8 @@ void loop()
 		}
 		else if (!strcmp(inputBuffer, "s"))
 		{
-			Serial.printf("Sol avant droit : %d\n", sensorMgr.getRelativeObstacleMap().solAvantDroit);
+			//obstacleMap = sensorMgr.getRelativeObstacleMap();
+			//Serial.printf("Sol avant droit : %d\n", obstacleMap.solAvantDroit);
 		}
 		Serial.println("");
 	}
@@ -137,7 +176,7 @@ void lowLevelInterrupt()
 	static BattControler battControler;
 	battControler.control();
 
-	sensorMgr.updateObstacleMap();
+	//sensorMgr.updateObstacleMap();
 }
 
 

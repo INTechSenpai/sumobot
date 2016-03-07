@@ -55,6 +55,7 @@ struct UnitMove
 	int32_t length; // Longueur du mouvement, en ticks pour MotionControlSystem et en mm pour le haut niveau
 	int32_t bendRadius; // Rayon de courbure, en ticks pour MotionControlSystem et en mm pour le haut niveau
 	int32_t speed;	// Vitesse de déplacement (POSITIVE), en ticks/s pour MotionControlSystem et en mm/s pour le haut niveau
+	bool stopAfterMove; // Indique si le robot doit s'arrêter à la fin de ce mouvement avant d'enchainer sur le suivant
 };
 
 
