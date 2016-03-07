@@ -62,9 +62,9 @@ void setup()
 	pinMode(13, OUTPUT);
 	digitalWrite(13, HIGH);
 
-	unitMove.bendRadius = INFINITE_RADIUS;
-	unitMove.length = 2000;
-	unitMove.speed = 1000;
+	unitMove.setBendRadiusTicks(INFINITE_RADIUS);
+	unitMove.setLengthTicks(2000);
+	unitMove.setSpeedTicks_S(1000);
 
 	trajectory.push_back(unitMove);
 

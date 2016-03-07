@@ -24,9 +24,6 @@
 #define PIN_A_RIGHT_ENCODER	17
 #define PIN_B_RIGHT_ENCODER	16
 
-#define TICK_TO_MM 0.2077			// unité : mm/ticks
-#define TICK_TO_RADIAN 0.0014468	// unité : radians/ticks
-
 #define ROBOT_RADIUS		50.0	// Rayon du robot, en mm
 #define FREQ_ASSERV			2000	// Fréquence d'asservissement
 #define AVERAGE_SPEED_SIZE	50		// Nombre de valeurs à utiliser dans le calcul de la moyenne glissante permettant de lisser la mesure de vitesse
