@@ -4,8 +4,7 @@
 #include <math.h>
 #include <iostream>
 
-Pathfinding::Pathfinding(){
-}
+Pathfinding::Pathfinding(){}
 
 double Pathfinding::distance(int x1, int y1, int x2, int y2){
     return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
@@ -13,7 +12,7 @@ double Pathfinding::distance(int x1, int y1, int x2, int y2){
 
 //yolo
 
-bool PosEgales(Position p1, Position p2) {
+bool Pathfinding::PosEgales(Position p1, Position p2) {
     return (
             (p1.orientation == p2.orientation) &&
             (p1.x == p2.x) &&
@@ -45,8 +44,9 @@ std::vector<Position> Pathfinding::Astar(Mapdeuxdes map, Position start, Positio
     n.orientation = tmp.parent.orientation;
 
     while (!PosEgales(n, start)) {
+
         chemin_solution.push_back(n);
-        tmp = ClosedSet[tmp.parent];
+        tmp = ClosedSet[chercheDansClosedSet(tmp.parent)];
 
         n.x = tmp.parent.x;
         n.y = tmp.parent.y;
@@ -75,7 +75,7 @@ void Pathfinding::MettreAjourOpenSet(Mapdeuxdes map, Position start, Position go
         //on vérifie la présence d'obstacle
         if (!estSurUnObstacle(tmp.x,tmp.y)) {
             //on vérifie la présence dans la liste fermée.
-            if (ClosedSet.find(tmp) == ClosedSet.end()) {
+            if (chercheDansClosedSet(tmp)==-1) {
                 // Création du noeud
                 noeud nouveauNoeud;
 
@@ -87,8 +87,12 @@ void Pathfinding::MettreAjourOpenSet(Mapdeuxdes map, Position start, Position go
                 nouveauNoeud.cout_f = nouveauNoeud.cout_h + nouveauNoeud.cout_g;
                 nouveauNoeud.position = tmp;
 
+                //on va chercher l'élément dans OpenSet (si on ne le trouve pas, element = -1)
+
+                int positionNouveauN = chercheDansOpenSet(nouveauNoeud.position);
+
                 // Si l'élément n'est pas dans la liste ouverte, on peut ajouter le noeud
-                if (!estDansOpenSet(tmp.x,tmp.y, tmp.orientation)) {
+                if (positionNouveauN == -1) {
                     OpenSet.push_back(nouveauNoeud);
                 }
 
@@ -96,23 +100,14 @@ void Pathfinding::MettreAjourOpenSet(Mapdeuxdes map, Position start, Position go
                 // on regarde si le cout est plus bas et si oui
                 // on change le cout et son parent
 
-                else if (OpenSet[std::pair<int, int>(i,j)].cout_f > nouveauNoeud.cout_f) {
-                        OpenSet[std::pair<int, int>(i,j)] = nouveauNoeud;
+                else if (OpenSet[positionNouveauN].cout_f > nouveauNoeud.cout_f) {
+                        OpenSet[positionNouveauN] = nouveauNoeud;
                    }
 
             }
 
         }
     }
-}
-
-bool Pathfinding::estDansOpenSet(float x, float y, float orientation) {
-    Position aTest;
-    aTest.x = x;
-    aTest.y = y;
-    aTest.orientation = orientation;
-    return (chercheDansOpenSet(x,y,orientation)!=-1);
-
 }
 
 Position Pathfinding::MettreAjourClosedSet() {
@@ -138,16 +133,12 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
     return false;
 }
 
-int Pathfinding::chercheDansOpenSet(float x,float y,float orientation) {
+int Pathfinding::chercheDansOpenSet(Position positionAtest) {
     if (OpenSet.empty()) {
         return -1;
     }
 
     else {
-        Position positionAtest;
-        positionAtest.x = x;
-        positionAtest.y = y;
-        positionAtest.orientation = orientation;
         int i=0;
         while (
                (i<OpenSet.size()) &&
@@ -155,9 +146,36 @@ int Pathfinding::chercheDansOpenSet(float x,float y,float orientation) {
 
             i++;
         }
-        return i;
+        if (i<OpenSet.size())
+            return i;
+        else
+            //on retourne -1 si l'on a rien trouvé.
+            return -1;
 
 
     }
 
+}
+
+int Pathfinding::chercheDansClosedSet(Position positionAtest) {
+    if (ClosedSet.empty()) {
+        return -1;
+    }
+
+    else {
+        int i=0;
+        while (
+               (i<ClosedSet.size()) &&
+               (!PosEgales(ClosedSet[i].position, positionAtest)) ) {
+
+            i++;
+        }
+        if (i<ClosedSet.size())
+            return i;
+        else
+            //on retourne -1 si l'on a rien trouvé.
+            return -1;
+
+
+    }
 }

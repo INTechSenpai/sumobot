@@ -3,7 +3,7 @@
 #include <utility>
 #include "mapdeuxdes.h"
 #include <vector>
-#define N 10
+#define distanceParEtape 10.0
 
 struct Position
 {
@@ -40,15 +40,16 @@ private:
     void MettreAjourOpenSet(Mapdeuxdes map, Position start,Position goal);
     Position MettreAjourClosedSet();
 
-    int chercheDansOpenSet(float x,float y,float orientation);
+    // renvoie la position dans le vecteur si trouvé, -1 sinon (yolo?)
 
-    bool estDansOpenSet(float x, float y, float orientation);
+    int chercheDansOpenSet(Position positionAtest);
+    int chercheDansClosedSet(Position positionAtest);
+
+
     bool estSurUnObstacle(float x, float y);
 
     //yolo
     bool PosEgales(Position p1, Position p2);
-
-    static float distanceParEtape;
 
 };
 
