@@ -4,6 +4,9 @@
 #include "mapdeuxdes.h"
 #include <vector>
 #define distanceParEtape 10.0
+#define R1 10.0
+#define R2 30.0
+#define N 10
 
 struct Position
 {
@@ -26,7 +29,7 @@ class Pathfinding
 {
 public:
     Pathfinding();
-    std::vector<Position> Astar(Mapdeuxdes map, Position start, Position goal);
+    std::vector<Position> Astar(const Mapdeuxdes& map, const Position& start, const Position& goal);
 
 private:
 
@@ -37,19 +40,21 @@ private:
 
     double distance(int x1, int y1, int x2, int y2);
 
-    void MettreAjourOpenSet(Mapdeuxdes map, Position start,Position goal);
+    void MettreAjourOpenSet(const Mapdeuxdes& map, const Position& start,const Position& goal);
+    void checkCandidat(const Position& candidat, const Mapdeuxdes& map, const Position& start, const Position& goal);
+
     Position MettreAjourClosedSet();
 
     // renvoie la position dans le vecteur si trouvé, -1 sinon (yolo?)
 
-    int chercheDansOpenSet(Position positionAtest);
-    int chercheDansClosedSet(Position positionAtest);
+    int chercheDansOpenSet(const Position& positionAtest);
+    int chercheDansClosedSet(const Position& positionAtest);
 
 
     bool estSurUnObstacle(float x, float y);
 
     //yolo
-    bool PosEgales(Position p1, Position p2);
+    bool PosEgales(const Position& p1, const Position& p2);
 
 };
 

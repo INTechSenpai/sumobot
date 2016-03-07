@@ -6,13 +6,14 @@
 
 Pathfinding::Pathfinding(){}
 
+//A tester : distance basée également sur écart d'orientation
 double Pathfinding::distance(int x1, int y1, int x2, int y2){
-    return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 }
 
 //yolo
 
-bool Pathfinding::PosEgales(Position p1, Position p2) {
+bool Pathfinding::PosEgales(const Position& p1, const Position& p2) {
     return (
             (p1.orientation == p2.orientation) &&
             (p1.x == p2.x) &&
@@ -20,7 +21,7 @@ bool Pathfinding::PosEgales(Position p1, Position p2) {
            );
 }
 
-std::vector<Position> Pathfinding::Astar(Mapdeuxdes map, Position start, Position goal) {
+std::vector<Position> Pathfinding::Astar(const Mapdeuxdes& map, const Position& start, const Position& goal) {
 
     Position n_courant = start;
     noeud noeuddepart;
@@ -56,59 +57,130 @@ std::vector<Position> Pathfinding::Astar(Mapdeuxdes map, Position start, Positio
 }
 
 
-void Pathfinding::MettreAjourOpenSet(Mapdeuxdes map, Position start, Position goal) {
+void Pathfinding::MettreAjourOpenSet(const Mapdeuxdes& map, const Position& start, const Position& goal) {
 
     // on ajoute à la liste ouverte les noeuds voisins et on calcule leurs coûts
 
+    Position tmp;
+
     //cas ou on avance en ligne droite de distanceParEtape
 
-    Position tmp;
-    tmp.y = start.y + distanceParEtape*sin(start.orientation);
     tmp.x = start.x + distanceParEtape*cos(start.orientation);
+    tmp.y = start.y + distanceParEtape*sin(start.orientation);
     tmp.orientation = start.orientation;
     tmp.xSpeed = 0;
     tmp.ySpeed = 0;
 
-    //on vérifie que ça ne dépasse pas (à modifier)
-    if ( ((tmp.x>=0)&&(tmp.x<N)) && ((tmp.y>=0)&&(tmp.y<N)) ) {
+    checkCandidat(tmp, map, start, goal);
 
-        //on vérifie la présence d'obstacle
-        if (!estSurUnObstacle(tmp.x,tmp.y)) {
-            //on vérifie la présence dans la liste fermée.
-            if (chercheDansClosedSet(tmp)==-1) {
-                // Création du noeud
-                noeud nouveauNoeud;
+    //cas où on avance de distanceParEtape suivant un rayon R1 vers la gauche.
 
-                // son parent est start et on peut alors calculer son cout.
+    tmp.orientation = start.orientation + (distanceParEtape/R1);
+    tmp.x = ( start.x - R1*sin(start.orientation) ) - R1*sin(tmp.orientation);
+    tmp.y = (start.y + R1*cos(start.orientation)) + R1*sin(tmp.orientation);
 
-                nouveauNoeud.parent = start;
-                nouveauNoeud.cout_g = ClosedSet.front().cout_g + distance(start.x, start.y, tmp.x, tmp.y);
-                nouveauNoeud.cout_h = distance(goal.x, goal.y, tmp.x, tmp.y);
-                nouveauNoeud.cout_f = nouveauNoeud.cout_h + nouveauNoeud.cout_g;
-                nouveauNoeud.position = tmp;
+    checkCandidat(tmp, map, start, goal);
 
-                //on va chercher l'élément dans OpenSet (si on ne le trouve pas, element = -1)
+    //cas où on avance de distanceParEtape suivant un rayon R1 vers la droite.
 
-                int positionNouveauN = chercheDansOpenSet(nouveauNoeud.position);
+    tmp.orientation = start.orientation - (distanceParEtape/R1);
+    tmp.x = ( start.x + R1*sin(start.orientation) ) + R1*sin(tmp.orientation);
+    tmp.y = (start.y - R1*cos(start.orientation)) - R1*sin(tmp.orientation);
 
-                // Si l'élément n'est pas dans la liste ouverte, on peut ajouter le noeud
-                if (positionNouveauN == -1) {
-                    OpenSet.push_back(nouveauNoeud);
-                }
 
-                // Si l'élément est déjà dans la liste ouverte
-                // on regarde si le cout est plus bas et si oui
-                // on change le cout et son parent
+    checkCandidat(tmp, map, start, goal);
 
-                else if (OpenSet[positionNouveauN].cout_f > nouveauNoeud.cout_f) {
-                        OpenSet[positionNouveauN] = nouveauNoeud;
-                   }
+    //cas où on recule de distanceParEtape suivant un rayon R1 par la gauche.
 
+    tmp.orientation = start.orientation - (distanceParEtape/R1);
+    tmp.x = ( start.x - R1*sin(start.orientation) ) - R1*sin(tmp.orientation);
+    tmp.y = (start.y + R1*cos(start.orientation)) + R1*sin(tmp.orientation);
+
+    checkCandidat(tmp, map, start, goal);
+
+    //cas où on recule de distanceParEtape suivant un rayon R1 par la droite.
+
+    tmp.orientation = start.orientation + (distanceParEtape/R1);
+    tmp.x = ( start.x + R1*sin(start.orientation) ) + R1*sin(tmp.orientation);
+    tmp.y = (start.y - R1*cos(start.orientation)) - R1*sin(tmp.orientation);
+
+    checkCandidat(tmp, map, start, goal);
+
+    //cas où on avance de distanceParEtape suivant un rayon R2 vers la gauche.
+
+    tmp.orientation = start.orientation + (distanceParEtape/R2);
+    tmp.x = ( start.x - R2*sin(start.orientation) ) - R2*sin(tmp.orientation);
+    tmp.y = (start.y + R2*cos(start.orientation)) + R2*sin(tmp.orientation);
+
+    checkCandidat(tmp, map, start, goal);
+
+    //cas où on avance de distanceParEtape suivant un rayon R2 vers la droite.
+
+    tmp.orientation = start.orientation - (distanceParEtape/R2);
+    tmp.x = ( start.x + R2*sin(start.orientation) ) + R2*sin(tmp.orientation);
+    tmp.y = (start.y - R2*cos(start.orientation)) - R2*sin(tmp.orientation);
+
+
+    checkCandidat(tmp, map, start, goal);
+
+    //cas où on recule de distanceParEtape suivant un rayon R2 par la gauche.
+
+    tmp.orientation = start.orientation - (distanceParEtape/R2);
+    tmp.x = ( start.x - R2*sin(start.orientation) ) - R2*sin(tmp.orientation);
+    tmp.y = (start.y + R2*cos(start.orientation)) + R2*sin(tmp.orientation);
+
+    checkCandidat(tmp, map, start, goal);
+
+    //cas où on recule de distanceParEtape suivant un rayon R2 par la droite.
+
+    tmp.orientation = start.orientation + (distanceParEtape/R2);
+    tmp.x = ( start.x + R2*sin(start.orientation) ) + R2*sin(tmp.orientation);
+    tmp.y = (start.y - R2*cos(start.orientation)) - R2*sin(tmp.orientation);
+
+    checkCandidat(tmp, map, start, goal);
+
+}
+
+void Pathfinding::checkCandidat(const Position& candidat, const Mapdeuxdes& map, const Position& start, const Position& goal) {
+
+    //on vérifie la présence d'obstacle
+
+    if (!estSurUnObstacle(candidat.x,candidat.y)) {
+        //on vérifie la présence dans la liste fermée.
+        if (chercheDansClosedSet(candidat)==-1) {
+            // Création du noeud
+            noeud nouveauNoeud;
+
+            // son parent est start et on peut alors calculer son cout.
+
+            nouveauNoeud.parent = start;
+            nouveauNoeud.cout_g = ClosedSet.front().cout_g + distance(start.x, start.y, candidat.x, candidat.y);
+            nouveauNoeud.cout_h = distance(goal.x, goal.y, candidat.x, candidat.y);
+            nouveauNoeud.cout_f = nouveauNoeud.cout_h + nouveauNoeud.cout_g;
+            nouveauNoeud.position = candidat;
+
+            //on va chercher l'élément dans OpenSet (si on ne le trouve pas, element = -1)
+
+            int positionNouveauN = chercheDansOpenSet(nouveauNoeud.position);
+
+            // Si l'élément n'est pas dans la liste ouverte, on peut ajouter le noeud
+            if (positionNouveauN == -1) {
+                OpenSet.push_back(nouveauNoeud);
             }
 
-        }
+            // Si l'élément est déjà dans la liste ouverte
+            // on regarde si le cout est plus bas et si oui
+            // on change le cout et son parent
+
+            else if (OpenSet[positionNouveauN].cout_f > nouveauNoeud.cout_f) {
+                    OpenSet[positionNouveauN] = nouveauNoeud;
+               }
+
+            }
     }
 }
+
+
 
 Position Pathfinding::MettreAjourClosedSet() {
     // Recherche du minimum des coûts dans OpenSet
@@ -133,7 +205,7 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
     return false;
 }
 
-int Pathfinding::chercheDansOpenSet(Position positionAtest) {
+int Pathfinding::chercheDansOpenSet(const Position& positionAtest) {
     if (OpenSet.empty()) {
         return -1;
     }
@@ -157,7 +229,7 @@ int Pathfinding::chercheDansOpenSet(Position positionAtest) {
 
 }
 
-int Pathfinding::chercheDansClosedSet(Position positionAtest) {
+int Pathfinding::chercheDansClosedSet(const Position& positionAtest) {
     if (ClosedSet.empty()) {
         return -1;
     }
@@ -175,7 +247,6 @@ int Pathfinding::chercheDansClosedSet(Position positionAtest) {
         else
             //on retourne -1 si l'on a rien trouvé.
             return -1;
-
 
     }
 }
