@@ -1,5 +1,3 @@
-// ProximitySensor.h
-
 #ifndef _PROXIMITYSENSOR_h
 #define _PROXIMITYSENSOR_h
 

@@ -124,6 +124,10 @@ void loop()
 			Serial.printf("Kd= %g\n", kd);
 			Serial.printf("Speed= %d\n", speed);
 		}
+		else if (!strcmp(inputBuffer, "s"))
+		{
+			Serial.printf("Sol avant droit : %d\n", sensorMgr.getRelativeObstacleMap().solAvantDroit);
+		}
 		Serial.println("");
 	}
 }
@@ -132,6 +136,8 @@ void lowLevelInterrupt()
 {
 	static BattControler battControler;
 	battControler.control();
+
+	sensorMgr.updateObstacleMap();
 }
 
 

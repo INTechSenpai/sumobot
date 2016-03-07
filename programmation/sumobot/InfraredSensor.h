@@ -48,7 +48,7 @@ public:
 
 		distance = high << 4;
 		distance += low;
-		distance = distance >> 4 + shift;
+		distance = distance >> (4 + shift);
 
 		return distance;
 	}

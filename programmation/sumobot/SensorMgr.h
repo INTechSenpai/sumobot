@@ -44,11 +44,7 @@ public:
 		capteurArriereGauche(46, STBY_AR_GAUCHE),
 		capteurArriereDroit(47, STBY_AR_DROIT),
 		capteurAvant(0x00),
-		capteurArriere(0x80),
-		solAvantGauche(),
-		solAvantDroit(),
-		solArriereGauche(),
-		solArriereDroit()
+		capteurArriere(0x80)
 	{
 	}
 
@@ -64,6 +60,8 @@ public:
 
 		capteurAvant.init();
 		capteurArriere.init();
+
+		ColorSensor::init(COLOR_AV_GAUCHE, COLOR_AV_DROIT, COLOR_AR_GAUCHE, COLOR_AR_DROIT);
 	}
 
 	/* Eteint tous les capteurs (sauf ceux qui ne s'éteignent pas) */
@@ -87,7 +85,7 @@ public:
 	{
 		static uint32_t tofLastUpdate = 0, irLastUpdate = 0, solLastUpdate = 0, now;
 		now = micros();
-		if (now - tofLastUpdate >= PERIODE_TOF)
+		if (now - tofLastUpdate >= PERIODE_TOF && false)
 		{
 			relativeObstacleMap.avantGauche = capteurAvantGauche.getDistance();
 			relativeObstacleMap.avantDroit = capteurAvantDroit.getDistance();
@@ -97,7 +95,7 @@ public:
 			relativeObstacleMap.arriereDroit = capteurArriereDroit.getDistance();
 			tofLastUpdate = now;
 		}
-		if (now - irLastUpdate >= PERIODE_IR)
+		if (now - irLastUpdate >= PERIODE_IR && false)
 		{
 			relativeObstacleMap.avant = capteurAvant.getDistance();
 			relativeObstacleMap.arriere = capteurArriere.getDistance();
@@ -105,10 +103,13 @@ public:
 		}
 		if (now - solLastUpdate >= PERIODE_SOL)
 		{
-			relativeObstacleMap.solAvantGauche = solAvantGauche.getDistance();
-			relativeObstacleMap.solAvantDroit = solAvantDroit.getDistance();
-			relativeObstacleMap.solArriereGauche = solArriereGauche.getDistance();
-			relativeObstacleMap.solArriereDroit = solArriereDroit.getDistance();
+			ColorSensor::read(
+				relativeObstacleMap.solAvantGauche, 
+				relativeObstacleMap.solAvantDroit, 
+				relativeObstacleMap.solArriereGauche, 
+				relativeObstacleMap.solArriereDroit
+				);
+			ColorSensor::update();
 			solLastUpdate = now;
 		}
 	}
@@ -118,6 +119,7 @@ public:
 	RelativeObstacleMap & getRelativeObstacleMap()
 	{
 		static RelativeObstacleMap buffer;
+		cli();
 		buffer = relativeObstacleMap;
 		relativeObstacleMap.arriere = 0;
 		relativeObstacleMap.arriereDroit = 0;
@@ -131,6 +133,7 @@ public:
 		relativeObstacleMap.solArriereGauche = 0;
 		relativeObstacleMap.solAvantDroit = 0;
 		relativeObstacleMap.solAvantGauche = 0;
+		sei();
 		return buffer;
 	}
 
@@ -144,10 +147,6 @@ private:
 	ToFSensor capteurArriereDroit;
 	InfraredSensor capteurAvant;
 	InfraredSensor capteurArriere;
-	ColorSensor solAvantGauche;
-	ColorSensor solAvantDroit;
-	ColorSensor solArriereGauche;
-	ColorSensor solArriereDroit;
 
 	RelativeObstacleMap relativeObstacleMap;
 };

@@ -10,7 +10,10 @@
 
 /* 
 	Représente d'état des capteurs du robot 
-	Une valeur à 0 = non significatif (erreur de lecture ou bien valeur déjà lue)
+	Une valeur à 0 = non significatif (erreur de lecture, capteur non branché ou bien valeur déjà lue)
+
+	Pour les capteurs de proximité (tous sauf ceux du sol) l'unité est le mm.
+	Pour les capteurs noir/blanc (ceux du sol) "1" correspond au blanc parfait et "1000" au noir parfait. Les valeurs intermédiaires sont des nuances de gris.
 */
 
 struct RelativeObstacleMap
