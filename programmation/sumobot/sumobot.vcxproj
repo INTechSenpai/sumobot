@@ -130,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Average.h" />
+    <ClInclude Include="BattControler.h" />
     <ClInclude Include="ColorSensor.h" />
     <ClInclude Include="direct_pin_read.h" />
     <ClInclude Include="Encoder.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="PID.h" />
     <ClInclude Include="Position.h" />
     <ClInclude Include="ProximitySensor.h" />
+    <ClInclude Include="RelativeObstacleMap.h" />
     <ClInclude Include="SensorMgr.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="ToFSensor.h" />
