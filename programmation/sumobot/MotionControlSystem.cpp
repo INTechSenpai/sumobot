@@ -161,8 +161,10 @@ void MotionControlSystem::control()
 				int32_t maxSpeed = currentTrajectory[currentMove].getSpeedTicks_S();
 
 
-				/* Le mouvement élémentaire courant existe est n'est pas terminé, et il s'agit du dernier */
-				if (currentMove == currentTrajectory.size() - 1)
+				/*  Si il est spécifié explicitement que ce mouvement élémentaire doit se terminer
+					à l'arrêt ("stopAfterMove" est alors passé à TRUE).
+				*/
+				if (currentTrajectory[currentMove].stopAfterMove)
 				{
 					if (currentTrajectory[currentMove].getBendRadiusTicks() == 0)
 					{// Cas d'un mouvement purement rotatif

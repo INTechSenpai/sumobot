@@ -17,6 +17,7 @@
 	Pour les capteurs noir/blanc (ceux du sol) "1" correspond au blanc parfait et "1000" au noir parfait. Les valeurs intermédiaires sont des nuances de gris.
 
 	Les vitesses sont exprimées en mm/s (il s'agit de la vitesse de variation des valeurs mesurées par chaque capteur)
+	Une vitesse positive représente un éloignement vis à vis du robot. A l'inverse une vitesse négative est un raprochement.
 */
 
 struct RelativeObstacleMap
