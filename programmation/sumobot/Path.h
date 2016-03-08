@@ -17,7 +17,13 @@
 
 #include <vector>
 
+/* Conversion Tick-mm et Radians-mm */
+#define TICK_TO_MM 0.2077			// unité : mm/ticks
+#define TICK_TO_RADIAN 0.0014468	// unité : radians/ticks
+
+
 /* Le rayon "infini" permet de définir une trajectoire rectiligne
+	(l'unité de cette constante est le Ticks, mais du coup à fortiori ça marchera si c'est des mm ^^)
  */
 #define INFINITE_RADIUS 424242424
 
@@ -50,11 +56,74 @@
 				  Arrière
 
 */
-struct UnitMove
+class UnitMove
 {
-	int32_t length; // Longueur du mouvement, en ticks pour MotionControlSystem et en mm pour le haut niveau
-	int32_t bendRadius; // Rayon de courbure, en ticks pour MotionControlSystem et en mm pour le haut niveau
-	int32_t speed;	// Vitesse de déplacement (POSITIVE), en ticks/s pour MotionControlSystem et en mm/s pour le haut niveau
+public:
+	bool stopAfterMove; // Indique si le robot doit s'arrêter à la fin de ce mouvement avant d'enchainer sur le suivant
+
+	void setLengthMm(int32_t lengthMM)
+	{
+		length = lengthMM / TICK_TO_MM;
+	}
+	void setLengthTicks(int32_t lengthTicks)
+	{
+		length = lengthTicks;
+	}
+	void setLengthRadians(float lengthRadians)
+	{
+		length = lengthRadians / TICK_TO_RADIAN;
+	}
+	int32_t getLengthMm()
+	{
+		return length * TICK_TO_MM;
+	}
+	int32_t getLengthTicks()
+	{
+		return length;
+	}
+	float getLengthRadians()
+	{
+		return length * TICK_TO_RADIAN;
+	}
+
+	void setBendRadiusMm(int32_t bendRadiusMM)
+	{
+		bendRadius = bendRadiusMM / TICK_TO_MM;
+	}
+	void setBendRadiusTicks(int32_t bendRadiusTicks)
+	{
+		bendRadius = bendRadiusTicks;
+	}
+	int32_t getBendRadiusMm()
+	{
+		return bendRadius * TICK_TO_MM;
+	}
+	int32_t getBendRadiusTicks()
+	{
+		return bendRadius;
+	}
+
+	void setSpeedMm_S(int32_t speedMM_S)
+	{
+		speed = speedMM_S / TICK_TO_MM;
+	}
+	void setSpeedTicks_S(int32_t speedTicks_S)
+	{
+		speed = speedTicks_S;
+	}
+	int32_t getSpeedMm_S()
+	{
+		return speed * TICK_TO_MM;
+	}
+	int32_t getSpeedTicks_S()
+	{
+		return speed;
+	}
+
+private:
+	int32_t length; // Longueur du mouvement, en ticks
+	int32_t bendRadius; // Rayon de courbure, en ticks
+	int32_t speed;	// Vitesse de déplacement (POSITIVE), en ticks/s
 };
 
 

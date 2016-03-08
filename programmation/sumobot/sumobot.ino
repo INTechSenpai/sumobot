@@ -59,16 +59,16 @@ void setup()
 	pinMode(13, OUTPUT);
 	digitalWrite(13, HIGH);
 
-	unitMove.bendRadius = INFINITE_RADIUS;
-	unitMove.length = 2000;
-	unitMove.speed = 1000;
+	unitMove.setBendRadiusTicks(INFINITE_RADIUS);
+	unitMove.setLengthTicks(2000);
+	unitMove.setSpeedTicks_S(1000);
 
 	trajectory.push_back(unitMove);
 
 	Wire.begin();
 	delay(50);
 
-	//sensorMgr.powerON();
+	sensorMgr.powerON();
 
 	lowLevelThread.priority(128);
 	lowLevelThread.begin(lowLevelInterrupt, 500);
@@ -76,10 +76,8 @@ void setup()
 
 void loop()
 {
-	
 	static float kp = 2, ki = 0.01, kd = 50;
 	static int speed = 5000;
-
 
 	if (Serial.available())
 	{
@@ -124,6 +122,11 @@ void loop()
 			Serial.printf("Kd= %g\n", kd);
 			Serial.printf("Speed= %d\n", speed);
 		}
+		else if (!strcmp(inputBuffer, "s"))
+		{
+			obstacleMap = sensorMgr.getRelativeObstacleMap();
+			Serial.printf("Sol avant droit : %d\n", obstacleMap.solAvantDroit);
+		}
 		Serial.println("");
 	}
 }
@@ -132,6 +135,8 @@ void lowLevelInterrupt()
 {
 	static BattControler battControler;
 	battControler.control();
+
+	sensorMgr.updateObstacleMap();
 }
 
 
