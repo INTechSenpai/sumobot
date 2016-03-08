@@ -38,12 +38,8 @@ std::vector<Position> Pathfinding::Astar(const Mapdeuxdes& map, const Position& 
     }
     std::vector<Position> chemin_solution;
 
-    noeud tmp = ClosedSet.back(); // doutes
-    Position n;
-    n.x = tmp.parent.x;
-    n.y = tmp.parent.y;
-    n.orientation = tmp.parent.orientation;
 
+    /* truc a faire si closedSet est pas trié
     while (!PosEgales(n, start)) {
 
         chemin_solution.push_back(n);
@@ -52,7 +48,13 @@ std::vector<Position> Pathfinding::Astar(const Mapdeuxdes& map, const Position& 
         n.x = tmp.parent.x;
         n.y = tmp.parent.y;
         n.orientation = tmp.parent.orientation;
+    }*/
+
+    for (int i=0; i<ClosedSet.size();i++) {
+        chemin_solution.push_back(ClosedSet[i].position);
     }
+
+
     return chemin_solution;
 }
 
@@ -165,7 +167,7 @@ void Pathfinding::checkCandidat(const Position& candidat, const Mapdeuxdes& map,
 
             // Si l'élément n'est pas dans la liste ouverte, on peut ajouter le noeud
             if (positionNouveauN == -1) {
-                OpenSet.push_back(nouveauNoeud);
+                PlacerDansOpenSet(nouveauNoeud);
             }
 
             // Si l'élément est déjà dans la liste ouverte
@@ -184,25 +186,33 @@ void Pathfinding::checkCandidat(const Position& candidat, const Mapdeuxdes& map,
 
 Position Pathfinding::MettreAjourClosedSet() {
     // Recherche du minimum des coûts dans OpenSet
-
-    std::vector<noeud>::iterator min_noeud = OpenSet.begin();
-
-    for (std::vector<noeud>::iterator i = OpenSet.begin();i!=OpenSet.end();i++) {
-        if (i->cout_f < min_noeud->cout_f) {
-            min_noeud = i;
-        }
-    }
+    // ici le vector est trié donc on prend le premier élément
 
     //ajout de ce noeud dans la liste fermée
-    ClosedSet.push_back(*min_noeud);
+    //tri le closed set en fonction des parents du noeud
+    int i=0;
+    while ((i<ClosedSet.size())&&(PosEgales(OpenSet.front().parent, ClosedSet[i].position))) {
+        i++;
+    }
+    ClosedSet.insert(ClosedSet.begin()+i+1,OpenSet.front());
 
+    noeud min_noeud = OpenSet.front();
     // il faut le supprimer de la liste ouverte, ce n'est plus une solution explorable
-    OpenSet.erase(min_noeud);
-    return min_noeud->position;
+    OpenSet.erase(OpenSet.begin());
+    return min_noeud.position;
 }
 
 bool Pathfinding::estSurUnObstacle(float x, float y) {
     return false;
+}
+
+void Pathfinding::PlacerDansOpenSet(const noeud& nouveauNoeud) {
+    int i=0;
+    while ((i<OpenSet.size())&&(nouveauNoeud.cout_f>OpenSet[i].cout_f)) {
+        i++;
+    }
+    OpenSet.insert(OpenSet.begin()+i,nouveauNoeud);
+
 }
 
 int Pathfinding::chercheDansOpenSet(const Position& positionAtest) {

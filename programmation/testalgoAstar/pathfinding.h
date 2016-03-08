@@ -45,8 +45,10 @@ private:
 
     Position MettreAjourClosedSet();
 
-    // renvoie la position dans le vecteur si trouvé, -1 sinon (yolo?)
+    //place dans openset de manière a trier
+    void PlacerDansOpenSet(const noeud& nouveauNoeud);
 
+    // renvoie la position dans le vecteur si trouvé, -1 sinon (yolo?)
     int chercheDansOpenSet(const Position& positionAtest);
     int chercheDansClosedSet(const Position& positionAtest);
 
