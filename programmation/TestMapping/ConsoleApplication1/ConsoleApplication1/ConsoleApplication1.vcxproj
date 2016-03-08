@@ -17,6 +17,7 @@
     <ClInclude Include="Table.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="testmapping.cpp" />
     <ClCompile Include="Table.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
