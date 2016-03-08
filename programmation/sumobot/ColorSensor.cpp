@@ -7,31 +7,44 @@ volatile uint32_t ColorSensor::endTimeAVg;
 volatile uint32_t ColorSensor::endTimeAVd;
 volatile uint32_t ColorSensor::endTimeARg;
 volatile uint32_t ColorSensor::endTimeARd;
-uint8_t ColorSensor::pinAVg;
-uint8_t ColorSensor::pinAVd;
-uint8_t ColorSensor::pinARg;
-uint8_t ColorSensor::pinARd;
+
+uint8_t 
+ColorSensor::powerAVg, ColorSensor::intAVg, 
+ColorSensor::powerAVd, ColorSensor::intAVd, 
+ColorSensor::powerARg, ColorSensor::intARg, 
+ColorSensor::powerARd, ColorSensor::intARd;
+
 uint32_t ColorSensor::beginTime;
 uint32_t ColorSensor::maxTime;
 uint32_t ColorSensor::minTime;
 
-void ColorSensor::init(uint8_t newPinAVg, uint8_t newPinAVd, uint8_t newPinARg, uint8_t newPinARd)
+void ColorSensor::init(uint8_t pAVg, uint8_t iAVg, uint8_t pAVd, uint8_t iAVd, uint8_t pARg, uint8_t iARg, uint8_t pARd, uint8_t iARd)
 {
-	pinAVg = newPinAVg;
-	pinAVd = newPinAVd;
-	pinARg = newPinARg;
-	pinARd = newPinARd;
+	powerAVg = pAVg;
+	powerAVd = pAVd;
+	powerARg = pARg;
+	powerARd = pARd;
+	
+	intAVg = iAVg;
+	intAVd = iAVd;
+	intARg = iARg;
+	intARd = iARd;
 
 	beginTime = 0;
 	endTimeAVg = 0;
 	endTimeAVd = 0;
 	endTimeARg = 0;
 	endTimeARd = 0;
+
+	pinMode(intAVg, INPUT_PULLUP);
+	pinMode(intAVd, INPUT_PULLUP);
+	pinMode(intARg, INPUT_PULLUP);
+	pinMode(intARd, INPUT_PULLUP);
 	
-	attachInterrupt(pinAVg, av_g_interrupt, FALLING);
-	attachInterrupt(pinAVd, av_d_interrupt, FALLING);
-	attachInterrupt(pinARg, ar_g_interrupt, FALLING);
-	attachInterrupt(pinARd, ar_d_interrupt, FALLING);
+	attachInterrupt(intAVg, av_g_interrupt, FALLING);
+	attachInterrupt(intAVd, av_d_interrupt, FALLING);
+	attachInterrupt(intARg, ar_g_interrupt, FALLING);
+	attachInterrupt(intARd, ar_d_interrupt, FALLING);
 
 	minTime = 1;
 	maxTime = 3000;
@@ -39,25 +52,25 @@ void ColorSensor::init(uint8_t newPinAVg, uint8_t newPinAVd, uint8_t newPinARg, 
 
 void ColorSensor::update()
 {
-	pinMode(pinAVg, OUTPUT);
-	pinMode(pinAVd, OUTPUT);
-	pinMode(pinARg, OUTPUT);
-	pinMode(pinARd, OUTPUT);
-	digitalWrite(pinAVg, HIGH);
-	digitalWrite(pinAVd, HIGH);
-	digitalWrite(pinARg, HIGH);
-	digitalWrite(pinARd, HIGH);
+	pinMode(powerAVg, OUTPUT);
+	pinMode(powerAVd, OUTPUT);
+	pinMode(powerARg, OUTPUT);
+	pinMode(powerARd, OUTPUT);
+	digitalWrite(powerAVg, HIGH);
+	digitalWrite(powerAVd, HIGH);
+	digitalWrite(powerARg, HIGH);
+	digitalWrite(powerARd, HIGH);
 
 	delayMicroseconds(10);
 
-	pinMode(pinAVg, INPUT);
-	pinMode(pinAVd, INPUT);
-	pinMode(pinARg, INPUT);
-	pinMode(pinARd, INPUT);
-	digitalWrite(pinAVg, LOW);
-	digitalWrite(pinAVd, LOW);
-	digitalWrite(pinARg, LOW);
-	digitalWrite(pinARd, LOW);
+	pinMode(powerAVg, INPUT);
+	pinMode(powerAVd, INPUT);
+	pinMode(powerARg, INPUT);
+	pinMode(powerARd, INPUT);
+	digitalWrite(powerAVg, LOW);
+	digitalWrite(powerAVd, LOW);
+	digitalWrite(powerARg, LOW);
+	digitalWrite(powerARd, LOW);
 
 	beginTime = micros();
 }

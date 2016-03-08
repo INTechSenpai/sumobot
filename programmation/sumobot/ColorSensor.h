@@ -15,7 +15,7 @@ class ColorSensor
 public:
 	ColorSensor();
 
-	static void init(uint8_t newPinAVg, uint8_t newPinAVd, uint8_t newPinARg, uint8_t newPinARd);
+	static void init(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
 
 	/* Fonction de mise à jour des données des capteurs. Déclenche une lecture sur chaque capteur. S'exécute en 10µs environ */
 	static void update();
@@ -42,7 +42,7 @@ private:
 	static void ar_g_interrupt();
 	static void ar_d_interrupt();
 
-	static uint8_t pinAVg, pinAVd, pinARg, pinARd;
+	static uint8_t powerAVg, intAVg, powerAVd, intAVd, powerARg, intARg, powerARd, intARd;
 
 	static uint32_t beginTime;
 
