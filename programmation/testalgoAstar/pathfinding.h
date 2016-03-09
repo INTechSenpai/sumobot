@@ -3,7 +3,9 @@
 #include <utility>
 #include "mapdeuxdes.h"
 #include <vector>
-#include "../sumobot/ObstacleCercle.h"
+#include "../TestMapping/ConsoleApplication1/ConsoleApplication1/Obstacle.h"
+#include "../TestMapping/ConsoleApplication1/ConsoleApplication1/Table.h"
+#include "../TestMapping/ConsoleApplication1/ConsoleApplication1/Position.h"
 
 #define distanceParEtape 10.0
 #define R1 10.0
