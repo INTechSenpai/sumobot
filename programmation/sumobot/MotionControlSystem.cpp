@@ -1,7 +1,3 @@
-// 
-// 
-// 
-
 #include "MotionControlSystem.h"
 
 
@@ -79,13 +75,13 @@ inline void MotionControlSystem::nextMove()
 	currentMove++;
 	if (currentMove < currentTrajectory.size())
 	{
-		if (currentTrajectory[currentMove].bendRadius == 0)
+		if (currentTrajectory[currentMove].getBendRadiusTicks() == 0)
 		{
-			rotationSetpoint = currentAngle + currentTrajectory[currentMove].length;
+			rotationSetpoint = currentAngle + currentTrajectory[currentMove].getLengthTicks();
 		}
 		else
 		{
-			translationSetpoint = currentDistance + currentTrajectory[currentMove].length;
+			translationSetpoint = currentDistance + currentTrajectory[currentMove].getLengthTicks();
 		}
 	}
 	else
@@ -135,18 +131,18 @@ void MotionControlSystem::control()
 
 			/* Vérification de fin de mouvement élémentaire */
 
-			if (currentTrajectory[currentMove].bendRadius == 0)
+			if (currentTrajectory[currentMove].getBendRadiusTicks() == 0)
 			{// Cas d'un mouvement purement rotatif
-				if ( (currentTrajectory[currentMove].length >= 0 && currentAngle >= rotationSetpoint)
-				  || (currentTrajectory[currentMove].length <  0 && currentAngle <= rotationSetpoint) )
+				if ( (currentTrajectory[currentMove].getLengthTicks() >= 0 && currentAngle >= rotationSetpoint)
+				  || (currentTrajectory[currentMove].getLengthTicks() <  0 && currentAngle <= rotationSetpoint) )
 				{// Rotation terminée
 					nextMove();
 				}
 			}
 			else
 			{// Cas d'une trajectoire courbe standard
-				if ( (currentTrajectory[currentMove].length >= 0 && currentDistance >= translationSetpoint)
-				  || (currentTrajectory[currentMove].length <  0 && currentDistance <= translationSetpoint) )
+				if ( (currentTrajectory[currentMove].getLengthTicks() >= 0 && currentDistance >= translationSetpoint)
+				  || (currentTrajectory[currentMove].getLengthTicks() <  0 && currentDistance <= translationSetpoint) )
 				{// Translation terminée
 					nextMove();
 				}
@@ -162,13 +158,15 @@ void MotionControlSystem::control()
 			}
 			else
 			{
-				int32_t maxSpeed = currentTrajectory[currentMove].speed;
+				int32_t maxSpeed = currentTrajectory[currentMove].getSpeedTicks_S();
 
 
-				/* Le mouvement élémentaire courant existe est n'est pas terminé, et il s'agit du dernier */
-				if (currentMove == currentTrajectory.size() - 1)
+				/*  Si il est spécifié explicitement que ce mouvement élémentaire doit se terminer
+					à l'arrêt ("stopAfterMove" est alors passé à TRUE).
+				*/
+				if (currentTrajectory[currentMove].stopAfterMove)
 				{
-					if (currentTrajectory[currentMove].bendRadius == 0)
+					if (currentTrajectory[currentMove].getBendRadiusTicks() == 0)
 					{// Cas d'un mouvement purement rotatif
 						rotationPID.compute();		// Actualise la valeur de 'movingSpeed'
 						
@@ -195,7 +193,7 @@ void MotionControlSystem::control()
 				}
 
 				/* Calcul des vitesses des deux moteurs à partir de movingSpeed et de bendRadius */
-				int32_t radius = currentTrajectory[currentMove].bendRadius;
+				int32_t radius = currentTrajectory[currentMove].getBendRadiusTicks();
 				if (radius == 0)
 				{
 					leftSpeedSetpoint = -movingSpeed;
@@ -254,8 +252,8 @@ void MotionControlSystem::manageStop()
 				else if (
 							(currentMove == currentTrajectory.size() - 1) && 
 							(
-								(currentTrajectory[currentMove].bendRadius != 0 && ABS(currentDistance - translationSetpoint) <= toleranceTranslation) || 
-								(currentTrajectory[currentMove].bendRadius == 0 && ABS(currentAngle - rotationSetpoint) <= toleranceRotation)
+								(currentTrajectory[currentMove].getBendRadiusTicks() != 0 && ABS(currentDistance - translationSetpoint) <= toleranceTranslation) || 
+								(currentTrajectory[currentMove].getBendRadiusTicks() == 0 && ABS(currentAngle - rotationSetpoint) <= toleranceRotation)
 							)
 						)
 				{// Si on est suffisament proche de la fin de trajectoire

@@ -4,7 +4,7 @@
 #define MIN(x,y) (((x)<(y))?(x):(y))
 #define MAX(x,y) (((x)>(y))?(x):(y))
 #define ABS(x) (((x) > 0) ? (x) : -(x))
-#define constrain(x,y,z) ( ((x)<(y))?(y):( ((x)>(z))?(z):(x) ) )
+#define CONSTRAIN(x,y,z) ( ((x)<(y))?(y):( ((x)>(z))?(z):(x) ) )
 
 #ifdef __cplusplus
 extern "C" {

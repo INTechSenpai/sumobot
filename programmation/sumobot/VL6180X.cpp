@@ -210,7 +210,7 @@ uint16_t VL6180X::readAmbientSingle()
 void VL6180X::startRangeContinuous(uint16_t period)
 {
   int16_t period_reg = (int16_t)(period / 10) - 1;
-  period_reg = constrain(period_reg, 0, 254);
+  period_reg = CONSTRAIN(period_reg, 0, 254);
 
   writeReg(SYSRANGE__INTERMEASUREMENT_PERIOD, period_reg);
   writeReg(SYSRANGE__START, 0x03);
@@ -225,7 +225,7 @@ void VL6180X::startRangeContinuous(uint16_t period)
 void VL6180X::startAmbientContinuous(uint16_t period)
 {
   int16_t period_reg = (int16_t)(period / 10) - 1;
-  period_reg = constrain(period_reg, 0, 254);
+  period_reg = CONSTRAIN(period_reg, 0, 254);
 
   writeReg(SYSALS__INTERMEASUREMENT_PERIOD, period_reg);
   writeReg(SYSALS__START, 0x03);
@@ -244,7 +244,7 @@ void VL6180X::startAmbientContinuous(uint16_t period)
 void VL6180X::startInterleavedContinuous(uint16_t period)
 {
   int16_t period_reg = (int16_t)(period / 10) - 1;
-  period_reg = constrain(period_reg, 0, 254);
+  period_reg = CONSTRAIN(period_reg, 0, 254);
 
   writeReg(INTERLEAVED_MODE__ENABLE, 1);
   writeReg(SYSALS__INTERMEASUREMENT_PERIOD, period_reg);

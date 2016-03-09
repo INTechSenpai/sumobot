@@ -21,16 +21,22 @@
 #define STBY_AR_GAUCHE	10
 #define STBY_AR_DROIT	12
 
-/* Pin de commande des capteurs de couleur */
-#define COLOR_AV_GAUCHE	24
-#define COLOR_AV_DROIT	25
-#define COLOR_AR_GAUCHE	26
-#define COLOR_AR_DROIT	27
+/* Pins de commande des capteurs de couleur */
+#define C_POW_AV_GAUCHE	24
+#define C_POW_AV_DROIT	25
+#define C_POW_AR_GAUCHE	26
+#define C_POW_AR_DROIT	27
+
+/* Pins de lecture des capteurs de couleur*/
+#define C_INT_AV_GAUCHE	33
+#define C_INT_AV_DROIT	32
+#define C_INT_AR_GAUCHE	31
+#define C_INT_AR_DROIT	11
 
 /* ### Durée de l'attente entre deux mesures pour chaque type de capteur (en µs) ### */
 #define PERIODE_TOF	20000
 #define PERIODE_IR	50000
-#define PERIODE_SOL	10000
+#define PERIODE_SOL	50000
 
 
 class SensorMgr
@@ -44,17 +50,39 @@ public:
 		capteurArriereGauche(46, STBY_AR_GAUCHE),
 		capteurArriereDroit(47, STBY_AR_DROIT),
 		capteurAvant(0x00),
-		capteurArriere(0x80),
-		solAvantGauche(),
-		solAvantDroit(),
-		solArriereGauche(),
-		solArriereDroit()
+		capteurArriere(0x80)
 	{
+		relativeObstacleMap.arriere = 0;
+		relativeObstacleMap.arriereDroit = 0;
+		relativeObstacleMap.arriereGauche = 0;
+		relativeObstacleMap.avant = 0;
+		relativeObstacleMap.avantDroit = 0;
+		relativeObstacleMap.avantGauche = 0;
+		relativeObstacleMap.droit = 0;
+		relativeObstacleMap.gauche = 0;
+		relativeObstacleMap.solArriereDroit = 0;
+		relativeObstacleMap.solArriereGauche = 0;
+		relativeObstacleMap.solAvantDroit = 0;
+		relativeObstacleMap.solAvantGauche = 0;
+
+		previousObstacleMap.arriere = 0;
+		previousObstacleMap.arriereDroit = 0;
+		previousObstacleMap.arriereGauche = 0;
+		previousObstacleMap.avant = 0;
+		previousObstacleMap.avantDroit = 0;
+		previousObstacleMap.avantGauche = 0;
+		previousObstacleMap.droit = 0;
+		previousObstacleMap.gauche = 0;
+		previousObstacleMap.solArriereDroit = 0;
+		previousObstacleMap.solArriereGauche = 0;
+		previousObstacleMap.solAvantDroit = 0;
+		previousObstacleMap.solAvantGauche = 0;
 	}
 
 	/* Allume tous les capteurs */
 	void powerON()
 	{
+		/*
 		capteurAvantGauche.powerON();
 		capteurAvantDroit.powerON();
 		capteurGauche.powerON();
@@ -64,6 +92,18 @@ public:
 
 		capteurAvant.init();
 		capteurArriere.init();
+		*/
+
+		ColorSensor::init(
+			C_POW_AV_GAUCHE,
+			C_INT_AV_GAUCHE,
+			C_POW_AV_DROIT,
+			C_INT_AV_DROIT,
+			C_POW_AR_GAUCHE,
+			C_INT_AR_GAUCHE,
+			C_POW_AR_DROIT,
+			C_INT_AR_DROIT
+			);
 	}
 
 	/* Eteint tous les capteurs (sauf ceux qui ne s'éteignent pas) */
@@ -87,28 +127,58 @@ public:
 	{
 		static uint32_t tofLastUpdate = 0, irLastUpdate = 0, solLastUpdate = 0, now;
 		now = micros();
-		if (now - tofLastUpdate >= PERIODE_TOF)
+		if (now - tofLastUpdate >= PERIODE_TOF && false)
 		{
 			relativeObstacleMap.avantGauche = capteurAvantGauche.getDistance();
+			relativeObstacleMap.speedAvantGauche = relativeObstacleMap.avantGauche - previousObstacleMap.avantGauche;
+			previousObstacleMap.avantGauche = relativeObstacleMap.avantGauche;
+
 			relativeObstacleMap.avantDroit = capteurAvantDroit.getDistance();
+			relativeObstacleMap.speedAvantDroit = relativeObstacleMap.avantDroit - previousObstacleMap.avantDroit;
+			previousObstacleMap.avantDroit = relativeObstacleMap.avantDroit;
+
 			relativeObstacleMap.gauche = capteurGauche.getDistance();
+			relativeObstacleMap.speedGauche = relativeObstacleMap.gauche - previousObstacleMap.gauche;
+			previousObstacleMap.gauche = relativeObstacleMap.gauche;
+
 			relativeObstacleMap.droit = capteurDroit.getDistance();
+			relativeObstacleMap.speedDroit = relativeObstacleMap.droit - previousObstacleMap.droit;
+			previousObstacleMap.droit = relativeObstacleMap.droit;
+
 			relativeObstacleMap.arriereGauche = capteurArriereGauche.getDistance();
+			relativeObstacleMap.speedArriereGauche = relativeObstacleMap.arriereGauche - previousObstacleMap.arriereGauche;
+			previousObstacleMap.arriereGauche = relativeObstacleMap.arriereGauche;
+
 			relativeObstacleMap.arriereDroit = capteurArriereDroit.getDistance();
+			relativeObstacleMap.speedArriereDroit = relativeObstacleMap.arriereDroit - previousObstacleMap.arriereDroit;
+			previousObstacleMap.arriereDroit = relativeObstacleMap.arriereDroit;
+
 			tofLastUpdate = now;
 		}
-		if (now - irLastUpdate >= PERIODE_IR)
+
+		if (now - irLastUpdate >= PERIODE_IR && false)
 		{
 			relativeObstacleMap.avant = capteurAvant.getDistance();
+			relativeObstacleMap.speedAvant = relativeObstacleMap.avant - previousObstacleMap.avant;
+			previousObstacleMap.avant = relativeObstacleMap.avant;
+
 			relativeObstacleMap.arriere = capteurArriere.getDistance();
+			relativeObstacleMap.speedArriere = relativeObstacleMap.arriere - previousObstacleMap.arriere;
+			previousObstacleMap.arriere = relativeObstacleMap.arriere;
+
 			irLastUpdate = now;
 		}
+
 		if (now - solLastUpdate >= PERIODE_SOL)
 		{
-			relativeObstacleMap.solAvantGauche = solAvantGauche.getDistance();
-			relativeObstacleMap.solAvantDroit = solAvantDroit.getDistance();
-			relativeObstacleMap.solArriereGauche = solArriereGauche.getDistance();
-			relativeObstacleMap.solArriereDroit = solArriereDroit.getDistance();
+			ColorSensor::read(
+				relativeObstacleMap.solAvantGauche, 
+				relativeObstacleMap.solAvantDroit, 
+				relativeObstacleMap.solArriereGauche, 
+				relativeObstacleMap.solArriereDroit,
+				true
+				);
+			ColorSensor::update();
 			solLastUpdate = now;
 		}
 	}
@@ -118,6 +188,7 @@ public:
 	RelativeObstacleMap & getRelativeObstacleMap()
 	{
 		static RelativeObstacleMap buffer;
+		cli(); // Désactivation des interruptions car elles modifient les valeurs de "relativeObstacleMap"
 		buffer = relativeObstacleMap;
 		relativeObstacleMap.arriere = 0;
 		relativeObstacleMap.arriereDroit = 0;
@@ -131,6 +202,8 @@ public:
 		relativeObstacleMap.solArriereGauche = 0;
 		relativeObstacleMap.solAvantDroit = 0;
 		relativeObstacleMap.solAvantGauche = 0;
+		sei(); // Réactivation des interruptions
+
 		return buffer;
 	}
 
@@ -144,12 +217,9 @@ private:
 	ToFSensor capteurArriereDroit;
 	InfraredSensor capteurAvant;
 	InfraredSensor capteurArriere;
-	ColorSensor solAvantGauche;
-	ColorSensor solAvantDroit;
-	ColorSensor solArriereGauche;
-	ColorSensor solArriereDroit;
 
 	RelativeObstacleMap relativeObstacleMap;
+	RelativeObstacleMap previousObstacleMap;
 };
 
 #endif
