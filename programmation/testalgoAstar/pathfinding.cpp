@@ -21,7 +21,7 @@ bool Pathfinding::PosEgales(const Position& p1, const Position& p2) {
            );
 }
 
-std::vector<Position> Pathfinding::Astar(const Mapdeuxdes& map, const Position& start, const Position& goal) {
+std::vector<Position> Pathfinding::Astar(const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal) {
 
     Position n_courant = start;
     noeud noeuddepart;
@@ -59,7 +59,7 @@ std::vector<Position> Pathfinding::Astar(const Mapdeuxdes& map, const Position& 
 }
 
 
-void Pathfinding::MettreAjourOpenSet(const Mapdeuxdes& map, const Position& start, const Position& goal) {
+void Pathfinding::MettreAjourOpenSet(const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal) {
 
     // on ajoute à la liste ouverte les noeuds voisins et on calcule leurs coûts
 
@@ -143,11 +143,11 @@ void Pathfinding::MettreAjourOpenSet(const Mapdeuxdes& map, const Position& star
 
 }
 
-void Pathfinding::checkCandidat(const Position& candidat, const Mapdeuxdes& map, const Position& start, const Position& goal) {
+void Pathfinding::checkCandidat(const Position& candidat, const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal) {
 
-    //on vérifie la présence d'obstacle
+    //on vérifie la présence d'Obstacle
 
-    if (!estSurUnObstacle(candidat.x,candidat.y)) {
+    if (!estSurUnObstacle(candidat.x,candidat.y, map)) {
         //on vérifie la présence dans la liste fermée.
         if (chercheDansClosedSet(candidat)==-1) {
             // Création du noeud
@@ -202,7 +202,18 @@ Position Pathfinding::MettreAjourClosedSet() {
     return min_noeud.position;
 }
 
-bool Pathfinding::estSurUnObstacle(float x, float y) {
+bool Pathfinding::estSurUnObstacle(float x, float y, const std::vector<ObstacleCercle>& map) {
+
+    for (int i=0;i<map.size();i++) {
+
+        if ( (map[i].getPosition().x - x)*(map[i].getPosition().x - x) +
+              (map[i].getPosition().y - y)*(map[i].getPosition().y - y)
+              < map[i].getRayon()
+                ) {
+            return true;
+        }
+    }
+
     return false;
 }
 

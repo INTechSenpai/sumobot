@@ -3,11 +3,13 @@
 #include <utility>
 #include "mapdeuxdes.h"
 #include <vector>
+#include "../sumobot/ObstacleCercle.h"
+
 #define distanceParEtape 10.0
 #define R1 10.0
 #define R2 30.0
 #define N 10
-
+/*
 struct Position
 {
     float x;
@@ -16,7 +18,7 @@ struct Position
     float xSpeed;
     float ySpeed;
 };
-
+*/
 struct noeud {
     Position parent;
     Position position;
@@ -29,7 +31,7 @@ class Pathfinding
 {
 public:
     Pathfinding();
-    std::vector<Position> Astar(const Mapdeuxdes& map, const Position& start, const Position& goal);
+    std::vector<Position> Astar(const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal);
 
 private:
 
@@ -40,8 +42,8 @@ private:
 
     double distance(int x1, int y1, int x2, int y2);
 
-    void MettreAjourOpenSet(const Mapdeuxdes& map, const Position& start,const Position& goal);
-    void checkCandidat(const Position& candidat, const Mapdeuxdes& map, const Position& start, const Position& goal);
+    void MettreAjourOpenSet(const std::vector<ObstacleCercle>& map, const Position& start,const Position& goal);
+    void checkCandidat(const Position& candidat, const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal);
 
     Position MettreAjourClosedSet();
 
@@ -53,7 +55,7 @@ private:
     int chercheDansClosedSet(const Position& positionAtest);
 
 
-    bool estSurUnObstacle(float x, float y);
+    bool estSurUnObstacle(float x, float y, const std::vector<ObstacleCercle>& map);
 
     //yolo
     bool PosEgales(const Position& p1, const Position& p2);

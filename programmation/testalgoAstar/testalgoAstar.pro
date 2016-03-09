@@ -5,12 +5,13 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     mapdeuxdes.cpp \
-    pathfinding.cpp
+    pathfinding.cpp \
+    ../sumobot/Obstacle.cpp \
+    ../sumobot/ObstacleCercle.cpp
 
 HEADERS += \
     mapdeuxdes.h \
     pathfinding.h \
-    ../sumobot/RelativeObstacleMap.h \
     ../sumobot/Obstacle.h \
     ../sumobot/ObstacleCercle.h \
     ../sumobot/ObstacleRectangle.h \
