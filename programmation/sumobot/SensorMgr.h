@@ -34,9 +34,9 @@
 #define C_INT_AR_DROIT	11
 
 /* ### Durée de l'attente entre deux mesures pour chaque type de capteur (en µs) ### */
-#define PERIODE_TOF	20000
+#define PERIODE_TOF	30000
 #define PERIODE_IR	50000
-#define PERIODE_SOL	50000
+#define PERIODE_SOL	20000
 
 
 class SensorMgr
@@ -82,7 +82,7 @@ public:
 	/* Allume tous les capteurs */
 	void powerON()
 	{
-		/*
+		
 		capteurAvantGauche.powerON();
 		capteurAvantDroit.powerON();
 		capteurGauche.powerON();
@@ -92,7 +92,6 @@ public:
 
 		capteurAvant.init();
 		capteurArriere.init();
-		*/
 
 		ColorSensor::init(
 			C_POW_AV_GAUCHE,
@@ -118,6 +117,75 @@ public:
 	}
 
 
+	/* Mise à jour des trois capteurs frontaux (durée de la maj : ~4ms) */
+	void updateFront()
+	{
+		/* AVANT CENTRE */
+		relativeObstacleMap.avant = capteurAvant.getDistance();
+		relativeObstacleMap.speedAvant = relativeObstacleMap.avant - previousObstacleMap.avant;
+		previousObstacleMap.avant = relativeObstacleMap.avant;
+
+		/* AVANT GAUCHE */
+		relativeObstacleMap.avantGauche = capteurAvantGauche.getDistance();
+		relativeObstacleMap.speedAvantGauche = relativeObstacleMap.avantGauche - previousObstacleMap.avantGauche;
+		previousObstacleMap.avantGauche = relativeObstacleMap.avantGauche;
+
+		/* AVANT DROIT */
+		relativeObstacleMap.avantDroit = capteurAvantDroit.getDistance();
+		relativeObstacleMap.speedAvantDroit = relativeObstacleMap.avantDroit - previousObstacleMap.avantDroit;
+		previousObstacleMap.avantDroit = relativeObstacleMap.avantDroit;
+	}
+
+
+	/* Mise à jour des trois capteurs arrière (durée de la maj : ~4ms) */
+	void updateBack()
+	{
+		/* ARRIERE CENTRE */
+		relativeObstacleMap.arriere = capteurArriere.getDistance();
+		relativeObstacleMap.speedArriere = relativeObstacleMap.arriere - previousObstacleMap.arriere;
+		previousObstacleMap.arriere = relativeObstacleMap.arriere;
+
+		/* ARRIERE GAUCHE */
+		relativeObstacleMap.arriereGauche = capteurArriereGauche.getDistance();
+		relativeObstacleMap.speedArriereGauche = relativeObstacleMap.arriereGauche - previousObstacleMap.arriereGauche;
+		previousObstacleMap.arriereGauche = relativeObstacleMap.arriereGauche;
+
+		/* ARRIERE DROIT */
+		relativeObstacleMap.arriereDroit = capteurArriereDroit.getDistance();
+		relativeObstacleMap.speedArriereDroit = relativeObstacleMap.arriereDroit - previousObstacleMap.arriereDroit;
+		previousObstacleMap.arriereDroit = relativeObstacleMap.arriereDroit;
+	}
+
+
+	/* Mise à jour des deux capteurs des côtés (durée de la maj : ~3,5ms) */
+	void updateSides()
+	{
+		/* GAUCHE */
+		relativeObstacleMap.gauche = capteurGauche.getDistance();
+		relativeObstacleMap.speedGauche = relativeObstacleMap.gauche - previousObstacleMap.gauche;
+		previousObstacleMap.gauche = relativeObstacleMap.gauche;
+
+		/* DROIT */
+		relativeObstacleMap.droit = capteurDroit.getDistance();
+		relativeObstacleMap.speedDroit = relativeObstacleMap.droit - previousObstacleMap.droit;
+		previousObstacleMap.droit = relativeObstacleMap.droit;
+	}
+
+
+	/* Mise à jour des capteurs de couleur dirigés vers le sol (durée de la maj : ~10µs) */
+	void updateFloor()
+	{
+		ColorSensor::read(
+			relativeObstacleMap.solAvantGauche,
+			relativeObstacleMap.solAvantDroit,
+			relativeObstacleMap.solArriereGauche,
+			relativeObstacleMap.solArriereDroit,
+			true	// DEBUG
+			);
+		ColorSensor::update();
+	}
+
+
 	/* 
 		Mise à jour de l'ensemble des capteurs
 		Il est nécéssaire d'appeller cette méthode toutes les 500µs
@@ -127,7 +195,7 @@ public:
 	{
 		static uint32_t tofLastUpdate = 0, irLastUpdate = 0, solLastUpdate = 0, now;
 		now = micros();
-		if (now - tofLastUpdate >= PERIODE_TOF && false)
+		if (now - tofLastUpdate >= PERIODE_TOF)
 		{
 			relativeObstacleMap.avantGauche = capteurAvantGauche.getDistance();
 			relativeObstacleMap.speedAvantGauche = relativeObstacleMap.avantGauche - previousObstacleMap.avantGauche;
@@ -156,7 +224,7 @@ public:
 			tofLastUpdate = now;
 		}
 
-		if (now - irLastUpdate >= PERIODE_IR && false)
+		if (now - irLastUpdate >= PERIODE_IR)
 		{
 			relativeObstacleMap.avant = capteurAvant.getDistance();
 			relativeObstacleMap.speedAvant = relativeObstacleMap.avant - previousObstacleMap.avant;
@@ -185,11 +253,10 @@ public:
 
 
 	/* Ne force pas la mise à jour des capteurs, renvoie les valeurs précédement mesurées */
-	RelativeObstacleMap & getRelativeObstacleMap()
+	void getRelativeObstacleMap(RelativeObstacleMap & output)
 	{
-		static RelativeObstacleMap buffer;
 		cli(); // Désactivation des interruptions car elles modifient les valeurs de "relativeObstacleMap"
-		buffer = relativeObstacleMap;
+		output = relativeObstacleMap;
 		relativeObstacleMap.arriere = 0;
 		relativeObstacleMap.arriereDroit = 0;
 		relativeObstacleMap.arriereGauche = 0;
@@ -203,8 +270,6 @@ public:
 		relativeObstacleMap.solAvantDroit = 0;
 		relativeObstacleMap.solAvantGauche = 0;
 		sei(); // Réactivation des interruptions
-
-		return buffer;
 	}
 
 

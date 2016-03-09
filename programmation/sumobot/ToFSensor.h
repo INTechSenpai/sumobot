@@ -18,14 +18,14 @@ public:
 		i2cAddress = id;
 		this->pinStandby = pinStandby;
 		standby();
-		vlSensor.setTimeout(100);
+		vlSensor.setTimeout(500);
 	}
 
 	uint32_t getMesure()
 	{
 		if (isON)
 		{
-			distance = vlSensor.readRangeSingle();
+			distance = vlSensor.readRangeContinuous();
 			if (vlSensor.timeoutOccurred())
 			{
 				distance = 0;
@@ -41,7 +41,6 @@ public:
 
 	void standby()
 	{
-		//vlSensor.stopContinuous();
 		pinMode(pinStandby, OUTPUT);
 		digitalWrite(pinStandby, LOW);
 		isON = false;
@@ -53,7 +52,12 @@ public:
 		vlSensor.init();
 		vlSensor.configureDefault();
 		vlSensor.setAddress(i2cAddress);
-		//vlSensor.startRangeContinuous(100);
+
+		vlSensor.writeReg(VL6180X::SYSRANGE__MAX_CONVERGENCE_TIME, 10);
+
+		vlSensor.stopContinuous();
+		delay(300);
+		vlSensor.startRangeContinuous(20);
 		isON = true;
 	}
 
