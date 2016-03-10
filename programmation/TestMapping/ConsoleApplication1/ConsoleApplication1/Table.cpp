@@ -100,16 +100,16 @@ if (donneesCapteurs.avant < 630)
 			robotAdverse.position.orientation = angleAbsolu + (float)M_PI;
 			vitesseRelative = (float)donneesCapteurs.speedAvant;
 		}
+		else
+		{
+			vitesseRelative = 0.0;
+		}
 
 		if (donneesCapteurs.speedAvant > (int32_t)MARGE_V) // s eloigne
 		{
 			robotAdverse.position.orientation = angleAbsolu;
 			vitesseRelative = (float)donneesCapteurs.speedAvant;
 
-		}
-		else
-		{
-			vitesseRelative = 0.0;
 		}
 
 
@@ -128,14 +128,14 @@ if (donneesCapteurs.avant < 630)
 				vitesseRelative = ((float)donneesCapteurs.speedAvant+ (float)donneesCapteurs.speedAvantGauche)/2;
 
 			}
+			else
+			{
+				vitesseRelative = 0.0;
+			}
 			if (donneesCapteurs.speedAvantGauche > (int32_t)MARGE_V && donneesCapteurs.speedAvant > (int32_t)MARGE_V)
 			{
 				robotAdverse.position.orientation = angleAbsolu;
 				vitesseRelative = ((float)donneesCapteurs.speedAvant + (float)donneesCapteurs.speedAvantGauche) / 2;
-			}
-			else
-			{
-				vitesseRelative = 0.0;
 			}
 
 		}
@@ -151,15 +151,16 @@ if (donneesCapteurs.avant < 630)
 				robotAdverse.position.orientation = angleAbsolu - (float)M_PI;
 				vitesseRelative = ((float)donneesCapteurs.speedAvant + (float)donneesCapteurs.speedAvantDroit) / 2;
 			}
+			else
+			{
+				vitesseRelative = 0.0;
+			}
 			if (donneesCapteurs.speedAvantDroit > (int32_t)MARGE_V)
 			{
 				robotAdverse.position.orientation = angleAbsolu;
 				vitesseRelative = ((float)donneesCapteurs.speedAvant + (float)donneesCapteurs.speedAvantDroit) / 2;
 			}
-			else
-			{
-				vitesseRelative = 0.0;
-			}
+
 
 
 		}
@@ -180,15 +181,16 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 				robotAdverse.position.orientation = angleAbsolu - (float)M_PI;
 				vitesseRelative = ((float)donneesCapteurs.speedAvantDroit + (float)donneesCapteurs.speedDroit) /2;
 			}
+			else
+			{
+				vitesseRelative = 0.0;
+			}
 			if (donneesCapteurs.speedAvantDroit > (int32_t)MARGE_V && donneesCapteurs.speedDroit > (int32_t)MARGE_V)
 			{
 				robotAdverse.position.orientation = angleAbsolu;
 				vitesseRelative = ((float)donneesCapteurs.speedAvantDroit + (float)donneesCapteurs.speedDroit) / 2;
 			}
-			else
-			{
-				vitesseRelative = 0.0;
-			}
+
 
 
 		}
@@ -203,15 +205,16 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 				robotAdverse.position.orientation = angleAbsolu + (float)M_PI;
 				vitesseRelative = (float)donneesCapteurs.speedAvantDroit ;
 			}
+			else
+			{
+				vitesseRelative = 0.0;
+			}
 			if (donneesCapteurs.speedAvantDroit > (int32_t)MARGE_V)
 			{
 				robotAdverse.position.orientation = angleAbsolu;
 				vitesseRelative = (float)donneesCapteurs.speedAvantDroit ;
 			}
-			else
-			{
-				vitesseRelative = 0.0;
-			}
+
 
 
 		}
@@ -231,15 +234,16 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 					robotAdverse.position.orientation = angleAbsolu - (float)M_PI;
 					vitesseRelative = ((float)donneesCapteurs.speedDroit + (float)donneesCapteurs.speedArriereDroit) / 2;
 				}
+				else
+				{
+					vitesseRelative = 0.0;
+				}
 				if (donneesCapteurs.speedArriereDroit > (int32_t)MARGE_V && donneesCapteurs.speedDroit > (int32_t)MARGE_V)
 				{
 					robotAdverse.position.orientation = angleAbsolu;
 					vitesseRelative = ((float)donneesCapteurs.speedDroit + (float)donneesCapteurs.speedArriereDroit) / 2;
 				}
-				else
-				{
-					vitesseRelative = 0.0;
-				}
+				
 
 
 			}
@@ -254,14 +258,14 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 					robotAdverse.position.orientation = angleAbsolu + (float)M_PI;
 					vitesseRelative = (float)donneesCapteurs.speedDroit;
 				}
+				else
+				{
+					vitesseRelative = 0.0;
+				}
 				if (donneesCapteurs.speedDroit > (int32_t)MARGE_V)
 				{
 					robotAdverse.position.orientation = angleAbsolu;
 					vitesseRelative = (float)donneesCapteurs.speedDroit;
-				}
-				else
-				{
-					vitesseRelative = 0.0;
 				}
 
 			}
@@ -283,15 +287,15 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						robotAdverse.position.orientation = angleAbsolu + (float)M_PI;
 						vitesseRelative = (float)donneesCapteurs.speedArriere;
 					}
+					else
+					{
+						vitesseRelative = 0.0;
+					}
 
 					if (donneesCapteurs.speedArriere > (int32_t)MARGE_V) // s eloigne
 					{
 						robotAdverse.position.orientation = angleAbsolu;
 						vitesseRelative = (float)donneesCapteurs.speedArriere;
-					}
-					else
-					{
-						vitesseRelative = 0.0;
 					}
 
 
@@ -309,14 +313,14 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							robotAdverse.position.orientation = angleAbsolu - (float)M_PI;
 							vitesseRelative = ((float)donneesCapteurs.speedArriere+ (float)donneesCapteurs.speedArriereGauche)/2;
 						}
+						else
+						{
+							vitesseRelative = 0.0;
+						}
 						if (donneesCapteurs.speedArriereGauche > (int32_t)MARGE_V && donneesCapteurs.speedArriere > (int32_t)MARGE_V)
 						{
 							robotAdverse.position.orientation = angleAbsolu;
 							vitesseRelative = ((float)donneesCapteurs.speedArriere + (float)donneesCapteurs.speedArriereGauche) / 2;
-						}
-						else
-						{
-							vitesseRelative = 0.0;
 						}
 
 
@@ -333,14 +337,14 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							robotAdverse.position.orientation = angleAbsolu + (float)M_PI;
 							vitesseRelative = ((float)donneesCapteurs.speedArriere + (float)donneesCapteurs.speedArriereDroit) / 2;
 						}
+						else
+						{
+							vitesseRelative = 0.0;
+						}
 						if (donneesCapteurs.speedAvantDroit > (int32_t)MARGE_V)
 						{
 							robotAdverse.position.orientation = angleAbsolu;
 							vitesseRelative = ((float)donneesCapteurs.speedArriere + (float)donneesCapteurs.speedArriereDroit) / 2;
-						}
-						else
-						{
-							vitesseRelative = 0.0;
 						}
 
 					}
@@ -359,15 +363,16 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							robotAdverse.position.orientation = angleAbsolu + (float)M_PI;
 							vitesseRelative = (float)donneesCapteurs.speedArriereDroit;
 						}
+						else
+						{
+							vitesseRelative = 0.0;
+						}
 						if (donneesCapteurs.speedAvantDroit > (int32_t)MARGE_V)
 						{
 							robotAdverse.position.orientation = angleAbsolu;
 							vitesseRelative = (float)donneesCapteurs.speedArriereDroit;
 						}
-						else
-						{
-							vitesseRelative = 0.0;
-						}
+
 				}
 				else
 				{
@@ -384,15 +389,16 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								robotAdverse.position.orientation = angleAbsolu - (float)M_PI;
 								vitesseRelative = ((float)donneesCapteurs.speedGauche + (float)donneesCapteurs.speedArriereGauche) / 2;
 							}
+							else
+							{
+								vitesseRelative = 0.0;
+							}
 							if (donneesCapteurs.speedArriereGauche > (int32_t)MARGE_V && donneesCapteurs.speedGauche > (int32_t)MARGE_V)
 							{
 								robotAdverse.position.orientation = angleAbsolu;
 								vitesseRelative = ((float)donneesCapteurs.speedGauche + (float)donneesCapteurs.speedArriereGauche) / 2;
 							}
-							else
-							{
-								vitesseRelative = 0.0;
-							}
+
 
 
 						}
@@ -407,15 +413,16 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								robotAdverse.position.orientation = angleAbsolu + (float)M_PI;
 								vitesseRelative = (float)donneesCapteurs.speedArriereGauche;
 							}
+							else
+							{
+								vitesseRelative = 0.0;
+							}
 							if (donneesCapteurs.speedArriereGauche > (int32_t)MARGE_V)
 							{
 								robotAdverse.position.orientation = angleAbsolu;
 								vitesseRelative = (float)donneesCapteurs.speedArriereGauche;
 							}
-							else
-							{
-								vitesseRelative = 0.0;
-							}
+
 
 						}
 					}
@@ -434,15 +441,16 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 									robotAdverse.position.orientation = angleAbsolu - (float)M_PI;
 									vitesseRelative = ((float)donneesCapteurs.speedAvantGauche + (float)donneesCapteurs.speedGauche) / 2;
 								}
+								else
+								{
+									vitesseRelative = 0.0;
+								}
 								if (donneesCapteurs.speedAvantGauche > (int32_t)MARGE_V && donneesCapteurs.speedGauche > (int32_t)MARGE_V)
 								{
 									robotAdverse.position.orientation = angleAbsolu;
 									vitesseRelative = ((float)donneesCapteurs.speedAvantGauche + (float)donneesCapteurs.speedGauche) / 2;
 								}
-								else
-								{
-									vitesseRelative = 0.0;
-								}
+
 
 							}
 							else // sans capteur avant gauche
@@ -456,15 +464,16 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 									robotAdverse.position.orientation = angleAbsolu + (float)M_PI;
 									vitesseRelative = (float)donneesCapteurs.speedGauche;
 								}
+								else
+								{
+									vitesseRelative = 0.0;
+								}
 								if (donneesCapteurs.speedGauche > (int32_t)MARGE_V)
 								{
 									robotAdverse.position.orientation = angleAbsolu;
 									vitesseRelative = (float)donneesCapteurs.speedGauche;
 								}
-								else
-								{
-									vitesseRelative = 0.0;
-								}
+
 							}
 						}
 						else
@@ -480,20 +489,19 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 									robotAdverse.position.orientation = angleAbsolu + (float)M_PI;
 									vitesseRelative = (float)donneesCapteurs.speedAvantGauche;
 								}
-								if (donneesCapteurs.speedAvantGauche > (int32_t)MARGE_V)
-								{
-									robotAdverse.position.orientation = angleAbsolu;
-									vitesseRelative = (float)donneesCapteurs.speedAvantGauche;
-								}
 								else
 								{
 									vitesseRelative = 0.0;
+								}
+								if (donneesCapteurs.speedAvantGauche >(int32_t)MARGE_V)
+								{
+									robotAdverse.position.orientation = angleAbsolu;
+									vitesseRelative = (float)donneesCapteurs.speedAvantGauche;
 								}
 							}
 							else
 							{
 								Detection = false;
-								vitesseRelative = 0.0;
 							}
 						}
 					}
@@ -516,6 +524,7 @@ else
 {
 	robotAdverse.position.x = 1000;
 	robotAdverse.position.y = 1000;
+	vitesseRelative = 0.0;
 }
 }
 
