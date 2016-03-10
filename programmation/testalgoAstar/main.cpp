@@ -1,22 +1,42 @@
 #include <iostream>
 #include "mapdeuxdes.h"
 #include "pathfinding.h"
+#include <vector>
+#include <math.h>
+
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-    Mapdeuxdes environnement;
-    environnement.afficherMap();
-
-    std::cout << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
-
     Pathfinding pathfinding;
-    std::vector<std::pair<int, int>> solution = pathfinding.Astar(environnement,environnement.getDepart(), environnement.getArrive());
-    for (auto i=0; i<solution.size();i++) {
-        environnement.marquerMap(solution[i].first, solution[i].second);
+    ObstacleCercle unObstacle;
+    unObstacle.obstaclePlein = true;
+    unObstacle.position.x = 0;
+    unObstacle.position.y = 0;
+    unObstacle.rayon = 20;
+
+    ObstacleMap map;
+    map.push_back(unObstacle);
+
+    Position start,goal;
+    start.orientation = M_PI;
+    start.x = 100;
+    start.y = 0;
+
+    goal.orientation =0;
+    goal.x = -100;
+    goal.y = 0;
+
+    vector<Position> ResultatAstar = pathfinding.Astar(map, start, goal);
+
+    cout << "chemin proposé :" << endl;
+    for (int i=0; i<ResultatAstar.size();i++) {
+        cout << "x = " << ResultatAstar[i].x;
+        cout << " y = " << ResultatAstar[i].y;
+        cout << " orientation = " << ResultatAstar[i].orientation;
+        cout << endl;
+
     }
-    environnement.afficherMap();
+
     return 0;
 }
