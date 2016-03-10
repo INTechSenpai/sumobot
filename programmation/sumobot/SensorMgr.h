@@ -184,8 +184,7 @@ public:
 			relativeObstacleMap.solAvantGauche,
 			relativeObstacleMap.solAvantDroit,
 			relativeObstacleMap.solArriereGauche,
-			relativeObstacleMap.solArriereDroit,
-			true	// DEBUG
+			relativeObstacleMap.solArriereDroit
 			);
 		ColorSensor::update();
 	}

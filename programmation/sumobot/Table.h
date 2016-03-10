@@ -6,6 +6,7 @@
 #define MARGE_V				50 // la marge de vitesse pour la detection de la vitesse de rapprochement ou non
 #define D_CAPTEUR_SOL		70 // distance en le centre du robot et les capteurs sol
 #define ANGLE_CAPTEUR_SOL	0.6283185307179586476 // l'angle entre "l avant" du robot et le capteur avant gauche
+#define LIMITE_NB			800		// Limite de décision en "noir" et "blanc"
 #define _USE_MATH_DEFINES	
 #include "Position.h"
 #include "RelativeObstacleMap.h"

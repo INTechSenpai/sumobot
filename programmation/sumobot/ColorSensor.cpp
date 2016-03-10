@@ -47,7 +47,7 @@ void ColorSensor::init(uint8_t pAVg, uint8_t iAVg, uint8_t pAVd, uint8_t iAVd, u
 	attachInterrupt(intARd, ar_d_interrupt, FALLING);
 
 	minTime = 1;
-	maxTime = 3000;
+	maxTime = 8000;
 }
 
 void ColorSensor::update()
