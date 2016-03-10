@@ -10,16 +10,16 @@ Table::Table(uint32_t rayonRobot,uint32_t rayonBord, float xR, float yR)
 	robotAdverse.rayon = rayonRobot;
 	robotAdverse.position.x = xR;
 	robotAdverse.position.y = yR;
-	robotAdverse.position.orientation = 0;
-	robotAdverse.position.xSpeed = 0;
-	robotAdverse.position.ySpeed = 0;
+	robotAdverse.position.orientation = 0.0;
+	robotAdverse.position.xSpeed = 0.0;
+	robotAdverse.position.ySpeed = 0.0;
 	robotAdverse.obstaclePlein = true;
 	bordDeTable.rayon = rayonBord;
-	bordDeTable.position.x = 0;
-	bordDeTable.position.y = 0;
-	bordDeTable.position.orientation = 0;
-	bordDeTable.position.xSpeed = 0;
-	bordDeTable.position.ySpeed = 0;
+	bordDeTable.position.x = 0.0;
+	bordDeTable.position.y = 0.0;
+	bordDeTable.position.orientation = 0.0;
+	bordDeTable.position.xSpeed = 0.0;
+	bordDeTable.position.ySpeed = 0.0;
 	bordDeTable.obstaclePlein = false;
 };
 
@@ -32,9 +32,9 @@ float angleAbsolu;//angleAbsolue est ici l'angle entre la demi droite formé par 
 float cosAngleAbsolu; //le cosinus que l'on sauvegarde car va être utiliser pour la position
 float sinAngleAbsolu; //le sinus que l'on sauvegarde car va être utiliser pour la position
 float vitesseRelative; //vitesse relative du robot adverse par rapport au notre 
-bool Detection=true; // pour savoir si tout les capteurs ne detectent rien que l'on changera a false si c'est le cas
+bool Detection; // pour savoir si tout les capteurs ne detectent rien que l'on changera a false si c'est le cas
 	
-
+Detection = true;
 /*
 si il y une erreur et que l on obtient un 0 sur un capteur,
 on choisit de l ignorer et de faire comme si le capteur n avait rien detecter 
@@ -109,7 +109,7 @@ if (donneesCapteurs.avant < 630)
 		}
 		else
 		{
-			vitesseRelative = 0;
+			vitesseRelative = 0.0;
 		}
 
 
@@ -135,7 +135,7 @@ if (donneesCapteurs.avant < 630)
 			}
 			else
 			{
-				vitesseRelative = 0;
+				vitesseRelative = 0.0;
 			}
 
 		}
@@ -158,7 +158,7 @@ if (donneesCapteurs.avant < 630)
 			}
 			else
 			{
-				vitesseRelative = 0;
+				vitesseRelative = 0.0;
 			}
 
 
@@ -187,7 +187,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 			}
 			else
 			{
-				vitesseRelative = 0;
+				vitesseRelative = 0.0;
 			}
 
 
@@ -210,7 +210,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 			}
 			else
 			{
-				vitesseRelative = 0;
+				vitesseRelative = 0.0;
 			}
 
 
@@ -238,7 +238,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 				}
 				else
 				{
-					vitesseRelative = 0;
+					vitesseRelative = 0.0;
 				}
 
 
@@ -261,7 +261,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 				}
 				else
 				{
-					vitesseRelative = 0;
+					vitesseRelative = 0.0;
 				}
 
 			}
@@ -291,7 +291,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 					}
 					else
 					{
-						vitesseRelative = 0;
+						vitesseRelative = 0.0;
 					}
 
 
@@ -316,7 +316,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						}
 						else
 						{
-							vitesseRelative = 0;
+							vitesseRelative = 0.0;
 						}
 
 
@@ -340,7 +340,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						}
 						else
 						{
-							vitesseRelative = 0;
+							vitesseRelative = 0.0;
 						}
 
 					}
@@ -366,7 +366,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						}
 						else
 						{
-							vitesseRelative = 0;
+							vitesseRelative = 0.0;
 						}
 				}
 				else
@@ -391,7 +391,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							}
 							else
 							{
-								vitesseRelative = 0;
+								vitesseRelative = 0.0;
 							}
 
 
@@ -414,7 +414,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							}
 							else
 							{
-								vitesseRelative = 0;
+								vitesseRelative = 0.0;
 							}
 
 						}
@@ -441,7 +441,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								}
 								else
 								{
-									vitesseRelative = 0;
+									vitesseRelative = 0.0;
 								}
 
 							}
@@ -463,13 +463,13 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								}
 								else
 								{
-									vitesseRelative = 0;
+									vitesseRelative = 0.0;
 								}
 							}
 						}
 						else
 						{
-							if (donneesCapteurs.gauche < 255) // capteur avant gauche
+							if (donneesCapteurs.avantGauche < 255) // capteur avant gauche
 							{
 								angleAbsolu = notrePosition.orientation + (float)ANGLE_CAPTEUR;
 								distanceAway = (float)donneesCapteurs.avantGauche + (float)TAILLES_ROBOTS;
@@ -487,12 +487,13 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								}
 								else
 								{
-									vitesseRelative = 0;
+									vitesseRelative = 0.0;
 								}
 							}
 							else
 							{
 								Detection = false;
+								vitesseRelative = 0.0;
 							}
 						}
 					}
@@ -580,7 +581,7 @@ beaucoup de possibilité en fonction des signes de xSpeed et ySpeed
 
 	if (position.ySpeed == 0 && position.xSpeed > 0)
 	{
-		return position.orientation = 0;
+		return position.orientation = 0.0;
 	}
 
 	if (position.ySpeed < 0 && position.xSpeed == 0)
