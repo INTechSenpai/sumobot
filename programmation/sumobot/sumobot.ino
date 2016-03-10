@@ -85,14 +85,14 @@ void loop()
 {
 	
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
-	Serial.println(obstacleMap.avantGauche);
-	Serial.println(obstacleMap.avantDroit);
-	Serial.println(obstacleMap.arriereGauche);
-	Serial.println(obstacleMap.arriereDroit);
-	Serial.println(obstacleMap.gauche);
-	Serial.println(obstacleMap.droit);
-	Serial.println(obstacleMap.avant);
-	Serial.println(obstacleMap.arriere);
+	//Serial.println(obstacleMap.avantGauche);
+	//Serial.println(obstacleMap.avantDroit);
+	//Serial.println(obstacleMap.arriereGauche);
+	//Serial.println(obstacleMap.arriereDroit);
+	Serial.println(obstacleMap.speedGauche);
+	//Serial.println(obstacleMap.droit);
+	//Serial.println(obstacleMap.avant);
+	//Serial.println(obstacleMap.arriere);
 
 	Serial.println();
 	delay(100);

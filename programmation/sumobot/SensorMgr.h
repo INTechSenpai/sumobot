@@ -33,6 +33,11 @@
 #define C_INT_AR_GAUCHE	31
 #define C_INT_AR_DROIT	11
 
+/* Fréquences de raffraichissement des capteurs de proximité, en Hz (pour le calcul de la vitesse de variation) */
+#define FREQ_TOF	11
+#define FREQ_IR		11
+
+
 /* ### Durée de l'attente entre deux mesures pour chaque type de capteur (en µs) ### */
 #define PERIODE_TOF	30000
 #define PERIODE_IR	50000
@@ -122,17 +127,17 @@ public:
 	{
 		/* AVANT CENTRE */
 		relativeObstacleMap.avant = capteurAvant.getDistance();
-		relativeObstacleMap.speedAvant = relativeObstacleMap.avant - previousObstacleMap.avant;
+		relativeObstacleMap.speedAvant = (relativeObstacleMap.avant - previousObstacleMap.avant)*FREQ_IR;
 		previousObstacleMap.avant = relativeObstacleMap.avant;
 
 		/* AVANT GAUCHE */
 		relativeObstacleMap.avantGauche = capteurAvantGauche.getDistance();
-		relativeObstacleMap.speedAvantGauche = relativeObstacleMap.avantGauche - previousObstacleMap.avantGauche;
+		relativeObstacleMap.speedAvantGauche = (relativeObstacleMap.avantGauche - previousObstacleMap.avantGauche)*FREQ_TOF;
 		previousObstacleMap.avantGauche = relativeObstacleMap.avantGauche;
 
 		/* AVANT DROIT */
 		relativeObstacleMap.avantDroit = capteurAvantDroit.getDistance();
-		relativeObstacleMap.speedAvantDroit = relativeObstacleMap.avantDroit - previousObstacleMap.avantDroit;
+		relativeObstacleMap.speedAvantDroit = (relativeObstacleMap.avantDroit - previousObstacleMap.avantDroit)*FREQ_TOF;
 		previousObstacleMap.avantDroit = relativeObstacleMap.avantDroit;
 	}
 
@@ -142,17 +147,17 @@ public:
 	{
 		/* ARRIERE CENTRE */
 		relativeObstacleMap.arriere = capteurArriere.getDistance();
-		relativeObstacleMap.speedArriere = relativeObstacleMap.arriere - previousObstacleMap.arriere;
+		relativeObstacleMap.speedArriere = (relativeObstacleMap.arriere - previousObstacleMap.arriere)*FREQ_IR;
 		previousObstacleMap.arriere = relativeObstacleMap.arriere;
 
 		/* ARRIERE GAUCHE */
 		relativeObstacleMap.arriereGauche = capteurArriereGauche.getDistance();
-		relativeObstacleMap.speedArriereGauche = relativeObstacleMap.arriereGauche - previousObstacleMap.arriereGauche;
+		relativeObstacleMap.speedArriereGauche = (relativeObstacleMap.arriereGauche - previousObstacleMap.arriereGauche)*FREQ_TOF;
 		previousObstacleMap.arriereGauche = relativeObstacleMap.arriereGauche;
 
 		/* ARRIERE DROIT */
 		relativeObstacleMap.arriereDroit = capteurArriereDroit.getDistance();
-		relativeObstacleMap.speedArriereDroit = relativeObstacleMap.arriereDroit - previousObstacleMap.arriereDroit;
+		relativeObstacleMap.speedArriereDroit = (relativeObstacleMap.arriereDroit - previousObstacleMap.arriereDroit)*FREQ_TOF;
 		previousObstacleMap.arriereDroit = relativeObstacleMap.arriereDroit;
 	}
 
@@ -162,12 +167,12 @@ public:
 	{
 		/* GAUCHE */
 		relativeObstacleMap.gauche = capteurGauche.getDistance();
-		relativeObstacleMap.speedGauche = relativeObstacleMap.gauche - previousObstacleMap.gauche;
+		relativeObstacleMap.speedGauche = (relativeObstacleMap.gauche - previousObstacleMap.gauche)*FREQ_TOF;
 		previousObstacleMap.gauche = relativeObstacleMap.gauche;
 
 		/* DROIT */
 		relativeObstacleMap.droit = capteurDroit.getDistance();
-		relativeObstacleMap.speedDroit = relativeObstacleMap.droit - previousObstacleMap.droit;
+		relativeObstacleMap.speedDroit = (relativeObstacleMap.droit - previousObstacleMap.droit)*FREQ_TOF;
 		previousObstacleMap.droit = relativeObstacleMap.droit;
 	}
 
