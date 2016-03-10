@@ -24,7 +24,7 @@ struct Position
 struct noeud {
     Position parent;
     Position position;
-    double cout_g, cout_h, cout_f;
+    float cout_g, cout_h, cout_f;
 };
 
 
@@ -42,7 +42,9 @@ private:
     //Contient les noeuds en liste ouverte
     std::vector<noeud> OpenSet;
 
-    double distance(float x1, float y1, float o1, float x2, float y2, float o2);
+    float distance(float x1, float y1, float o1, float x2, float y2, float o2);
+
+    bool EstUnTrajetImpossible(const ObstacleMap& map, const Position& start, const Position& goal);
 
     void MettreAjourOpenSet(const ObstacleMap& map, const Position& start,const Position& goal);
     void checkCandidat(const Position& candidat, const ObstacleMap &map, const Position& start, const Position& goal);

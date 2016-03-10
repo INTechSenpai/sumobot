@@ -15,8 +15,15 @@ int main(int argc, char *argv[])
     unObstacle.position.y = 0;
     unObstacle.rayon = 20;
 
+    ObstacleCercle BordDeTable;
+    BordDeTable.obstaclePlein = false;
+    BordDeTable.position.x = 0;
+    BordDeTable.position.y = 0;
+    BordDeTable.rayon = 740;
+
     ObstacleMap map;
-    //map.push_back(unObstacle);
+    map.push_back(unObstacle);
+    map.push_back(BordDeTable);
 
     Position start,goal;
     start.orientation = 0;
