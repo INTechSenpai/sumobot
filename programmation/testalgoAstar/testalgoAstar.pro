@@ -6,8 +6,6 @@ CONFIG -= qt
 SOURCES += main.cpp \
     mapdeuxdes.cpp \
     pathfinding.cpp \
-    ../TestMapping/ConsoleApplication1/ConsoleApplication1/Table.cpp \
-    ../TestMapping/ConsoleApplication1/ConsoleApplication1/testmapping.cpp
 
 HEADERS += \
     mapdeuxdes.h \

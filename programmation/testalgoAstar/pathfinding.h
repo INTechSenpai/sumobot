@@ -33,7 +33,7 @@ class Pathfinding
 {
 public:
     Pathfinding();
-    std::vector<Position> Astar(const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal);
+    std::vector<Position> Astar(const ObstacleMap& map, const Position& start, const Position& goal);
 
 private:
 
@@ -44,8 +44,8 @@ private:
 
     double distance(int x1, int y1, int x2, int y2);
 
-    void MettreAjourOpenSet(const std::vector<ObstacleCercle>& map, const Position& start,const Position& goal);
-    void checkCandidat(const Position& candidat, const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal);
+    void MettreAjourOpenSet(const ObstacleMap& map, const Position& start,const Position& goal);
+    void checkCandidat(const Position& candidat, const ObstacleMap &map, const Position& start, const Position& goal);
 
     Position MettreAjourClosedSet();
 
@@ -57,10 +57,13 @@ private:
     int chercheDansClosedSet(const Position& positionAtest);
 
 
-    bool estSurUnObstacle(float x, float y, const std::vector<ObstacleCercle>& map);
+    bool estSurUnObstacle(float x, float y, const ObstacleMap& map);
 
     //yolo
-    bool PosEgales(const Position& p1, const Position& p2);
+    bool PosEgales(const Position &p1, const Position &p2);
+
+    //critère d'arret
+    bool PosSuffisammentProches(const Position& p1, const Position& p2);
 
 };
 

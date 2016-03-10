@@ -21,7 +21,21 @@ bool Pathfinding::PosEgales(const Position& p1, const Position& p2) {
            );
 }
 
-std::vector<Position> Pathfinding::Astar(const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal) {
+bool Pathfinding::PosSuffisammentProches(const Position& p1, const Position& p2) {
+    float precision = 1.0;
+    return (
+            (p1.orientation < p2.orientation + precision) &&
+            (p2.orientation - precision < p1.orientation) &&
+
+            (p1.x < p2.x + precision) &&
+            (p2.x - precision < p1.x) &&
+
+            (p1.y < p2.y + precision) &&
+            (p2.y - precision < p1.y)
+           );
+}
+
+std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position& start, const Position& goal) {
 
     Position n_courant = start;
     noeud noeuddepart;
@@ -32,7 +46,7 @@ std::vector<Position> Pathfinding::Astar(const std::vector<ObstacleCercle>& map,
 
     OpenSet.push_back(noeuddepart);
     n_courant = MettreAjourClosedSet();
-    while (!PosEgales(n_courant, goal)) {
+    while (!(PosSuffisammentProches(n_courant, goal))) {
         MettreAjourOpenSet(map, n_courant, goal);
         n_courant = MettreAjourClosedSet();
     }
@@ -59,7 +73,7 @@ std::vector<Position> Pathfinding::Astar(const std::vector<ObstacleCercle>& map,
 }
 
 
-void Pathfinding::MettreAjourOpenSet(const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal) {
+void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const Position& start, const Position& goal) {
 
     // on ajoute à la liste ouverte les noeuds voisins et on calcule leurs coûts
 
@@ -143,7 +157,7 @@ void Pathfinding::MettreAjourOpenSet(const std::vector<ObstacleCercle>& map, con
 
 }
 
-void Pathfinding::checkCandidat(const Position& candidat, const std::vector<ObstacleCercle>& map, const Position& start, const Position& goal) {
+void Pathfinding::checkCandidat(const Position& candidat, const ObstacleMap& map, const Position& start, const Position& goal) {
 
     //on vérifie la présence d'Obstacle
 
@@ -191,10 +205,10 @@ Position Pathfinding::MettreAjourClosedSet() {
     //ajout de ce noeud dans la liste fermée
     //tri le closed set en fonction des parents du noeud
     int i=0;
-    while ((i<ClosedSet.size())&&(PosEgales(OpenSet.front().parent, ClosedSet[i].position))) {
+    while ((i<ClosedSet.size())&&(!PosEgales(OpenSet.front().parent, ClosedSet[i].position))) {
         i++;
     }
-    ClosedSet.insert(ClosedSet.begin()+i+1,OpenSet.front());
+    ClosedSet.insert(ClosedSet.begin()+i,OpenSet.front());
 
     noeud min_noeud = OpenSet.front();
     // il faut le supprimer de la liste ouverte, ce n'est plus une solution explorable
@@ -202,13 +216,13 @@ Position Pathfinding::MettreAjourClosedSet() {
     return min_noeud.position;
 }
 
-bool Pathfinding::estSurUnObstacle(float x, float y, const std::vector<ObstacleCercle>& map) {
+bool Pathfinding::estSurUnObstacle(float x, float y, const ObstacleMap &map) {
 
     for (int i=0;i<map.size();i++) {
 
-        if ( (map[i].getPosition().x - x)*(map[i].getPosition().x - x) +
-              (map[i].getPosition().y - y)*(map[i].getPosition().y - y)
-              < map[i].getRayon()
+        if ( (map[i].position.x - x)*(map[i].position.x - x) +
+              (map[i].position.y - y)*(map[i].position.y - y)
+              < map[i].rayon
                 ) {
             return true;
         }
