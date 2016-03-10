@@ -15,8 +15,10 @@ void testConstructeurTable()
 void testUpdateRobotAdverse()
 {
 	Position notrePosition;
-	notrePosition.x = 6;
-	notrePosition.y = 8;
+	notrePosition.x = 6.0;
+	notrePosition.y = 8.0;
+	notrePosition.xSpeed = 0.0;
+	notrePosition.ySpeed = 0.0;
 	notrePosition.orientation = (float)M_PI_4-(float)M_PI_2;
 	Table table(50, 800, -12, -16);
 	RelativeObstacleMap donneesCapteurs;
@@ -31,7 +33,7 @@ void testUpdateRobotAdverse()
 	donneesCapteurs.speedAvantGauche = 0;
 	donneesCapteurs.speedAvantDroit = 0;
 	donneesCapteurs.speedAvant = 0;
-	donneesCapteurs.speedGauche = 0;
+	donneesCapteurs.speedGauche = -100;
 	donneesCapteurs.speedDroit = 0;
 	donneesCapteurs.speedArriere = 0;
 	donneesCapteurs.speedArriereGauche = 0;
@@ -44,6 +46,8 @@ void testUpdateRobotAdverse()
 
 	printf(" position x robotAdverse theorique : %f \n position x robotAdverse : %f \n position y robotAdverse theorique : %f \n position y robotAdverse : %f \n",
 		notrePosition.x + (TAILLES_ROBOTS + 100)*sqrt(2) / 2, table.getRobotAdverse().position.x, notrePosition.y + (TAILLES_ROBOTS + 100)*sqrt(2) / 2, table.getRobotAdverse().position.y);
+	printf(" vitesse x theorique du robot adverse : %f \n vitesse x du robot adverse : %f \n vitesse y theorique du robot adverse %f \n vitesse y du robot adverse : %f \n",
+		100 * sqrt(2) / 2, table.getRobotAdverse().position.xSpeed, 100*sqrt(2) / 2, table.getRobotAdverse().position.ySpeed);
 
 }
 

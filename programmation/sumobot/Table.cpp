@@ -33,7 +33,9 @@ float cosAngleAbsolu; //le cosinus que l'on sauvegarde car va être utiliser pour
 float sinAngleAbsolu; //le sinus que l'on sauvegarde car va être utiliser pour la position
 float vitesseRelative; //vitesse relative du robot adverse par rapport au notre 
 bool Detection; // pour savoir si tout les capteurs ne detectent rien que l'on changera a false si c'est le cas
-	
+float rapport; // le rapport de y/x au carre pour recalculer notre positioin en cas de rencontre de bord de table
+float notreX= notrePosition.x; // pour faire le calcul de notre position en cas de detection du bord de table
+
 Detection = true;
 /*
 si il y une erreur et que l on obtient un 0 sur un capteur,
@@ -79,6 +81,41 @@ if (donneesCapteurs.arriere == 0)
 {
 	donneesCapteurs.arriere = 630;
 }
+
+
+if (donneesCapteurs.solAvantDroit < 500 && donneesCapteurs.solAvantDroit != 0)
+{
+	rapport = notrePosition.x*notrePosition.x / (notrePosition.y*notrePosition.y);
+	notrePosition.x = (bordDeTable.rayon-25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
+	notrePosition.y = rapport*(bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notreX*notreX));
+	robotAdverse.position.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation - ANGLE_CAPTEUR_SOL);
+	robotAdverse.position.y = notrePosition.y - D_CAPTEUR_SOL*sinf(notrePosition.orientation - ANGLE_CAPTEUR_SOL);
+}
+if (donneesCapteurs.solAvantGauche < 500 && donneesCapteurs.solAvantGauche != 0)
+{
+	rapport = notrePosition.x / notrePosition.y;
+	notrePosition.x = (bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
+	notrePosition.y = rapport*(bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notreX*notreX));
+	robotAdverse.position.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation + ANGLE_CAPTEUR_SOL);
+	robotAdverse.position.y = notrePosition.y - D_CAPTEUR_SOL*sinf(notrePosition.orientation + ANGLE_CAPTEUR_SOL);
+}
+if (donneesCapteurs.solArriereGauche < 500 && donneesCapteurs.solArriereGauche != 0)
+{
+	rapport = notrePosition.x / notrePosition.y;
+	notrePosition.x = (bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
+	notrePosition.y = rapport*(bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notreX*notreX));
+	robotAdverse.position.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation - ANGLE_CAPTEUR_SOL + M_PI);
+	robotAdverse.position.y = notrePosition.y - D_CAPTEUR_SOL*sinf(notrePosition.orientation - ANGLE_CAPTEUR_SOL + M_PI);
+}
+if (donneesCapteurs.solArriereDroit < 500 && donneesCapteurs.solArriereDroit != 0)
+{
+	rapport = notrePosition.x / notrePosition.y;
+	notrePosition.x = (bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
+	notrePosition.y = rapport*(bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notreX*notreX));
+	robotAdverse.position.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation + ANGLE_CAPTEUR_SOL + M_PI);
+	robotAdverse.position.y = notrePosition.y - D_CAPTEUR_SOL*sinf(notrePosition.orientation + ANGLE_CAPTEUR_SOL + M_PI);
+}
+
 
 /*
 on va checker les capteurs 1 a 1 dans le sens indirect à partir de l avant sachant qu il n est possible theoriquement d avoir
@@ -586,11 +623,35 @@ beaucoup de possibilité en fonction des signes de xSpeed et ySpeed
 
 }*/
 
-void Table::initialiser(RelativeObstacleMap donneesCapteurs, Position &notreposition)
+uint32_t Table::determinerConditionInitiale(RelativeObstacleMap donneesCapteurs)
 {
+	static uint32_t departGauche=0;
+	static uint32_t departDroit=0;
+	static uint32_t departArriere=0;
+
 	if (donneesCapteurs.gauche < 255 && donneesCapteurs.gauche != 0)
 	{
-
+		departGauche++;
+	}
+	if (donneesCapteurs.droit < 255 && donneesCapteurs.droit != 0)
+	{
+		departDroit++;
+	}
+	if (donneesCapteurs.arriere < 255 && donneesCapteurs.arriere != 0)
+	{
+		departArriere++;
+	}
+	if (departArriere >= departGauche && departArriere >= departDroit)
+	{
+		return 1;
+	}
+	if (departDroit >= departGauche)
+	{
+		return 2;
+	}
+	else
+	{
+		return 3;
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "MotionControlSystem.h"
 #include "Motor.h"
 #include "Path.h"
+#include "Table.h"
 #include <vector>
 
 #define INPUT_LENGH	64
@@ -19,11 +20,13 @@ BattControler battControler;
 IntervalTimer motionControlThread;
 IntervalTimer sensorThread;
 
+Table table(60,385,1000,1000);
 
 Trajectory trajectory;
 UnitMove unitMove;
 RelativeObstacleMap obstacleMap;
 Position ici;
+ObstacleCercle robotAdverse;
 
 
 
@@ -69,6 +72,12 @@ void setup()
 
 	trajectory.push_back(unitMove);
 
+	ici.x = 50;
+	ici.y = 50;
+	ici.orientation = PI / 4;
+
+	motionControlSystem.setPosition(ici);
+
 	Wire.begin();
 	delay(50);
 
@@ -83,20 +92,43 @@ void setup()
 
 void loop()
 {
-	
+	ici = motionControlSystem.getPosition();
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
-	Serial.println(obstacleMap.avantGauche);
-	Serial.println(obstacleMap.avantDroit);
-	Serial.println(obstacleMap.arriereGauche);
-	Serial.println(obstacleMap.arriereDroit);
-	Serial.println(obstacleMap.gauche);
-	Serial.println(obstacleMap.droit);
-	Serial.println(obstacleMap.avant);
-	Serial.println(obstacleMap.arriere);
+	table.updateObstacleMap(obstacleMap, ici);
+	robotAdverse = table.getRobotAdverse();
+
+	Serial.printf("av: %d | avG: %d | avD %d ||| ar: %d | arG: %d | arD: %d ||| G: %d | D:%d\n",
+		obstacleMap.avant,
+		obstacleMap.avantGauche,
+		obstacleMap.avantDroit,
+		obstacleMap.arriere,
+		obstacleMap.arriereGauche,
+		obstacleMap.arriereDroit,
+		obstacleMap.gauche,
+		obstacleMap.droit
+		);
+
+	Serial.printf("av: %d | avG: %d | avD %d ||| ar: %d | arG: %d | arD: %d ||| G: %d | D:%d\n",
+		obstacleMap.speedAvant,
+		obstacleMap.speedAvantGauche,
+		obstacleMap.speedAvantDroit,
+		obstacleMap.speedArriere,
+		obstacleMap.speedArriereGauche,
+		obstacleMap.speedArriereDroit,
+		obstacleMap.speedGauche,
+		obstacleMap.speedDroit
+		);
+
+	Serial.printf("x: %f | y: %f | o: %f | xs: %f | ys: %f\n",
+		robotAdverse.position.x,
+		robotAdverse.position.y,
+		robotAdverse.position.orientation,
+		robotAdverse.position.xSpeed,
+		robotAdverse.position.ySpeed);
 
 	Serial.println();
+
 	delay(100);
-	
 
 
 	static float kp = 2, ki = 0.01, kd = 50;
