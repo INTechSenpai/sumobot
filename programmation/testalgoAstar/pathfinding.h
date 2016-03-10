@@ -42,7 +42,7 @@ private:
     //Contient les noeuds en liste ouverte
     std::vector<noeud> OpenSet;
 
-    double distance(int x1, int y1, int x2, int y2);
+    double distance(float x1, float y1, float o1, float x2, float y2, float o2);
 
     void MettreAjourOpenSet(const ObstacleMap& map, const Position& start,const Position& goal);
     void checkCandidat(const Position& candidat, const ObstacleMap &map, const Position& start, const Position& goal);

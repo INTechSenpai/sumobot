@@ -16,14 +16,14 @@ int main(int argc, char *argv[])
     unObstacle.rayon = 20;
 
     ObstacleMap map;
-    map.push_back(unObstacle);
+    //map.push_back(unObstacle);
 
     Position start,goal;
-    start.orientation = M_PI;
+    start.orientation = 0;
     start.x = 100;
     start.y = 0;
 
-    goal.orientation =0;
+    goal.orientation = M_PI;
     goal.x = -100;
     goal.y = 0;
 

@@ -7,8 +7,8 @@
 Pathfinding::Pathfinding(){}
 
 //A tester : distance basée également sur écart d'orientation
-double Pathfinding::distance(int x1, int y1, int x2, int y2){
-    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+double Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
+    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*200);
 }
 
 //yolo
@@ -22,16 +22,17 @@ bool Pathfinding::PosEgales(const Position& p1, const Position& p2) {
 }
 
 bool Pathfinding::PosSuffisammentProches(const Position& p1, const Position& p2) {
-    float precision = 1.0;
+    float precisionXY = 10.0;
+    float precisionOrientation = 0.5;
     return (
-            (p1.orientation < p2.orientation + precision) &&
-            (p2.orientation - precision < p1.orientation) &&
+            (p1.orientation < p2.orientation + precisionOrientation) &&
+            (p2.orientation - precisionOrientation < p1.orientation) &&
 
-            (p1.x < p2.x + precision) &&
-            (p2.x - precision < p1.x) &&
+            (p1.x < p2.x + precisionXY) &&
+            (p2.x - precisionXY < p1.x) &&
 
-            (p1.y < p2.y + precision) &&
-            (p2.y - precision < p1.y)
+            (p1.y < p2.y + precisionXY) &&
+            (p2.y - precisionXY < p1.y)
            );
 }
 
@@ -40,7 +41,7 @@ std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position&
     Position n_courant = start;
     noeud noeuddepart;
     noeuddepart.cout_g = 0;
-    noeuddepart.cout_h = distance(start.x, start.y, goal.x, goal.y);
+    noeuddepart.cout_h = distance(start.x, start.y, start.orientation, goal.x, goal.y, goal.orientation);
     noeuddepart.cout_f = noeuddepart.cout_h;
     noeuddepart.position = n_courant;
 
@@ -53,21 +54,23 @@ std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position&
     std::vector<Position> chemin_solution;
 
 
-    /* truc a faire si closedSet est pas trié
-    while (!PosEgales(n, start)) {
+   //  truc a faire si closedSet est pas trié
+    noeud tmp = ClosedSet[chercheDansClosedSet(n_courant)];
+    while (!PosEgales(n_courant, start)) {
 
-        chemin_solution.push_back(n);
+        chemin_solution.push_back(n_courant);
         tmp = ClosedSet[chercheDansClosedSet(tmp.parent)];
 
-        n.x = tmp.parent.x;
-        n.y = tmp.parent.y;
-        n.orientation = tmp.parent.orientation;
-    }*/
-
+        n_courant.x = tmp.parent.x;
+        n_courant.y = tmp.parent.y;
+        n_courant.orientation = tmp.parent.orientation;
+    }
+    chemin_solution.push_back(n_courant);
+/* truc a faire si il l'est
     for (int i=0; i<ClosedSet.size();i++) {
         chemin_solution.push_back(ClosedSet[i].position);
     }
-
+    */
 
     return chemin_solution;
 }
@@ -170,8 +173,10 @@ void Pathfinding::checkCandidat(const Position& candidat, const ObstacleMap& map
             // son parent est start et on peut alors calculer son cout.
 
             nouveauNoeud.parent = start;
-            nouveauNoeud.cout_g = ClosedSet.front().cout_g + distance(start.x, start.y, candidat.x, candidat.y);
-            nouveauNoeud.cout_h = distance(goal.x, goal.y, candidat.x, candidat.y);
+            nouveauNoeud.cout_g = ClosedSet.front().cout_g + distance(start.x, start.y, start.orientation,
+                                                                      candidat.x, candidat.y, candidat.orientation);
+            nouveauNoeud.cout_h = distance(goal.x, goal.y, goal.orientation,
+                                           candidat.x, candidat.y, candidat.orientation);
             nouveauNoeud.cout_f = nouveauNoeud.cout_h + nouveauNoeud.cout_g;
             nouveauNoeud.position = candidat;
 
@@ -204,13 +209,16 @@ Position Pathfinding::MettreAjourClosedSet() {
 
     //ajout de ce noeud dans la liste fermée
     //tri le closed set en fonction des parents du noeud
+    /*
     int i=0;
     while ((i<ClosedSet.size())&&(!PosEgales(OpenSet.front().parent, ClosedSet[i].position))) {
         i++;
     }
     ClosedSet.insert(ClosedSet.begin()+i,OpenSet.front());
+    */
 
     noeud min_noeud = OpenSet.front();
+    ClosedSet.push_back(min_noeud);
     // il faut le supprimer de la liste ouverte, ce n'est plus une solution explorable
     OpenSet.erase(OpenSet.begin());
     return min_noeud.position;
