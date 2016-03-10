@@ -12,16 +12,20 @@
 
 char inputBuffer[INPUT_LENGH];
 
+
 MotionControlSystem motionControlSystem;
-IntervalTimer lowLevelThread;
+SensorMgr sensorMgr;
+BattControler battControler;
+IntervalTimer motionControlThread;
+IntervalTimer sensorThread;
+
 
 Trajectory trajectory;
 UnitMove unitMove;
-
-SensorMgr sensorMgr;
 RelativeObstacleMap obstacleMap;
-
 Position ici;
+
+
 
 uint8_t read(char* string) {
 	static unsigned char buffer;
@@ -70,12 +74,31 @@ void setup()
 
 	sensorMgr.powerON();
 
-	lowLevelThread.priority(128);
-	lowLevelThread.begin(lowLevelInterrupt, 500);
+	motionControlThread.priority(64);
+	motionControlThread.begin(motionControlInterrupt, 500);
+
+	sensorThread.priority(128);
+	sensorThread.begin(sensorInterrupt, 30000);
 }
 
 void loop()
 {
+	
+	sensorMgr.getRelativeObstacleMap(obstacleMap);
+	Serial.println(obstacleMap.avantGauche);
+	Serial.println(obstacleMap.avantDroit);
+	Serial.println(obstacleMap.arriereGauche);
+	Serial.println(obstacleMap.arriereDroit);
+	Serial.println(obstacleMap.gauche);
+	Serial.println(obstacleMap.droit);
+	Serial.println(obstacleMap.avant);
+	Serial.println(obstacleMap.arriere);
+
+	Serial.println();
+	delay(100);
+	
+
+
 	static float kp = 2, ki = 0.01, kd = 50;
 	static int speed = 5000;
 
@@ -124,22 +147,50 @@ void loop()
 		}
 		else if (!strcmp(inputBuffer, "s"))
 		{
-			obstacleMap = sensorMgr.getRelativeObstacleMap();
+			sensorMgr.getRelativeObstacleMap(obstacleMap);
 			Serial.printf("Sol avant droit : %d\n", obstacleMap.solAvantDroit);
 		}
 		Serial.println("");
 	}
 }
 
-void lowLevelInterrupt()
+
+
+/* Fonction appellée toutes les 500µs réalisant l'asservissement et indiquant le niveau de batterie */
+void motionControlInterrupt()
 {
-	static BattControler battControler;
+	/* Mise à jour des DELs indiquant l'état de la batterie */
 	battControler.control();
 
-	sensorMgr.updateObstacleMap();
+	/* Asservissement du robot en vitesse et position */
+	motionControlSystem.control();
+	motionControlSystem.updatePosition();
+	motionControlSystem.manageStop();
 }
 
 
+/* Fonction appellée toutes les 30ms mettant à jour les capteurs (à tour de rôle pour les capteurs lents) */
+void sensorInterrupt()
+{
+	sensorMgr.updateFloor();
+
+	static uint8_t compteur = 0;
+	if (compteur == 0)
+	{
+		sensorMgr.updateFront();
+		compteur++;
+	}
+	else if (compteur == 1)
+	{
+		sensorMgr.updateBack();
+		compteur++;
+	}
+	else if (compteur == 2)
+	{
+		sensorMgr.updateSides();
+		compteur = 0;
+	}
+}
 
 
 /* Ce bout de code permet de compiler avec std::vector */
