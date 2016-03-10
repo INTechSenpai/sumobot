@@ -7,7 +7,7 @@
 Pathfinding::Pathfinding(){}
 
 //A tester : distance basée également sur écart d'orientation
-double Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
+float Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
     return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*200);
 }
 
@@ -36,8 +36,16 @@ bool Pathfinding::PosSuffisammentProches(const Position& p1, const Position& p2)
            );
 }
 
+
+
 std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position& start, const Position& goal) {
 
+    std::vector<Position> chemin_solution;
+
+    if (EstUnTrajetImpossible(map, start, goal)) {
+        return chemin_solution;
+    }
+    int passageDansBoucle=0;
     Position n_courant = start;
     noeud noeuddepart;
     noeuddepart.cout_g = 0;
@@ -47,11 +55,15 @@ std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position&
 
     OpenSet.push_back(noeuddepart);
     n_courant = MettreAjourClosedSet();
-    while (!(PosSuffisammentProches(n_courant, goal))) {
+    while (!(PosSuffisammentProches(n_courant, goal))&&(passageDansBoucle<150)) {
         MettreAjourOpenSet(map, n_courant, goal);
         n_courant = MettreAjourClosedSet();
+        passageDansBoucle++;
     }
-    std::vector<Position> chemin_solution;
+
+    if (passageDansBoucle == 150) {
+        return chemin_solution;
+    }
 
 
    //  truc a faire si closedSet est pas trié
@@ -73,6 +85,16 @@ std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position&
     */
 
     return chemin_solution;
+}
+
+bool Pathfinding::EstUnTrajetImpossible(const ObstacleMap& map, const Position& start, const Position& goal) {
+    if (map[0].obstaclePlein) {
+        return (goal.x*goal.x + goal.y*goal.y > map[1].rayon*map[1].rayon);
+
+    }
+    else {
+        return (goal.x*goal.x + goal.y*goal.y > map[0].rayon*map[0].rayon);
+    }
 }
 
 
@@ -228,13 +250,24 @@ bool Pathfinding::estSurUnObstacle(float x, float y, const ObstacleMap &map) {
 
     for (int i=0;i<map.size();i++) {
 
-        if ( (map[i].position.x - x)*(map[i].position.x - x) +
-              (map[i].position.y - y)*(map[i].position.y - y)
-              < map[i].rayon
-                ) {
-            return true;
+        if (map[i].obstaclePlein) {
+            if ( (map[i].position.x - x)*(map[i].position.x - x) +
+                  (map[i].position.y - y)*(map[i].position.y - y)
+                  < map[i].rayon
+                    ) {
+                return true;
+            }
         }
-    }
+
+        else {
+            if ( (map[i].position.x - x)*(map[i].position.x - x) +
+                  (map[i].position.y - y)*(map[i].position.y - y)
+                  > map[i].rayon*map[i].rayon
+                    ) {
+                return true;
+            }
+        }
+     }
 
     return false;
 }
