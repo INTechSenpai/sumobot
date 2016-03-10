@@ -28,7 +28,7 @@ void Table::updateObstacleMap(RelativeObstacleMap donneesCapteurs, Position &not
 
 
 float distanceAway; // la distance entre notre robot et le robot adverse
-float angleAbsolu;//angleAbsolue est ici l'angle entre la demi droite formé par notre robot et le robot adverse et l'axe x
+float angleAbsolu; //angleAbsolue est ici l'angle entre la demi droite formé par notre robot et le robot adverse et l'axe x
 float cosAngleAbsolu; //le cosinus que l'on sauvegarde car va être utiliser pour la position
 float sinAngleAbsolu; //le sinus que l'on sauvegarde car va être utiliser pour la position
 float vitesseRelative; //vitesse relative du robot adverse par rapport au notre 
@@ -171,7 +171,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 {
 	if (donneesCapteurs.droit < 255) // avec capteur droit
 	{
-		angleAbsolu = notrePosition.orientation + 3 * (float)M_PI_2 + ((float)M_PI_4 - (float)ANGLE_CAPTEUR) / 2;
+		angleAbsolu = notrePosition.orientation + 3 * (float)M_PI_2 + ((float)M_PI_2 - (float)ANGLE_CAPTEUR) / 2;
 		distanceAway = ((float)donneesCapteurs.avantDroit + (float)donneesCapteurs.droit) / 2 + (float)TAILLES_ROBOTS;
 
 
@@ -222,7 +222,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 		{
 			if (donneesCapteurs.arriereDroit < 255) // avec capteur arriere droit
 			{
-				angleAbsolu = notrePosition.orientation + (float)M_PI + ((float)M_PI_4 + (float)ANGLE_CAPTEUR) / 2;
+				angleAbsolu = notrePosition.orientation + (float)M_PI + ((float)M_PI_2 + (float)ANGLE_CAPTEUR) / 2;
 				distanceAway = ((float)donneesCapteurs.droit + (float)donneesCapteurs.arriereDroit) / 2 + (float)TAILLES_ROBOTS;
 
 
@@ -245,7 +245,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 			}
 			else // sans capteur arriere droit
 			{
-				angleAbsolu = notrePosition.orientation +3* (float)M_PI_4;
+				angleAbsolu = notrePosition.orientation +3* (float)M_PI_2;
 				distanceAway = (float)donneesCapteurs.droit +(float)TAILLES_ROBOTS;
 
 
@@ -375,7 +375,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 					{
 						if (donneesCapteurs.gauche < 255) // avec capteur gauche
 						{
-							angleAbsolu = notrePosition.orientation + (float)M_PI_2 + ((float)M_PI_4 - (float)ANGLE_CAPTEUR) / 2;
+							angleAbsolu = notrePosition.orientation + (float)M_PI_2 + ((float)M_PI_2 - (float)ANGLE_CAPTEUR) / 2;
 							distanceAway = ((float)donneesCapteurs.gauche + (float)donneesCapteurs.arriereGauche) / 2 + (float)TAILLES_ROBOTS;
 
 
@@ -425,7 +425,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						{
 							if (donneesCapteurs.avantGauche < 255) // avec capteur avant gauche
 							{
-								angleAbsolu = notrePosition.orientation + ((float)M_PI_4 + (float)ANGLE_CAPTEUR) / 2;
+								angleAbsolu = notrePosition.orientation + ((float)M_PI_2 + (float)ANGLE_CAPTEUR) / 2;
 								distanceAway = ((float)donneesCapteurs.gauche + (float)donneesCapteurs.avantGauche) / 2 + (float)TAILLES_ROBOTS;
 
 
@@ -503,27 +503,6 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 	}
 }
 
-donneesCapteurs.avantGauche; // ANGLE
-donneesCapteurs.avantDroit; // 2*pi-ANGLE
-donneesCapteurs.avant; // 0
-donneesCapteurs.gauche; // pi/2
-donneesCapteurs.droit; // 3*pi/2
-donneesCapteurs.arriere; // pi
-donneesCapteurs.arriereGauche; // pi-ANGLE
-donneesCapteurs.arriereDroit; // pi+ANGLE
-donneesCapteurs.speedAvantGauche;
-donneesCapteurs.speedAvantDroit;
-donneesCapteurs.speedAvant;
-donneesCapteurs.speedGauche;
-donneesCapteurs.speedDroit;
-donneesCapteurs.speedArriere;
-donneesCapteurs.speedArriereGauche;
-donneesCapteurs.speedArriereDroit;
-donneesCapteurs.solAvantGauche;
-donneesCapteurs.solAvantDroit;
-donneesCapteurs.solArriereGauche;
-donneesCapteurs.solArriereDroit;
-
 if (Detection)
 {
 	sinAngleAbsolu = sinf(angleAbsolu);
@@ -594,9 +573,17 @@ beaucoup de possibilité en fonction des signes de xSpeed et ySpeed
 		return position.orientation = (float)M_PI / 2;
 	}
 
-	return -1;
+	return 1000;
 
 }*/
+
+void Table::initialiser(RelativeObstacleMap donneesCapteurs, Position &notreposition)
+{
+	if (donneesCapteurs.gauche < 255 && donneesCapteurs.gauche != 0)
+	{
+
+	}
+}
 
 ObstacleCercle Table::getBordDeTable()
 {

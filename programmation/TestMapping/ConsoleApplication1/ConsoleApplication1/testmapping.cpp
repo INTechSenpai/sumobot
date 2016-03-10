@@ -33,7 +33,7 @@ void testUpdateRobotAdverse()
 	donneesCapteurs.speedAvantGauche = 0;
 	donneesCapteurs.speedAvantDroit = 0;
 	donneesCapteurs.speedAvant = 0;
-	donneesCapteurs.speedGauche = 100;
+	donneesCapteurs.speedGauche = -100;
 	donneesCapteurs.speedDroit = 0;
 	donneesCapteurs.speedArriere = 0;
 	donneesCapteurs.speedArriereGauche = 0;

@@ -16,7 +16,7 @@ public :
 
 	Table();
 	Table(uint32_t rayonRobot, uint32_t rayonBord, float xR, float yR); // xR et yR pour la position du robot adverse
-	void initialiser(RelativeObstacleMap donneesCapteurs);
+	void initialiser(RelativeObstacleMap donneesCapteurs, Position &notrePosition);
 	void updateObstacleMap(RelativeObstacleMap donneesCapteurs, Position &notrePosition);
 	ObstacleCercle getRobotAdverse();
 	ObstacleCercle getBordDeTable();
