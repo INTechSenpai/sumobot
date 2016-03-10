@@ -83,7 +83,7 @@ if (donneesCapteurs.arriere == 0)
 }
 
 
-if (donneesCapteurs.solAvantDroit < 500 && donneesCapteurs.solAvantDroit != 0)
+if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
 {
 	rapport = notrePosition.x*notrePosition.x / (notrePosition.y*notrePosition.y);
 	notrePosition.x = (bordDeTable.rayon-25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
@@ -91,7 +91,7 @@ if (donneesCapteurs.solAvantDroit < 500 && donneesCapteurs.solAvantDroit != 0)
 	robotAdverse.position.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation - ANGLE_CAPTEUR_SOL);
 	robotAdverse.position.y = notrePosition.y - D_CAPTEUR_SOL*sinf(notrePosition.orientation - ANGLE_CAPTEUR_SOL);
 }
-if (donneesCapteurs.solAvantGauche < 500 && donneesCapteurs.solAvantGauche != 0)
+if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
 {
 	rapport = notrePosition.x / notrePosition.y;
 	notrePosition.x = (bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
@@ -99,7 +99,7 @@ if (donneesCapteurs.solAvantGauche < 500 && donneesCapteurs.solAvantGauche != 0)
 	robotAdverse.position.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation + ANGLE_CAPTEUR_SOL);
 	robotAdverse.position.y = notrePosition.y - D_CAPTEUR_SOL*sinf(notrePosition.orientation + ANGLE_CAPTEUR_SOL);
 }
-if (donneesCapteurs.solArriereGauche < 500 && donneesCapteurs.solArriereGauche != 0)
+if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
 {
 	rapport = notrePosition.x / notrePosition.y;
 	notrePosition.x = (bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
@@ -107,7 +107,7 @@ if (donneesCapteurs.solArriereGauche < 500 && donneesCapteurs.solArriereGauche !
 	robotAdverse.position.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation - ANGLE_CAPTEUR_SOL + M_PI);
 	robotAdverse.position.y = notrePosition.y - D_CAPTEUR_SOL*sinf(notrePosition.orientation - ANGLE_CAPTEUR_SOL + M_PI);
 }
-if (donneesCapteurs.solArriereDroit < 500 && donneesCapteurs.solArriereDroit != 0)
+if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
 {
 	rapport = notrePosition.x / notrePosition.y;
 	notrePosition.x = (bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));

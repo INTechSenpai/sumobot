@@ -74,7 +74,7 @@ void setup()
 
 	ici.x = 50;
 	ici.y = 50;
-	ici.orientation = PI / 4;
+	ici.orientation = PI / 4 + ANGLE_CAPTEUR_SOL;
 
 	motionControlSystem.setPosition(ici);
 
@@ -95,8 +95,20 @@ void loop()
 	ici = motionControlSystem.getPosition();
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	table.updateObstacleMap(obstacleMap, ici);
-	robotAdverse = table.getRobotAdverse();
 
+	Serial.printf("avG: %d | avD %d ||| arG: %d | arD: %d\n",
+		obstacleMap.solAvantGauche,
+		obstacleMap.solAvantDroit,
+		obstacleMap.solArriereGauche,
+		obstacleMap.solArriereDroit
+		);
+
+	Serial.printf("x: %f | y: %f | o: %f\n", ici.x, ici.y, ici.orientation);
+
+
+	//table.updateObstacleMap(obstacleMap, ici);
+	//robotAdverse = table.getRobotAdverse();
+	/*
 	Serial.printf("av: %d | avG: %d | avD %d ||| ar: %d | arG: %d | arD: %d ||| G: %d | D:%d\n",
 		obstacleMap.avant,
 		obstacleMap.avantGauche,
@@ -125,7 +137,7 @@ void loop()
 		robotAdverse.position.orientation,
 		robotAdverse.position.xSpeed,
 		robotAdverse.position.ySpeed);
-
+	*/
 	Serial.println();
 
 	delay(100);
