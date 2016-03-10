@@ -5,8 +5,12 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     mapdeuxdes.cpp \
-    pathfinding.cpp
+    pathfinding.cpp \
 
 HEADERS += \
     mapdeuxdes.h \
-    pathfinding.h
+    pathfinding.h \
+    ../sumobot/Path.h \
+    ../TestMapping/ConsoleApplication1/ConsoleApplication1/Obstacle.h \
+    ../TestMapping/ConsoleApplication1/ConsoleApplication1/Position.h \
+    ../TestMapping/ConsoleApplication1/ConsoleApplication1/Table.h

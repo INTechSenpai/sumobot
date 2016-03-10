@@ -7,11 +7,15 @@
 	#include "WProgram.h"
 #endif
 
+#define IR_INFINITY		630
+#define TOF_INFINITY	255
 
 /* 
 	Représente d'état des capteurs du robot 
 	Une valeur à 0 = non significatif (erreur de lecture, capteur non branché ou bien valeur déjà lue)
 	Dans ce cas la valeur de vitesse associée n'est pas non plus significative
+
+	Si la valeur lue est égale à "INFINITY" le capteur ne détecte rien. La valeur de vitesse associée n'est pas significative.
 
 	Pour les capteurs de proximité (tous sauf ceux du sol) l'unité est le mm.
 	Pour les capteurs noir/blanc (ceux du sol) "1" correspond au blanc parfait et "1000" au noir parfait. Les valeurs intermédiaires sont des nuances de gris.

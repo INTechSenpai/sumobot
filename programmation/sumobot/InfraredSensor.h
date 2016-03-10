@@ -43,14 +43,16 @@ public:
 
 		while (Wire.available() < 2) { ; }
 
+		/* Lecture de la distance mesurée par le capteur */
 		high = Wire.read();
 		low = Wire.read();
 
+		/* Conversion en cm */
 		distance = high << 4;
 		distance += low;
 		distance = distance >> (4 + shift);
 
-		return distance;
+		return distance*10; /* Conversion en mm */
 	}
 
 private:
