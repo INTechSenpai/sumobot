@@ -493,22 +493,18 @@ void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float 
 	enableLeftSpeedControl(true);
 	enableRightSpeedControl(true);
 	enablePwmControl(true);
+	resetTracking();
+
+	uint32_t beginTime = millis();
 	leftSpeedSetpoint = speed;
 	rightSpeedSetpoint = speed;
-	resetTracking();
-	int i = 1;
-	uint32_t beginTime = millis();
+
 	while (millis() - beginTime < duration)
-	{
-		control();
-		if (i == 10)
-		{
-			track();
-			i = 0;
-		}
-		i++;
-		delayMicroseconds(500);
-	}
+	{}
+	leftSpeedSetpoint = 0;
+	rightSpeedSetpoint = 0;
+	while(moving)
+	{}
 	stop();
 	printTracking();
 }

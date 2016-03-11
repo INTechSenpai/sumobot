@@ -36,6 +36,7 @@ private :
 	//float calculOrientation(Position position);
 	ObstacleCercle robotAdverse;
 	ObstacleCercle bordDeTable;
+	bool perdu;
 };
 
 #endif

@@ -55,7 +55,7 @@ public:
 		}
 		else if (currentVoltage <= VOLTAGE_DANGER && currentVoltage > VOLTAGE_UNPLUGGED)
 		{ // Zone de danger
-			blinkLED(800, 200);
+			blinkLED(100, 100);
 			digitalWrite(PIN_DEL_OK, LOW);
 		}
 		else
