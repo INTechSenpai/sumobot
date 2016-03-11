@@ -74,7 +74,7 @@ void setup()
 
 	ici.x = 50;
 	ici.y = 50;
-	ici.orientation = PI / 4 + ANGLE_CAPTEUR_SOL;
+	ici.orientation = PI / 4 - ANGLE_CAPTEUR_SOL;
 
 	motionControlSystem.setPosition(ici);
 
@@ -95,6 +95,7 @@ void loop()
 	ici = motionControlSystem.getPosition();
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	table.updateObstacleMap(obstacleMap, ici);
+	motionControlSystem.setPosition(ici);
 
 	Serial.printf("avG: %d | avD %d ||| arG: %d | arD: %d\n",
 		obstacleMap.solAvantGauche,
