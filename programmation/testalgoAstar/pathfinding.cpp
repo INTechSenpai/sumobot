@@ -8,7 +8,7 @@ Pathfinding::Pathfinding(){}
 
 //A tester : distance basée également sur écart d'orientation
 float Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
-    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*200);
+    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*100);
 }
 
 //yolo
@@ -23,7 +23,7 @@ bool Pathfinding::PosEgales(const Position& p1, const Position& p2) {
 
 bool Pathfinding::PosSuffisammentProches(const Position& p1, const Position& p2) {
     float precisionXY = 10.0;
-    float precisionOrientation = 0.5;
+    float precisionOrientation = 0.3;
     return (
             (p1.orientation < p2.orientation + precisionOrientation) &&
             (p2.orientation - precisionOrientation < p1.orientation) &&
@@ -83,6 +83,10 @@ std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position&
         chemin_solution.push_back(ClosedSet[i].position);
     }
     */
+
+    //la vitesse du trajet sera égale a celle d'arrivée
+    chemin_solution.front().xSpeed = goal.xSpeed;
+    chemin_solution.front().ySpeed = goal.ySpeed;
 
     return chemin_solution;
 }
@@ -325,4 +329,23 @@ int Pathfinding::chercheDansClosedSet(const Position& positionAtest) {
             return -1;
 
     }
+}
+
+Trajectory positionsToTrajectory(const std::vector<Position>& chemin_solution) {
+    Trajectory trajectory;
+    for (int i=0;i<chemin_solution.size();i++) {
+        UnitMove unMouvement;
+        //on ne s'arrête pas
+        unMouvement.stopAfterMove = false;
+        //un noeud sera un mouvement a priori donc même distance parcourue
+        unMouvement.setLengthMm(distanceParEtape);
+        //la vitesse est fixée dans le point d'arrivée
+        unMouvement.setSpeedMm_S(chemin_solution.front().xSpeed*chemin_solution.front().xSpeed
+                                 + chemin_solution.front().ySpeed*chemin_solution.front().ySpeed);
+        //ligne droite si l'orientation reste la même : rayon de courbure infini
+        if (chemin_solution[i].orientation == chemin_solution[i+1].orientation) {
+            unMouvement.setBendRadiusMm(INFINITE_RADIUS);
+        }
+    }
+    return trajectory;
 }

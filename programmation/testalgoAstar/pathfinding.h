@@ -3,14 +3,14 @@
 #include <utility>
 #include "mapdeuxdes.h"
 #include <vector>
-#include "../TestMapping/ConsoleApplication1/ConsoleApplication1/Obstacle.h"
-#include "../TestMapping/ConsoleApplication1/ConsoleApplication1/Table.h"
-#include "../TestMapping/ConsoleApplication1/ConsoleApplication1/Position.h"
+#include "../sumobot/Obstacle.h"
+#include "../sumobot/Table.h"
+#include "../sumobot/Position.h"
+#include "../sumobot/Path.h"
 
-#define distanceParEtape 10.0
+#define distanceParEtape 20.0
 #define R1 10.0
-#define R2 30.0
-#define N 10
+#define R2 100.0
 /*
 struct Position
 {
@@ -66,6 +66,8 @@ private:
 
     //critère d'arret
     bool PosSuffisammentProches(const Position& p1, const Position& p2);
+
+    Trajectory positionsToTrajectory(const std::vector<Position>& chemin_solution);
 
 };
 
