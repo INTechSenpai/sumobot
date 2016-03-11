@@ -84,6 +84,10 @@ std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position&
     }
     */
 
+    //la vitesse du trajet sera égale a celle d'arrivée
+    chemin_solution.front().xSpeed = goal.xSpeed;
+    chemin_solution.front().ySpeed = goal.ySpeed;
+
     return chemin_solution;
 }
 
@@ -328,5 +332,20 @@ int Pathfinding::chercheDansClosedSet(const Position& positionAtest) {
 }
 
 Trajectory positionsToTrajectory(const std::vector<Position>& chemin_solution) {
-
+    Trajectory trajectory;
+    for (int i=0;i<chemin_solution.size();i++) {
+        UnitMove unMouvement;
+        //on ne s'arrête pas
+        unMouvement.stopAfterMove = false;
+        //un noeud sera un mouvement a priori donc même distance parcourue
+        unMouvement.setLengthMm(distanceParEtape);
+        //la vitesse est fixée dans le point d'arrivée
+        unMouvement.setSpeedMm_S(chemin_solution.front().xSpeed*chemin_solution.front().xSpeed
+                                 + chemin_solution.front().ySpeed*chemin_solution.front().ySpeed);
+        //ligne droite si l'orientation reste la même : rayon de courbure infini
+        if (chemin_solution[i].orientation == chemin_solution[i+1].orientation) {
+            unMouvement.setBendRadiusMm(INFINITE_RADIUS);
+        }
+    }
+    return trajectory;
 }
