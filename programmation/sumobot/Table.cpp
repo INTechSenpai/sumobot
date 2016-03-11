@@ -87,7 +87,7 @@ if (donneesCapteurs.arriere == 0)
 
 if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
 {
-	rapport = notrePosition.x*notrePosition.x / (notrePosition.y*notrePosition.y);
+	rapport = notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x);
 	notrePosition.x = (bordDeTable.rayon-25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
 	notrePosition.y = rapport*(bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notreX*notreX));
 	notrePosition.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation - ANGLE_CAPTEUR_SOL);
