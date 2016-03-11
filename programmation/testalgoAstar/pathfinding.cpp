@@ -8,7 +8,7 @@ Pathfinding::Pathfinding(){}
 
 //A tester : distance basée également sur écart d'orientation
 float Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
-    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*200);
+    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*100);
 }
 
 //yolo
@@ -23,7 +23,7 @@ bool Pathfinding::PosEgales(const Position& p1, const Position& p2) {
 
 bool Pathfinding::PosSuffisammentProches(const Position& p1, const Position& p2) {
     float precisionXY = 10.0;
-    float precisionOrientation = 0.5;
+    float precisionOrientation = 0.3;
     return (
             (p1.orientation < p2.orientation + precisionOrientation) &&
             (p2.orientation - precisionOrientation < p1.orientation) &&
@@ -325,4 +325,8 @@ int Pathfinding::chercheDansClosedSet(const Position& positionAtest) {
             return -1;
 
     }
+}
+
+Trajectory positionsToTrajectory(const std::vector<Position>& chemin_solution) {
+
 }

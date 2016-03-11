@@ -1,5 +1,4 @@
 #include <iostream>
-#include "mapdeuxdes.h"
 #include "pathfinding.h"
 #include <vector>
 #include <math.h>
@@ -11,9 +10,9 @@ int main(int argc, char *argv[])
     Pathfinding pathfinding;
     ObstacleCercle unObstacle;
     unObstacle.obstaclePlein = true;
-    unObstacle.position.x = 0;
+    unObstacle.position.x = -200;
     unObstacle.position.y = 0;
-    unObstacle.rayon = 20;
+    unObstacle.rayon = 100;
 
     ObstacleCercle BordDeTable;
     BordDeTable.obstaclePlein = false;
@@ -27,11 +26,11 @@ int main(int argc, char *argv[])
 
     Position start,goal;
     start.orientation = 0;
-    start.x = 100;
+    start.x = 300;
     start.y = 0;
 
     goal.orientation = M_PI;
-    goal.x = -100;
+    goal.x = -300;
     goal.y = 0;
 
     vector<Position> ResultatAstar = pathfinding.Astar(map, start, goal);
