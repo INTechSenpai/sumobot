@@ -87,7 +87,7 @@ if (donneesCapteurs.arriere == 0)
 
 if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
 {
-	rapport = notrePosition.x*notrePosition.x / (notrePosition.y*notrePosition.y);
+	rapport = notrePosition.y / notrePosition.x;
 	notrePosition.x = (bordDeTable.rayon-25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
 	notrePosition.y = rapport*(bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notreX*notreX));
 	notrePosition.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation - ANGLE_CAPTEUR_SOL);
@@ -95,7 +95,7 @@ if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit !
 }
 if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
 {
-	rapport = notrePosition.x / notrePosition.y;
+	rapport = notrePosition.y / notrePosition.x;
 	notrePosition.x = (bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
 	notrePosition.y = rapport*(bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notreX*notreX));
 	notrePosition.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation + ANGLE_CAPTEUR_SOL);
@@ -103,7 +103,7 @@ if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche
 }
 if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
 {
-	rapport = notrePosition.x / notrePosition.y;
+	rapport = notrePosition.y / notrePosition.x;
 	notrePosition.x = (bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
 	notrePosition.y = rapport*(bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notreX*notreX));
 	notrePosition.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation - ANGLE_CAPTEUR_SOL + M_PI);
@@ -111,7 +111,7 @@ if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGa
 }
 if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
 {
-	rapport = notrePosition.x / notrePosition.y;
+	rapport = notrePosition.y / notrePosition.x;
 	notrePosition.x = (bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notrePosition.x*notrePosition.x));
 	notrePosition.y = rapport*(bordDeTable.rayon - 25) / sqrt(1 + notrePosition.y*notrePosition.y / (notreX*notreX));
 	notrePosition.x = notrePosition.x - D_CAPTEUR_SOL*cosf(notrePosition.orientation + ANGLE_CAPTEUR_SOL + M_PI);
