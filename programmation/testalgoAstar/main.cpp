@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     Pathfinding pathfinding;
     ObstacleCercle unObstacle;
     unObstacle.obstaclePlein = true;
-    unObstacle.position.x = -200;
+    unObstacle.position.x = -300;
     unObstacle.position.y = 0;
     unObstacle.rayon = 100;
 
@@ -24,22 +24,23 @@ int main(int argc, char *argv[])
     map.push_back(unObstacle);
     map.push_back(BordDeTable);
 
-    Position start,goal;
+    PositionTrajectoire start,goal;
     start.orientation = 0;
     start.x = 300;
     start.y = 0;
 
     goal.orientation = M_PI;
-    goal.x = -300;
-    goal.y = 0;
+    goal.x = 0;
+    goal.y = 400;
 
-    vector<Position> ResultatAstar = pathfinding.Astar(map, start, goal);
+    vector<PositionTrajectoire> ResultatAstar = pathfinding.Astar(map, start, goal);
 
     cout << "chemin proposé :" << endl;
     for (int i=0; i<ResultatAstar.size();i++) {
-        cout << "x = " << ResultatAstar[i].x;
-        cout << " y = " << ResultatAstar[i].y;
-        cout << " orientation = " << ResultatAstar[i].orientation;
+        cout << "(" << ResultatAstar[i].x;
+        cout << "," << ResultatAstar[i].y;
+        cout << ") orientation = " << ResultatAstar[i].orientation;
+        cout << " type de trajectoire : " << ResultatAstar[i].trajectoire;
         cout << endl;
 
     }

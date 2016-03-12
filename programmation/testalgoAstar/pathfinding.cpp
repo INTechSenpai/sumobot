@@ -8,12 +8,12 @@ Pathfinding::Pathfinding(){}
 
 //A tester : distance basée également sur écart d'orientation
 float Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
-    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*100);
+    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*10000);
 }
 
 //yolo
 
-bool Pathfinding::PosEgales(const Position& p1, const Position& p2) {
+bool Pathfinding::PosEgales(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
     return (
             (p1.orientation == p2.orientation) &&
             (p1.x == p2.x) &&
@@ -21,8 +21,8 @@ bool Pathfinding::PosEgales(const Position& p1, const Position& p2) {
            );
 }
 
-bool Pathfinding::PosSuffisammentProches(const Position& p1, const Position& p2) {
-    float precisionXY = 10.0;
+bool Pathfinding::PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
+    float precisionXY = 20.0;
     float precisionOrientation = 0.3;
     return (
             (p1.orientation < p2.orientation + precisionOrientation) &&
@@ -38,15 +38,16 @@ bool Pathfinding::PosSuffisammentProches(const Position& p1, const Position& p2)
 
 
 
-std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position& start, const Position& goal) {
+std::vector<PositionTrajectoire> Pathfinding::Astar(const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
 
-    std::vector<Position> chemin_solution;
+    std::vector<PositionTrajectoire> chemin_solution;
 
     if (EstUnTrajetImpossible(map, start, goal)) {
         return chemin_solution;
     }
     int passageDansBoucle=0;
-    Position n_courant = start;
+    PositionTrajectoire n_courant = start;
+    n_courant.trajectoire = Depart;
     noeud noeuddepart;
     noeuddepart.cout_g = 0;
     noeuddepart.cout_h = distance(start.x, start.y, start.orientation, goal.x, goal.y, goal.orientation);
@@ -55,13 +56,13 @@ std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position&
 
     OpenSet.push_back(noeuddepart);
     n_courant = MettreAjourClosedSet();
-    while (!(PosSuffisammentProches(n_courant, goal))&&(passageDansBoucle<150)) {
+    while (!(PosSuffisammentProches(n_courant, goal))&&(passageDansBoucle<300)) {
         MettreAjourOpenSet(map, n_courant, goal);
         n_courant = MettreAjourClosedSet();
         passageDansBoucle++;
     }
 
-    if (passageDansBoucle == 150) {
+    if (passageDansBoucle == 300) {
         return chemin_solution;
     }
 
@@ -76,6 +77,7 @@ std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position&
         n_courant.x = tmp.parent.x;
         n_courant.y = tmp.parent.y;
         n_courant.orientation = tmp.parent.orientation;
+        n_courant.trajectoire = tmp.parent.trajectoire;
     }
     chemin_solution.push_back(n_courant);
 /* truc a faire si il l'est
@@ -91,7 +93,7 @@ std::vector<Position> Pathfinding::Astar(const ObstacleMap& map, const Position&
     return chemin_solution;
 }
 
-bool Pathfinding::EstUnTrajetImpossible(const ObstacleMap& map, const Position& start, const Position& goal) {
+bool Pathfinding::EstUnTrajetImpossible(const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
     if (map[0].obstaclePlein) {
         return (goal.x*goal.x + goal.y*goal.y > map[1].rayon*map[1].rayon);
 
@@ -102,11 +104,11 @@ bool Pathfinding::EstUnTrajetImpossible(const ObstacleMap& map, const Position& 
 }
 
 
-void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const Position& start, const Position& goal) {
+void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
 
     // on ajoute à la liste ouverte les noeuds voisins et on calcule leurs coûts
 
-    Position tmp;
+    PositionTrajectoire tmp;
 
     //cas ou on avance en ligne droite de distanceParEtape
 
@@ -115,78 +117,134 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const Position& sta
     tmp.orientation = start.orientation;
     tmp.xSpeed = 0;
     tmp.ySpeed = 0;
+    tmp.trajectoire = AvancerToutDroit;
 
     checkCandidat(tmp, map, start, goal);
 
     //cas où on avance de distanceParEtape suivant un rayon R1 vers la gauche.
 
-    tmp.orientation = start.orientation + (distanceParEtape/R1);
+    tmp.orientation = fmod(start.orientation + (distanceParEtape/R1),2*M_PI);
+
     tmp.x = ( start.x - R1*sin(start.orientation) ) - R1*sin(tmp.orientation);
     tmp.y = (start.y + R1*cos(start.orientation)) + R1*sin(tmp.orientation);
+    tmp.trajectoire = Avancer1g;
 
     checkCandidat(tmp, map, start, goal);
 
     //cas où on avance de distanceParEtape suivant un rayon R1 vers la droite.
 
-    tmp.orientation = start.orientation - (distanceParEtape/R1);
+    tmp.orientation = fmod(start.orientation - (distanceParEtape/R1),2*M_PI);
     tmp.x = ( start.x + R1*sin(start.orientation) ) + R1*sin(tmp.orientation);
     tmp.y = (start.y - R1*cos(start.orientation)) - R1*sin(tmp.orientation);
+    tmp.trajectoire = Avancer1d;
 
 
     checkCandidat(tmp, map, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R1 par la gauche.
 
-    tmp.orientation = start.orientation - (distanceParEtape/R1);
+    tmp.orientation = fmod(start.orientation - (distanceParEtape/R1),2*M_PI);
     tmp.x = ( start.x - R1*sin(start.orientation) ) - R1*sin(tmp.orientation);
     tmp.y = (start.y + R1*cos(start.orientation)) + R1*sin(tmp.orientation);
+    tmp.trajectoire = Reculer1g;
 
     checkCandidat(tmp, map, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R1 par la droite.
 
-    tmp.orientation = start.orientation + (distanceParEtape/R1);
+    tmp.orientation = fmod(start.orientation + (distanceParEtape/R1),2*M_PI);
+
     tmp.x = ( start.x + R1*sin(start.orientation) ) + R1*sin(tmp.orientation);
     tmp.y = (start.y - R1*cos(start.orientation)) - R1*sin(tmp.orientation);
+    tmp.trajectoire = Reculer1d;
 
     checkCandidat(tmp, map, start, goal);
 
     //cas où on avance de distanceParEtape suivant un rayon R2 vers la gauche.
 
-    tmp.orientation = start.orientation + (distanceParEtape/R2);
+    tmp.orientation = fmod(start.orientation + (distanceParEtape/R2),2*M_PI);
     tmp.x = ( start.x - R2*sin(start.orientation) ) - R2*sin(tmp.orientation);
     tmp.y = (start.y + R2*cos(start.orientation)) + R2*sin(tmp.orientation);
+    tmp.trajectoire = Avancer2g;
 
     checkCandidat(tmp, map, start, goal);
 
     //cas où on avance de distanceParEtape suivant un rayon R2 vers la droite.
 
-    tmp.orientation = start.orientation - (distanceParEtape/R2);
+    tmp.orientation = fmod(start.orientation - (distanceParEtape/R2),2*M_PI);
     tmp.x = ( start.x + R2*sin(start.orientation) ) + R2*sin(tmp.orientation);
     tmp.y = (start.y - R2*cos(start.orientation)) - R2*sin(tmp.orientation);
-
+    tmp.trajectoire = Avancer2d;
 
     checkCandidat(tmp, map, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R2 par la gauche.
 
-    tmp.orientation = start.orientation - (distanceParEtape/R2);
+    tmp.orientation = fmod(start.orientation - (distanceParEtape/R2),2*M_PI);
     tmp.x = ( start.x - R2*sin(start.orientation) ) - R2*sin(tmp.orientation);
     tmp.y = (start.y + R2*cos(start.orientation)) + R2*sin(tmp.orientation);
+    tmp.trajectoire = Reculer2g;
 
     checkCandidat(tmp, map, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R2 par la droite.
 
-    tmp.orientation = start.orientation + (distanceParEtape/R2);
+    tmp.orientation = fmod(start.orientation + (distanceParEtape/R2),2*M_PI);
     tmp.x = ( start.x + R2*sin(start.orientation) ) + R2*sin(tmp.orientation);
     tmp.y = (start.y - R2*cos(start.orientation)) - R2*sin(tmp.orientation);
+    tmp.trajectoire = Reculer2d;
 
     checkCandidat(tmp, map, start, goal);
 
+    //cas où on avance de distanceParEtape suivant un rayon R3 vers la gauche.
+
+    tmp.orientation = fmod(start.orientation + (distanceParEtape/R3),2*M_PI);
+    tmp.x = ( start.x - R3*sin(start.orientation) ) - R3*sin(tmp.orientation);
+    tmp.y = (start.y + R3*cos(start.orientation)) + R3*sin(tmp.orientation);
+    tmp.trajectoire = Avancer3g;
+
+    checkCandidat(tmp, map, start, goal);
+
+    //cas où on avance de distanceParEtape suivant un rayon R3 vers la droite.
+
+    tmp.orientation = fmod(start.orientation - (distanceParEtape/R3),2*M_PI);
+    tmp.x = ( start.x + R3*sin(start.orientation) ) + R3*sin(tmp.orientation);
+    tmp.y = (start.y - R3*cos(start.orientation)) - R3*sin(tmp.orientation);
+    tmp.trajectoire = Avancer3d;
+
+    checkCandidat(tmp, map, start, goal);
+
+    //cas où on recule de distanceParEtape suivant un rayon R3 par la gauche.
+
+    tmp.orientation = fmod(start.orientation - (distanceParEtape/R3),2*M_PI);
+    tmp.x = ( start.x - R3*sin(start.orientation) ) - R3*sin(tmp.orientation);
+    tmp.y = (start.y + R3*cos(start.orientation)) + R3*sin(tmp.orientation);
+    tmp.trajectoire = Reculer3g;
+
+    checkCandidat(tmp, map, start, goal);
+
+    //cas où on recule de distanceParEtape suivant un rayon R3 par la droite.
+
+    tmp.orientation = fmod(start.orientation + (distanceParEtape/R3),2*M_PI);
+    tmp.x = ( start.x + R3*sin(start.orientation) ) + R3*sin(tmp.orientation);
+    tmp.y = (start.y - R3*cos(start.orientation)) - R3*sin(tmp.orientation);
+    tmp.trajectoire = Reculer3d;
+
+    checkCandidat(tmp, map, start, goal);
+
+    //cas où on tourne de distanceParEtape/R3.
+/*
+    tmp.orientation = start.orientation + (distanceParEtape/R3);
+    tmp.x = start.x;
+    tmp.y = start.y;
+
+
+    checkCandidat(tmp, map, start, goal);*/
+
+
 }
 
-void Pathfinding::checkCandidat(const Position& candidat, const ObstacleMap& map, const Position& start, const Position& goal) {
+void Pathfinding::checkCandidat(const PositionTrajectoire& candidat, const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
 
     //on vérifie la présence d'Obstacle
 
@@ -229,7 +287,7 @@ void Pathfinding::checkCandidat(const Position& candidat, const ObstacleMap& map
 
 
 
-Position Pathfinding::MettreAjourClosedSet() {
+PositionTrajectoire Pathfinding::MettreAjourClosedSet() {
     // Recherche du minimum des coûts dans OpenSet
     // ici le vector est trié donc on prend le premier élément
 
@@ -285,7 +343,7 @@ void Pathfinding::PlacerDansOpenSet(const noeud& nouveauNoeud) {
 
 }
 
-int Pathfinding::chercheDansOpenSet(const Position& positionAtest) {
+int Pathfinding::chercheDansOpenSet(const PositionTrajectoire& positionAtest) {
     if (OpenSet.empty()) {
         return -1;
     }
@@ -309,7 +367,7 @@ int Pathfinding::chercheDansOpenSet(const Position& positionAtest) {
 
 }
 
-int Pathfinding::chercheDansClosedSet(const Position& positionAtest) {
+int Pathfinding::chercheDansClosedSet(const PositionTrajectoire& positionAtest) {
     if (ClosedSet.empty()) {
         return -1;
     }
@@ -331,7 +389,7 @@ int Pathfinding::chercheDansClosedSet(const Position& positionAtest) {
     }
 }
 
-Trajectory positionsToTrajectory(const std::vector<Position>& chemin_solution) {
+Trajectory positionsToTrajectory(const std::vector<PositionTrajectoire>& chemin_solution) {
     Trajectory trajectory;
     for (int i=0;i<chemin_solution.size();i++) {
         UnitMove unMouvement;
