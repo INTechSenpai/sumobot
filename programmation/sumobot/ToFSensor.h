@@ -56,7 +56,7 @@ public:
 		vlSensor.writeReg(VL6180X::SYSRANGE__MAX_CONVERGENCE_TIME, 10);
 
 		vlSensor.stopContinuous();
-		delay(300);
+		delay(50);
 		vlSensor.startRangeContinuous(20);
 		isON = true;
 	}

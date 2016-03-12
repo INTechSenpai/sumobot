@@ -24,7 +24,7 @@ public :
 	uint32_t determinerConditionInitiale(RelativeObstacleMap donneesCapteurs); 
 	// retourne 1 si les robots sont dos a dos, 2 si le robot ennemi est a notre droite, 3 si il est a notre gauche
 
-	void updateObstacleMap(RelativeObstacleMap donneesCapteurs, Position &notrePosition); 
+	bool updateObstacleMap(RelativeObstacleMap donneesCapteurs, Position &notrePosition); 
 	//met a jour la Position(voir struct) du robot adverse et notre position si les capteurs au sol detecte le bord de table
 
 	ObstacleCercle getRobotAdverse();
@@ -36,6 +36,7 @@ private :
 	//float calculOrientation(Position position);
 	ObstacleCercle robotAdverse;
 	ObstacleCercle bordDeTable;
+	bool perdu;
 };
 
 #endif

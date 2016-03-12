@@ -20,7 +20,7 @@ BattControler battControler;
 IntervalTimer motionControlThread;
 IntervalTimer sensorThread;
 
-Table table(60,385,1000,1000);
+Table table(60,400,1000,1000);
 
 Trajectory trajectory;
 UnitMove unitMove;
@@ -92,6 +92,7 @@ void setup()
 
 void loop()
 {
+	//*
 	ici = motionControlSystem.getPosition();
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	table.updateObstacleMap(obstacleMap, ici);
@@ -109,6 +110,9 @@ void loop()
 
 	//table.updateObstacleMap(obstacleMap, ici);
 	//robotAdverse = table.getRobotAdverse();
+
+	//*/
+
 	/*
 	Serial.printf("av: %d | avG: %d | avD %d ||| ar: %d | arG: %d | arD: %d ||| G: %d | D:%d\n",
 		obstacleMap.avant,
@@ -138,11 +142,12 @@ void loop()
 		robotAdverse.position.orientation,
 		robotAdverse.position.xSpeed,
 		robotAdverse.position.ySpeed);
-	*/
+	//*/
+	//*
 	Serial.println();
 
 	delay(100);
-
+	//*/
 
 	static float kp = 2, ki = 0.01, kd = 50;
 	static int speed = 5000;
@@ -201,22 +206,32 @@ void loop()
 
 
 
-/* Fonction appellée toutes les 500µs réalisant l'asservissement et indiquant le niveau de batterie */
+/* Fonction appellée toutes les 500µs réalisant l'asservissement */
 void motionControlInterrupt()
 {
-	/* Mise à jour des DELs indiquant l'état de la batterie */
-	battControler.control();
+	static int compteur = 1;
+	static uint32_t t1, t2;
 
 	/* Asservissement du robot en vitesse et position */
 	motionControlSystem.control();
 	motionControlSystem.updatePosition();
-	motionControlSystem.manageStop();
+
+	if (compteur == 4)
+	{
+		motionControlSystem.manageStop();
+		motionControlSystem.track();
+		compteur = 0;
+	}
+	compteur++;
 }
 
 
 /* Fonction appellée toutes les 30ms mettant à jour les capteurs (à tour de rôle pour les capteurs lents) */
 void sensorInterrupt()
 {
+	/* Mise à jour des DELs indiquant l'état de la batterie */
+	battControler.control();
+
 	sensorMgr.updateFloor();
 
 	static uint8_t compteur = 0;
