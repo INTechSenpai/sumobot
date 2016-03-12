@@ -66,9 +66,9 @@ void setup()
 	pinMode(13, OUTPUT);
 	digitalWrite(13, HIGH);
 
-	unitMove.setBendRadiusTicks(INFINITE_RADIUS);
-	unitMove.setLengthTicks(2000);
-	unitMove.setSpeedTicks_S(1000);
+	unitMove.setBendRadiusTicks(2000);
+	unitMove.setLengthTicks(10000);
+	unitMove.setSpeedTicks_S(3000);
 
 	trajectory.push_back(unitMove);
 
@@ -77,6 +77,8 @@ void setup()
 	ici.orientation = PI / 4 - ANGLE_CAPTEUR_SOL;
 
 	motionControlSystem.setPosition(ici);
+	motionControlSystem.setRightSpeedTunings(2, 0.01, 50);
+	motionControlSystem.setLeftSpeedTunings(2, 0.01, 50);
 
 	Wire.begin();
 	delay(50);
@@ -95,7 +97,8 @@ void loop()
 	//*
 	ici = motionControlSystem.getPosition();
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
-	table.updateObstacleMap(obstacleMap, ici);
+	bool perdu;
+	perdu = table.updateObstacleMap(obstacleMap, ici);
 	motionControlSystem.setPosition(ici);
 
 	Serial.printf("avG: %d | avD %d ||| arG: %d | arD: %d\n",
@@ -105,7 +108,7 @@ void loop()
 		obstacleMap.solArriereDroit
 		);
 
-	Serial.printf("x: %f | y: %f | o: %f\n", ici.x, ici.y, ici.orientation);
+	Serial.printf("x: %f | y: %f | o: %f | perdu: %d\n", ici.x, ici.y, ici.orientation, perdu);
 
 
 	//table.updateObstacleMap(obstacleMap, ici);
@@ -113,7 +116,7 @@ void loop()
 
 	//*/
 
-	/*
+	//*
 	Serial.printf("av: %d | avG: %d | avD %d ||| ar: %d | arG: %d | arD: %d ||| G: %d | D:%d\n",
 		obstacleMap.avant,
 		obstacleMap.avantGauche,
@@ -124,7 +127,8 @@ void loop()
 		obstacleMap.gauche,
 		obstacleMap.droit
 		);
-
+	//*/
+	/*
 	Serial.printf("av: %d | avG: %d | avD %d ||| ar: %d | arG: %d | arD: %d ||| G: %d | D:%d\n",
 		obstacleMap.speedAvant,
 		obstacleMap.speedAvantGauche,
@@ -157,7 +161,9 @@ void loop()
 		read(inputBuffer);
 		if (!strcmp(inputBuffer, "a"))
 		{
-			motionControlSystem.testAsservVitesse(speed, 1000, kp, ki, kd);
+			Serial.println("Go");
+			delay(3000);
+			motionControlSystem.testAsservVitesse(speed, 20000, kp, ki, kd);
 		}
 		else if (!strcmp(inputBuffer, "speed"))
 		{
@@ -200,6 +206,20 @@ void loop()
 			sensorMgr.getRelativeObstacleMap(obstacleMap);
 			Serial.printf("Sol avant droit : %d\n", obstacleMap.solAvantDroit);
 		}
+		else if (!strcmp(inputBuffer, "t"))
+		{
+			motionControlSystem.testAsservVitesse(speed, 1000, kp, ki, kd);
+			int32_t left, right;
+			while (true) 
+			{
+				motionControlSystem.getCurrentSpeed(left, right);
+				Serial.printf("g: %d | d: %d\n", left, right);
+			}
+		}
+		else if (!strcmp(inputBuffer, "z"))
+		{
+			motionControlSystem.setTrajectory(trajectory);
+		}
 		Serial.println("");
 	}
 }
@@ -209,20 +229,21 @@ void loop()
 /* Fonction appellée toutes les 500µs réalisant l'asservissement */
 void motionControlInterrupt()
 {
-	static int compteur = 1;
+	static int compteurTracker = 1;
 	static uint32_t t1, t2;
 
 	/* Asservissement du robot en vitesse et position */
 	motionControlSystem.control();
 	motionControlSystem.updatePosition();
+	motionControlSystem.manageStop();
 
-	if (compteur == 4)
+
+	if (compteurTracker == 4)
 	{
-		motionControlSystem.manageStop();
 		motionControlSystem.track();
-		compteur = 0;
+		compteurTracker = 0;
 	}
-	compteur++;
+	compteurTracker++;
 }
 
 

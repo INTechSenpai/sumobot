@@ -34,9 +34,6 @@ float cosAngleAbsolu; //le cosinus que l'on sauvegarde car va être utiliser pour
 float sinAngleAbsolu; //le sinus que l'on sauvegarde car va être utiliser pour la position
 float vitesseRelative; //vitesse relative du robot adverse par rapport au notre 
 bool Detection; // pour savoir si tout les capteurs ne detectent rien que l'on changera a false si c'est le cas
-float rapport; // le rapport de y/x au carre pour recalculer notre positioin en cas de rencontre de bord de table
-float notreX; // pour faire le calcul de notre position en cas de detection du bord de table
-float signe; //le signe de x pour les capteurs au sol
 
 Detection = true;
 
@@ -90,87 +87,56 @@ if (perdu)
 	notrePosition.x = 0;
 	notrePosition.y = 0;
 	notrePosition.orientation = 0;
-	if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
-	{
-		perdu = false;
-		notrePosition.x = 265;
-		notrePosition.y = -265;
-		if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
-		{
-			notrePosition.x = 375;
-			notrePosition.y = 0;
-		}
-		if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
-		{
-			notrePosition.x = 0;
-			notrePosition.y = -375;
-		}
+}
 
-	}
-	if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
-	{
-		perdu = false;
-		notrePosition.x = -265;
-		notrePosition.y = 265;
-		if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
-		{
-			notrePosition.x = 0;
-			notrePosition.y = 375;
-		}
-		if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
-		{
-			notrePosition.x = -375;
-			notrePosition.y = 0;
-		}
-	}
+
+if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
+{
+	perdu = false;
+	notrePosition.x = 265;
+	notrePosition.y = 265;
+}
+if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
+{
+	perdu = false;
+	notrePosition.x = -265;
+	notrePosition.y = -265;
+}
+if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
+{
+	perdu = false;
+	notrePosition.x = 265;
+	notrePosition.y = -265;
 	if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
 	{
-		perdu = false;
-		notrePosition.x = 265;
-		notrePosition.y = 265;
+		notrePosition.x = 375;
+		notrePosition.y = 0;
 	}
 	if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
 	{
-		perdu = false;
-		notrePosition.x = -265;
-		notrePosition.y = -265;
+		notrePosition.x = 0;
+		notrePosition.y = -375;
 	}
+
 }
-else
+if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
 {
-	if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
-	{
-		rapport = notrePosition.y / notrePosition.x;
-		notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
-		notrePosition.y = rapport*notrePosition.x;
-	}
+	perdu = false;
+	notrePosition.x = -265;
+	notrePosition.y = 265;
 	if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
 	{
-		rapport = notrePosition.y / notrePosition.x;
-		notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
-		notrePosition.y = rapport*notrePosition.x;
-	}
-	if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
-	{
-		rapport = notrePosition.y / notrePosition.x;
-		notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
-		notrePosition.y = rapport*notrePosition.x;
-
+		notrePosition.x = 0;
+		notrePosition.y = 375;
 	}
 	if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
 	{
-		rapport = notrePosition.y / notrePosition.x;
-		notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
-		notrePosition.y = rapport*notrePosition.x;
+		notrePosition.x = -375;
+		notrePosition.y = 0;
 	}
 }
 
-notreX = notrePosition.x;
-if (notrePosition.x == 0)
-{
-	notrePosition.x = 0.1;
-}
-signe = notrePosition.x / fabsf(notrePosition.x);
+
 
 
 /*
@@ -595,6 +561,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							else
 							{
 								Detection = false;
+								distanceAway = 1000;
 							}
 						}
 					}
@@ -619,7 +586,7 @@ else
 	robotAdverse.position.y = 1000;
 	vitesseRelative = 0.0;
 }
-if (distanceAway < 5)
+if (distanceAway < 155) // changer pour droit et gauche
 {
 	perdu = true;
 }
