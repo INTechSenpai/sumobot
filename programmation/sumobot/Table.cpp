@@ -24,7 +24,7 @@ Table::Table(uint32_t rayonRobot,uint32_t rayonBord, float xR, float yR)
 	perdu = false;
 };
 
-void Table::updateObstacleMap(RelativeObstacleMap donneesCapteurs, Position &notrePosition)
+bool Table::updateObstacleMap(RelativeObstacleMap donneesCapteurs, Position &notrePosition)
 {
 
 
@@ -38,14 +38,7 @@ float rapport; // le rapport de y/x au carre pour recalculer notre positioin en 
 float notreX; // pour faire le calcul de notre position en cas de detection du bord de table
 float signe; //le signe de x pour les capteurs au sol
 
-
 Detection = true;
-notreX = notrePosition.x;
-if (notrePosition.x == 0)
-{
-	notrePosition.x=0.1;
-}
-signe = notrePosition.x / fabsf(notrePosition.x);
 
 /*
 si il y une erreur et que l on obtient un 0 sur un capteur,
@@ -92,32 +85,92 @@ if (donneesCapteurs.arriere == 0)
 	donneesCapteurs.arriere = 630;
 }
 
+if (perdu)
+{
+	notrePosition.x = 0;
+	notrePosition.y = 0;
+	notrePosition.orientation = 0;
+	if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
+	{
+		perdu = false;
+		notrePosition.x = 265;
+		notrePosition.y = -265;
+		if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
+		{
+			notrePosition.x = 375;
+			notrePosition.y = 0;
+		}
+		if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
+		{
+			notrePosition.x = 0;
+			notrePosition.y = -375;
+		}
 
-if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
-{
-	rapport = notrePosition.y / notrePosition.x;
-	notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
-	notrePosition.y = rapport*notrePosition.x - D_CAPTEUR_SOL*sinf(notrePosition.orientation - ANGLE_CAPTEUR_SOL);
+	}
+	if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
+	{
+		perdu = false;
+		notrePosition.x = -265;
+		notrePosition.y = 265;
+		if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
+		{
+			notrePosition.x = 0;
+			notrePosition.y = 375;
+		}
+		if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
+		{
+			notrePosition.x = -375;
+			notrePosition.y = 0;
+		}
+	}
+	if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
+	{
+		perdu = false;
+		notrePosition.x = 265;
+		notrePosition.y = 265;
+	}
+	if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
+	{
+		perdu = false;
+		notrePosition.x = -265;
+		notrePosition.y = -265;
+	}
 }
-if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
+else
 {
-	rapport = notrePosition.y / notrePosition.x;
-	notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
-	notrePosition.y = rapport*notrePosition.x;
-}
-if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
-{
-	rapport = notrePosition.y / notrePosition.x;
-	notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
-	notrePosition.y = rapport*notrePosition.x - D_CAPTEUR_SOL*sinf(notrePosition.orientation - ANGLE_CAPTEUR_SOL + M_PI);
+	if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
+	{
+		rapport = notrePosition.y / notrePosition.x;
+		notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
+		notrePosition.y = rapport*notrePosition.x;
+	}
+	if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
+	{
+		rapport = notrePosition.y / notrePosition.x;
+		notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
+		notrePosition.y = rapport*notrePosition.x;
+	}
+	if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
+	{
+		rapport = notrePosition.y / notrePosition.x;
+		notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
+		notrePosition.y = rapport*notrePosition.x;
 
+	}
+	if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
+	{
+		rapport = notrePosition.y / notrePosition.x;
+		notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
+		notrePosition.y = rapport*notrePosition.x;
+	}
 }
-if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
+
+notreX = notrePosition.x;
+if (notrePosition.x == 0)
 {
-	rapport = notrePosition.y / notrePosition.x;
-	notrePosition.x = signe*(bordDeTable.rayon - 25) / sqrt(1 + rapport*rapport);
-	notrePosition.y = rapport*notrePosition.x - D_CAPTEUR_SOL*sinf(notrePosition.orientation + ANGLE_CAPTEUR_SOL + M_PI);
+	notrePosition.x = 0.1;
 }
+signe = notrePosition.x / fabsf(notrePosition.x);
 
 
 /*
@@ -566,6 +619,13 @@ else
 	robotAdverse.position.y = 1000;
 	vitesseRelative = 0.0;
 }
+if (distanceAway < 5)
+{
+	perdu = true;
+}
+
+return perdu;
+
 }
 
 /*
