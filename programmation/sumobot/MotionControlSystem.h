@@ -103,6 +103,8 @@ private:
 
 	// Variables de réglage de la détection de blocage physique
 	unsigned int delayToStop;//En ms
+	int minSpeed;// Même unité que current[..]Speed
+	int speedTolerance;
 
 	//Nombre de ticks de tolérance pour considérer qu'on est arrivé à destination
 	int toleranceTranslation;
@@ -139,27 +141,29 @@ private:
 	trackerType trackArray[TRACKER_SIZE];
 	unsigned int trackerCursor;
 
-	bool isPhysicallyStopped();//Indique si le robot est immobile.
-
 
 public:
 	MotionControlSystem();
 
+	/* Asservissement (fonctions à appeller dans l'interruption associée) */
 	void control();
 	void updatePosition();
 	void manageStop();
 
+	/* Tracking pour le débug */
 	void track();//Stock les valeurs de débug
 	void printTrackingAll();//Affiche l'intégralité du tableau de tracking
 	void printTracking(); // Envoie des données pour l'asserv auto
 	void printPosition();
 	void resetTracking();// Reset le tableau de tracking
 
+	/* Activation et désactivation de l'asserv */
 	void enablePositionControl(bool);
 	void enableLeftSpeedControl(bool);
 	void enableRightSpeedControl(bool);
 	void enablePwmControl(bool);
 
+	/* Gestion des déplacements */
 	void setTrajectory(const Trajectory&);
 	bool isMoving() const;
 	bool isBlocked() const;
@@ -168,8 +172,10 @@ public:
 
 private:
 	void nextMove();
+	bool isPhysicallyBlocked();
 
 public:
+	/* Setters et getters des constantes d'asservissement */
 	void setTranslationTunings(float, float, float);
 	void setRotationTunings(float, float, float);
 	void setLeftSpeedTunings(float, float, float);
@@ -179,11 +185,18 @@ public:
 	void getLeftSpeedTunings(float &, float &, float &) const;
 	void getRightSpeedTunings(float &, float &, float &) const;
 
+	/* Setter et getter de la position */
 	void setPosition(Position &);
 	Position & getPosition();
 	void resetPosition(void);
 	void setDelayToStop(uint32_t);
 
+	/* Getters et setters de débug */
+	void getPWM(int16_t &, int16_t &);
+	void getCurrentSpeed(int32_t &, int32_t &);
+
+
+	/* TEST */
 	void testAsservVitesse(int speed, uint32_t duration, float kp, float ki, float kd);
 
 };
