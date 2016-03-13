@@ -30,6 +30,8 @@ averageLeftSpeed(), averageRightSpeed()
 	movingSpeed = 0;
 
 	delayToStop = 100;
+	minSpeed = 600;
+	speedTolerance = 2000;
 	toleranceTranslation = 50;
 	toleranceRotation = 50;
 
@@ -214,10 +216,15 @@ void MotionControlSystem::control()
 
 	}
 
+
+
 	if (leftSpeedControlled)
 		leftSpeedPID.compute();		// Actualise la valeur de 'leftPWM'
 	if (rightSpeedControlled)
 		rightSpeedPID.compute();	// Actualise la valeur de 'rightPWM'
+
+	//Serial.println(leftPWM);
+	//Serial.println(rightPWM);
 
 	if (pwmControlled)
 	{
@@ -226,15 +233,19 @@ void MotionControlSystem::control()
 	}
 }
 
-bool MotionControlSystem::isPhysicallyStopped() {
-	return (translationPID.getDerivativeError() == 0) && (rotationPID.getDerivativeError() == 0);
+bool MotionControlSystem::isPhysicallyBlocked()
+{
+	return
+		(ABS(currentLeftSpeed) <= minSpeed && ABS(currentRightSpeed) <= minSpeed) || /* Cas de la fin du mouvement : tout est à l'arrêt ou presque */ 
+		(ABS(currentLeftSpeed - leftSpeedSetpoint) > speedTolerance) ||
+		(ABS(currentRightSpeed - rightSpeedSetpoint) > speedTolerance);
 }
 
 void MotionControlSystem::manageStop()
 {
 	static uint32_t time = 0;
 
-	if (isPhysicallyStopped() && moving)
+	if ( isPhysicallyBlocked() && moving)
 	{
 
 		if (time == 0)
@@ -297,6 +308,8 @@ void MotionControlSystem::stop() {
 	rotationSetpoint = currentAngle;
 	leftSpeedSetpoint = 0;
 	rightSpeedSetpoint = 0;
+	leftPWM = 0;
+	rightPWM = 0;
 
 	currentTrajectory.clear();
 	currentMove = 0;
@@ -476,6 +489,18 @@ void MotionControlSystem::setDelayToStop(uint32_t delayToStop)
 	this->delayToStop = delayToStop;
 }
 
+void MotionControlSystem::getPWM(int16_t & left, int16_t & right)
+{
+	left = leftPWM;
+	right = rightPWM;
+}
+
+void MotionControlSystem::getCurrentSpeed(int32_t & left, int32_t & right)
+{
+	left = currentLeftSpeed;
+	right = currentRightSpeed;
+}
+
 
 bool MotionControlSystem::isMoving() const {
 	return moving;
@@ -496,8 +521,9 @@ void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float 
 	resetTracking();
 
 	uint32_t beginTime = millis();
-	leftSpeedSetpoint = speed;
+	leftSpeedSetpoint = speed/2;
 	rightSpeedSetpoint = speed;
+	moving = true;
 
 	while (millis() - beginTime < duration)
 	{}
@@ -505,6 +531,7 @@ void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float 
 	rightSpeedSetpoint = 0;
 	while(moving)
 	{}
+	enablePositionControl(true);
 	stop();
-	printTracking();
+	//printTracking();
 }

@@ -8,22 +8,31 @@
 #include "../sumobot/Position.h"
 #include "../sumobot/Path.h"
 
-#define distanceParEtape 20.0
-#define R1 10.0
+#define distanceParEtape 50.0
+#define R1 50.0
 #define R2 100.0
-/*
-struct Position
+#define R3 500.0
+
+enum Trajectoire{Depart,
+                Avancer1g,Avancer1d,Reculer1g,Reculer1d,
+                Avancer2g,Avancer2d,Reculer2g,Reculer2d,
+                Avancer3g,Avancer3d,Reculer3g,Reculer3d,
+                AvancerToutDroit};
+
+struct PositionTrajectoire
 {
     float x;
     float y;
     float orientation;
     float xSpeed;
     float ySpeed;
+    Trajectoire trajectoire;
+
 };
-*/
+
 struct noeud {
-    Position parent;
-    Position position;
+    PositionTrajectoire parent;
+    PositionTrajectoire position;
     float cout_g, cout_h, cout_f;
 };
 
@@ -33,7 +42,7 @@ class Pathfinding
 {
 public:
     Pathfinding();
-    std::vector<Position> Astar(const ObstacleMap& map, const Position& start, const Position& goal);
+    std::vector<PositionTrajectoire> Astar(const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal);
 
 private:
 
@@ -44,30 +53,30 @@ private:
 
     float distance(float x1, float y1, float o1, float x2, float y2, float o2);
 
-    bool EstUnTrajetImpossible(const ObstacleMap& map, const Position& start, const Position& goal);
+    bool EstUnTrajetImpossible(const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal);
 
-    void MettreAjourOpenSet(const ObstacleMap& map, const Position& start,const Position& goal);
-    void checkCandidat(const Position& candidat, const ObstacleMap &map, const Position& start, const Position& goal);
+    void MettreAjourOpenSet(const ObstacleMap& map, const PositionTrajectoire& start,const PositionTrajectoire& goal);
+    void checkCandidat(const PositionTrajectoire& candidat, const ObstacleMap &map, const PositionTrajectoire& start, const PositionTrajectoire& goal);
 
-    Position MettreAjourClosedSet();
+    PositionTrajectoire MettreAjourClosedSet();
 
     //place dans openset de manière a trier
     void PlacerDansOpenSet(const noeud& nouveauNoeud);
 
     // renvoie la position dans le vecteur si trouvé, -1 sinon (yolo?)
-    int chercheDansOpenSet(const Position& positionAtest);
-    int chercheDansClosedSet(const Position& positionAtest);
+    int chercheDansOpenSet(const PositionTrajectoire& positionAtest);
+    int chercheDansClosedSet(const PositionTrajectoire& positionAtest);
 
 
     bool estSurUnObstacle(float x, float y, const ObstacleMap& map);
 
     //yolo
-    bool PosEgales(const Position &p1, const Position &p2);
+    bool PosEgales(const PositionTrajectoire &p1, const PositionTrajectoire &p2);
 
     //critère d'arret
-    bool PosSuffisammentProches(const Position& p1, const Position& p2);
+    bool PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2);
 
-    Trajectory positionsToTrajectory(const std::vector<Position>& chemin_solution);
+    Trajectory positionsToTrajectory(const std::vector<PositionTrajectoire>& chemin_solution);
 
 };
 
