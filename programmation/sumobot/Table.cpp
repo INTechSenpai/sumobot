@@ -81,13 +81,6 @@ if (donneesCapteurs.arriere == 0)
 	donneesCapteurs.arriere = 630;
 }
 
-if (perdu)
-{
-	notrePosition.x = 0;
-	notrePosition.y = 0;
-	notrePosition.orientation = 0;
-}
-
 
 if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
 {
@@ -152,6 +145,11 @@ if (donneesCapteurs.avant < 630)
 		angleAbsoluRA = notrePosition.orientation;
 		distanceAway = (float)donneesCapteurs.avant + (float)TAILLES_ROBOTS; // (float)TAILLES_ROBOTS pour la taille des robots
 
+		if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+		{
+			perdu = true;
+		}
+
 
 		if (donneesCapteurs.speedAvant < (int32_t)MARGE_V) // se rapproche
 		{
@@ -179,6 +177,12 @@ if (donneesCapteurs.avant < 630)
 			angleAbsoluRA = notrePosition.orientation + (float)ANGLE_CAPTEUR / 2;
 			distanceAway = ((float)donneesCapteurs.avant + (float)donneesCapteurs.avantGauche) / 2 +(float)TAILLES_ROBOTS;
 
+			if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+			{
+				perdu = true;
+			}
+
+
 
 			if (donneesCapteurs.speedAvantGauche < (int32_t)MARGE_V && donneesCapteurs.speedAvant < (int32_t)MARGE_V)
 			{
@@ -202,6 +206,12 @@ if (donneesCapteurs.avant < 630)
 		{
 			angleAbsoluRA = notrePosition.orientation - (float)ANGLE_CAPTEUR / 2;
 			distanceAway = ((float)donneesCapteurs.avant + (float)donneesCapteurs.avantDroit) / 2 +(float)TAILLES_ROBOTS;
+
+			if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+			{
+				perdu = true;
+			}
+
 
 
 			if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V)
@@ -233,6 +243,12 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 		angleAbsoluRA = notrePosition.orientation + 3 * (float)M_PI_2 + ((float)M_PI_2 - (float)ANGLE_CAPTEUR) / 2;
 		distanceAway = ((float)donneesCapteurs.avantDroit + (float)donneesCapteurs.droit) / 2 + (float)TAILLES_ROBOTS;
 
+		if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+		{
+			perdu = true;
+		}
+
+
 
 			if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V && donneesCapteurs.speedDroit < (int32_t)MARGE_V)
 			{
@@ -256,6 +272,12 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 		{
 			angleAbsoluRA = notrePosition.orientation + 2 * (float)M_PI - (float)ANGLE_CAPTEUR;
 			distanceAway = (float)donneesCapteurs.avantDroit +(float)TAILLES_ROBOTS ;
+
+			if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+			{
+				perdu = true;
+			}
+
 
 
 			if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V)
@@ -286,6 +308,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 				angleAbsoluRA = notrePosition.orientation + (float)M_PI + ((float)M_PI_2 + (float)ANGLE_CAPTEUR) / 2;
 				distanceAway = ((float)donneesCapteurs.droit + (float)donneesCapteurs.arriereDroit) / 2 + (float)TAILLES_ROBOTS;
 
+				if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+				{
+					perdu = true;
+				}
+
 
 				if (donneesCapteurs.speedArriereDroit < (int32_t)MARGE_V && donneesCapteurs.speedDroit < (int32_t)MARGE_V)
 				{
@@ -309,6 +336,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 			{
 				angleAbsoluRA = notrePosition.orientation +3* (float)M_PI_2;
 				distanceAway = (float)donneesCapteurs.droit +(float)TAILLES_ROBOTS;
+
+				if (distanceAway < MARGE_COTE) // changer pour droit et gauche
+				{
+					perdu = true;
+				}
 
 
 				if (donneesCapteurs.speedDroit < (int32_t)MARGE_V)
@@ -339,6 +371,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 					angleAbsoluRA = notrePosition.orientation + (float)M_PI;
 					distanceAway = (float)donneesCapteurs.arriere + (float)TAILLES_ROBOTS; // (float)TAILLES_ROBOTS pour la taille des robots
 
+					if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+					{
+						perdu = true;
+					}
+
 
 					if (donneesCapteurs.speedArriere < (int32_t)MARGE_V) // se rapproche
 					{
@@ -365,6 +402,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						angleAbsoluRA = notrePosition.orientation + (float)M_PI - (float)ANGLE_CAPTEUR / 2;
 						distanceAway = ((float)donneesCapteurs.arriereGauche + (float)donneesCapteurs.arriere) / 2 + (float)TAILLES_ROBOTS;
 
+						if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+						{
+							perdu = true;
+						}
+
 
 						if (donneesCapteurs.speedArriereGauche < (int32_t)MARGE_V && donneesCapteurs.speedArriere < (int32_t)MARGE_V)
 						{
@@ -388,6 +430,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 					{
 						angleAbsoluRA = notrePosition.orientation +(float)M_PI + (float)ANGLE_CAPTEUR / 2;
 						distanceAway = ((float)donneesCapteurs.arriereDroit + (float)donneesCapteurs.arriere) / 2 +(float)TAILLES_ROBOTS;
+
+						if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+						{
+							perdu = true;
+						}
 
 
 						if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V)
@@ -415,6 +462,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						angleAbsoluRA = notrePosition.orientation + (float)M_PI + (float)ANGLE_CAPTEUR;
 						distanceAway = (float)donneesCapteurs.arriereDroit + (float)TAILLES_ROBOTS;
 
+						if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+						{
+							perdu = true;
+						}
+
 
 						if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V)
 						{
@@ -441,6 +493,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							angleAbsoluRA = notrePosition.orientation + (float)M_PI_2 + ((float)M_PI_2 - (float)ANGLE_CAPTEUR) / 2;
 							distanceAway = ((float)donneesCapteurs.gauche + (float)donneesCapteurs.arriereGauche) / 2 + (float)TAILLES_ROBOTS;
 
+							if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+							{
+								perdu = true;
+							}
+
 
 							if (donneesCapteurs.speedArriereGauche < (int32_t)MARGE_V && donneesCapteurs.speedGauche < (int32_t)MARGE_V)
 							{
@@ -464,6 +521,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						{
 							angleAbsoluRA = notrePosition.orientation + (float)M_PI -(float)ANGLE_CAPTEUR;
 							distanceAway = (float)donneesCapteurs.arriereGauche + (float)TAILLES_ROBOTS;
+
+							if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+							{
+								perdu = true;
+							}
 
 
 							if (donneesCapteurs.speedArriereGauche < (int32_t)MARGE_V)
@@ -493,6 +555,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								angleAbsoluRA = notrePosition.orientation + ((float)M_PI_2 + (float)ANGLE_CAPTEUR) / 2;
 								distanceAway = ((float)donneesCapteurs.gauche + (float)donneesCapteurs.avantGauche) / 2 + (float)TAILLES_ROBOTS;
 
+								if (distanceAway < MARGE_COTE) // changer pour droit et gauche
+								{
+									perdu = true;
+								}
+
 
 								if (donneesCapteurs.speedAvantGauche < (int32_t)MARGE_V && donneesCapteurs.speedGauche < (int32_t)MARGE_V)
 								{
@@ -515,6 +582,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							{
 								angleAbsoluRA = notrePosition.orientation + (float)M_PI_2;
 								distanceAway = (float)donneesCapteurs.gauche + (float)TAILLES_ROBOTS;
+
+								if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+								{
+									perdu = true;
+								}
 
 
 								if (donneesCapteurs.speedGauche < (int32_t)MARGE_V)
@@ -540,6 +612,11 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							{
 								angleAbsoluRA = notrePosition.orientation + (float)ANGLE_CAPTEUR;
 								distanceAway = (float)donneesCapteurs.avantGauche + (float)TAILLES_ROBOTS;
+
+								if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+								{
+									perdu = true;
+								}
 
 
 								if (donneesCapteurs.speedAvantGauche < (int32_t)MARGE_V)
@@ -589,6 +666,16 @@ if (robotAdverse.position.orientation > 2 * M_PI)
 	robotAdverse.position.orientation -= 2 * M_PI;
 }
 
+if (angleAbsoluRA < 0)
+{
+	angleAbsoluRA += 2 * M_PI;
+}
+
+if (angleAbsoluRA > 2 * M_PI)
+{
+	angleAbsoluRA -= 2 * M_PI;
+}
+
 if (robotAdverse.position.orientation < 0)
 {
 	robotAdverse.position.orientation += 2 * M_PI;
@@ -598,6 +685,15 @@ if (robotAdverse.position.orientation > 2 * M_PI)
 {
 	robotAdverse.position.orientation -= 2 * M_PI;
 }
+
+if (perdu)
+{
+	angleAbsoluRA -= notrePosition.orientation;
+	notrePosition.x = 0;
+	notrePosition.y = 0;
+	notrePosition.orientation = 0;
+}
+
 
 if (Detection)
 {
@@ -614,11 +710,6 @@ else
 	robotAdverse.position.y = 1000;
 	vitesseRelative = 0.0;
 }
-if (distanceAway < 155) // changer pour droit et gauche
-{
-	perdu = true;
-}
-
 return perdu;
 
 }
