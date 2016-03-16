@@ -145,7 +145,7 @@ if (donneesCapteurs.avant < 630)
 		angleAbsoluRA = notrePosition.orientation;
 		distanceAway = (float)donneesCapteurs.avant + (float)TAILLES_ROBOTS; // (float)TAILLES_ROBOTS pour la taille des robots
 
-		if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+		if (distanceAway < MARGE_AVANT)  
 		{
 			perdu = true;
 		}
@@ -177,7 +177,7 @@ if (donneesCapteurs.avant < 630)
 			angleAbsoluRA = notrePosition.orientation + (float)ANGLE_CAPTEUR / 2;
 			distanceAway = ((float)donneesCapteurs.avant + (float)donneesCapteurs.avantGauche) / 2 +(float)TAILLES_ROBOTS;
 
-			if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+			if (distanceAway < MARGE_AVANT)  
 			{
 				perdu = true;
 			}
@@ -207,7 +207,7 @@ if (donneesCapteurs.avant < 630)
 			angleAbsoluRA = notrePosition.orientation - (float)ANGLE_CAPTEUR / 2;
 			distanceAway = ((float)donneesCapteurs.avant + (float)donneesCapteurs.avantDroit) / 2 +(float)TAILLES_ROBOTS;
 
-			if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+			if (distanceAway < MARGE_AVANT)  
 			{
 				perdu = true;
 			}
@@ -243,7 +243,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 		angleAbsoluRA = notrePosition.orientation + 3 * (float)M_PI_2 + ((float)M_PI_2 - (float)ANGLE_CAPTEUR) / 2;
 		distanceAway = ((float)donneesCapteurs.avantDroit + (float)donneesCapteurs.droit) / 2 + (float)TAILLES_ROBOTS;
 
-		if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+		if (distanceAway < MARGE_AVANT)  
 		{
 			perdu = true;
 		}
@@ -273,7 +273,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 			angleAbsoluRA = notrePosition.orientation + 2 * (float)M_PI - (float)ANGLE_CAPTEUR;
 			distanceAway = (float)donneesCapteurs.avantDroit +(float)TAILLES_ROBOTS ;
 
-			if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+			if (distanceAway < MARGE_AVANT)  
 			{
 				perdu = true;
 			}
@@ -308,7 +308,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 				angleAbsoluRA = notrePosition.orientation + (float)M_PI + ((float)M_PI_2 + (float)ANGLE_CAPTEUR) / 2;
 				distanceAway = ((float)donneesCapteurs.droit + (float)donneesCapteurs.arriereDroit) / 2 + (float)TAILLES_ROBOTS;
 
-				if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+				if (distanceAway < MARGE_AVANT)  
 				{
 					perdu = true;
 				}
@@ -337,7 +337,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 				angleAbsoluRA = notrePosition.orientation +3* (float)M_PI_2;
 				distanceAway = (float)donneesCapteurs.droit +(float)TAILLES_ROBOTS;
 
-				if (distanceAway < MARGE_COTE) // changer pour droit et gauche
+				if (distanceAway < MARGE_COTE)  
 				{
 					perdu = true;
 				}
@@ -371,7 +371,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 					angleAbsoluRA = notrePosition.orientation + (float)M_PI;
 					distanceAway = (float)donneesCapteurs.arriere + (float)TAILLES_ROBOTS; // (float)TAILLES_ROBOTS pour la taille des robots
 
-					if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+					if (distanceAway < MARGE_AVANT)  
 					{
 						perdu = true;
 					}
@@ -402,7 +402,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						angleAbsoluRA = notrePosition.orientation + (float)M_PI - (float)ANGLE_CAPTEUR / 2;
 						distanceAway = ((float)donneesCapteurs.arriereGauche + (float)donneesCapteurs.arriere) / 2 + (float)TAILLES_ROBOTS;
 
-						if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+						if (distanceAway < MARGE_AVANT)  
 						{
 							perdu = true;
 						}
@@ -431,7 +431,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						angleAbsoluRA = notrePosition.orientation +(float)M_PI + (float)ANGLE_CAPTEUR / 2;
 						distanceAway = ((float)donneesCapteurs.arriereDroit + (float)donneesCapteurs.arriere) / 2 +(float)TAILLES_ROBOTS;
 
-						if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+						if (distanceAway < MARGE_AVANT)  
 						{
 							perdu = true;
 						}
@@ -462,7 +462,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						angleAbsoluRA = notrePosition.orientation + (float)M_PI + (float)ANGLE_CAPTEUR;
 						distanceAway = (float)donneesCapteurs.arriereDroit + (float)TAILLES_ROBOTS;
 
-						if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+						if (distanceAway < MARGE_AVANT)  
 						{
 							perdu = true;
 						}
@@ -493,7 +493,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							angleAbsoluRA = notrePosition.orientation + (float)M_PI_2 + ((float)M_PI_2 - (float)ANGLE_CAPTEUR) / 2;
 							distanceAway = ((float)donneesCapteurs.gauche + (float)donneesCapteurs.arriereGauche) / 2 + (float)TAILLES_ROBOTS;
 
-							if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+							if (distanceAway < MARGE_AVANT)  
 							{
 								perdu = true;
 							}
@@ -522,7 +522,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							angleAbsoluRA = notrePosition.orientation + (float)M_PI -(float)ANGLE_CAPTEUR;
 							distanceAway = (float)donneesCapteurs.arriereGauche + (float)TAILLES_ROBOTS;
 
-							if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+							if (distanceAway < MARGE_AVANT)  
 							{
 								perdu = true;
 							}
@@ -555,7 +555,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								angleAbsoluRA = notrePosition.orientation + ((float)M_PI_2 + (float)ANGLE_CAPTEUR) / 2;
 								distanceAway = ((float)donneesCapteurs.gauche + (float)donneesCapteurs.avantGauche) / 2 + (float)TAILLES_ROBOTS;
 
-								if (distanceAway < MARGE_COTE) // changer pour droit et gauche
+								if (distanceAway < MARGE_COTE)  
 								{
 									perdu = true;
 								}
@@ -583,7 +583,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								angleAbsoluRA = notrePosition.orientation + (float)M_PI_2;
 								distanceAway = (float)donneesCapteurs.gauche + (float)TAILLES_ROBOTS;
 
-								if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+								if (distanceAway < MARGE_AVANT)  
 								{
 									perdu = true;
 								}
@@ -613,7 +613,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								angleAbsoluRA = notrePosition.orientation + (float)ANGLE_CAPTEUR;
 								distanceAway = (float)donneesCapteurs.avantGauche + (float)TAILLES_ROBOTS;
 
-								if (distanceAway < MARGE_AVANT) // changer pour droit et gauche
+								if (distanceAway < MARGE_AVANT)  
 								{
 									perdu = true;
 								}
