@@ -30,6 +30,8 @@ public :
 	ObstacleCercle getRobotAdverse();
 	ObstacleCercle getBordDeTable();
 	ObstacleMap getObstacleMap();
+	float getAngleAbsoluRA();
+	float getDistanceAway();
 
 private :
 
@@ -37,6 +39,8 @@ private :
 	ObstacleCercle robotAdverse;
 	ObstacleCercle bordDeTable;
 	bool perdu;
+	float angleAbsoluRA; //Angle absolue du robot adverse par rapport au repere de base
+	float distanceAway; // la distance entre notre robot et le robot adverse (centre-centre)
 };
 
 #endif
