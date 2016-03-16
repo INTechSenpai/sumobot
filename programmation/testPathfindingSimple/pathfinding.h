@@ -11,7 +11,10 @@ class Pathfinding
 {
 public:
     Pathfinding();
-    Trajectory computePath(Position start, Position pointIntermediaire, Position goal, ObstacleMap map);
+    //pas besoin de préciser l'orientation de start et goal
+    Trajectory computePath(Position start, Position pointIntermediaire, Position goal);
+    //besoin de préciser l'orientation de start et goal
+    Trajectory computePath(Position start, Position goal);
 };
 
 #endif // PATHFINDING_H

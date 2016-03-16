@@ -4,7 +4,7 @@
 Pathfinding::Pathfinding()
 {}
 
-Trajectory Pathfinding::computePath(Position start, Position pointIntermediaire, Position goal, ObstacleMap map) {
+Trajectory Pathfinding::computePath(Position start, Position pointIntermediaire, Position goal) {
     float xCentre, yCentre, rayonCourbure, distanceParcourue;
     Trajectory trajectoire;
     xCentre = -1*(
@@ -55,3 +55,43 @@ Trajectory Pathfinding::computePath(Position start, Position pointIntermediaire,
     return trajectoire;
 
 }
+
+Trajectory Pathfinding::computePath(Position start, Position goal) {
+    Trajectory trajectoire;
+    UnitMove unitmove;
+    unitmove.stopAfterMove = false;
+    unitmove.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+    start.orientation = fmod(start.orientation,2*M_PI);
+    goal.orientation = fmod(goal.orientation,2*M_PI);
+
+    //rotation pure
+    if ((start.x == goal.x)&&(start.y==goal.y)) {
+        unitmove.setBendRadiusMm(0);
+        unitmove.setLengthRadians(fmod(start.orientation - goal.orientation,2*M_PI));
+        return trajectoire;
+    }
+    //trajectoire droite
+    else if ((start.orientation == goal.orientation)) {
+        unitmove.setBendRadiusMm(INFINITE_RADIUS);
+        unitmove.setLengthMm(sqrt((start.x - goal.x)*(start.x - goal.x) + (start.y - goal.y)*(start.y - goal.y)));
+    }
+    //trajectoire courbe
+    else {
+        float rayonCourbure = sqrt((start.x - goal.x)*(start.x - goal.x) + (start.y - goal.y)*(start.y - goal.y)) /
+                              (2*cos( (M_PI/2) - fmod(start.orientation - goal.orientation,2*M_PI) / 2));
+        float longueurMvt = rayonCourbure*(start.orientation - goal.orientation);
+        if (longueurMvt < 0) {
+            longueurMvt *= -1;
+        }
+
+        unitmove.setBendRadiusMm(rayonCourbure);
+        unitmove.setLengthMm(longueurMvt);
+    }
+
+    trajectoire.push_back(unitmove);
+    std::cout << unitmove.getBendRadiusMm() << std::endl;
+    std::cout << unitmove.getLengthMm() << std::endl;
+    return trajectoire;
+
+}
+
