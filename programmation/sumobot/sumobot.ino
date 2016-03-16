@@ -66,9 +66,10 @@ void setup()
 	pinMode(13, OUTPUT);
 	digitalWrite(13, HIGH);
 
-	unitMove.setBendRadiusTicks(2000);
-	unitMove.setLengthTicks(10000);
-	unitMove.setSpeedTicks_S(3000);
+	unitMove.setBendRadiusMm(375);
+	unitMove.setLengthTicks(50000);
+	unitMove.setSpeedTicks_S(4000);
+	unitMove.stopAfterMove = true;
 
 	trajectory.push_back(unitMove);
 
@@ -94,7 +95,7 @@ void setup()
 
 void loop()
 {
-	//*
+	/*
 	ici = motionControlSystem.getPosition();
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	bool perdu;
@@ -116,7 +117,7 @@ void loop()
 
 	//*/
 
-	//*
+	/*
 	Serial.printf("av: %d | avG: %d | avD %d ||| ar: %d | arG: %d | arD: %d ||| G: %d | D:%d\n",
 		obstacleMap.avant,
 		obstacleMap.avantGauche,
@@ -147,14 +148,14 @@ void loop()
 		robotAdverse.position.xSpeed,
 		robotAdverse.position.ySpeed);
 	//*/
-	//*
+	/*
 	Serial.println();
 
 	delay(100);
 	//*/
 
 	static float kp = 2, ki = 0.01, kd = 50;
-	static int speed = 5000;
+	static int speed = 5000, bendRadius = 375, length = 300;
 
 	if (Serial.available())
 	{
@@ -196,10 +197,14 @@ void loop()
 		}
 		else if (!strcmp(inputBuffer, "d"))
 		{
+			/*
 			Serial.printf("Kp= %g\n", kp);
 			Serial.printf("Ki= %g\n", ki);
 			Serial.printf("Kd= %g\n", kd);
 			Serial.printf("Speed= %d\n", speed);
+			*/
+			Serial.printf("Length= %d\n", length);
+			Serial.printf("BendR= %d\n", bendRadius);
 		}
 		else if (!strcmp(inputBuffer, "s"))
 		{
@@ -216,10 +221,59 @@ void loop()
 				Serial.printf("g: %d | d: %d\n", left, right);
 			}
 		}
+		else if (!strcmp(inputBuffer, "b"))
+		{
+			Serial.println("Bend radius ?");
+			read(inputBuffer);
+			if (!strcmp(inputBuffer, "inf"))
+			{
+				bendRadius = INFINITE_RADIUS;
+			}
+			else
+			{
+				bendRadius = atoi(inputBuffer);
+			}
+			Serial.printf("BendR= %d\n", bendRadius);
+		}
+		else if (!strcmp(inputBuffer, "l"))
+		{
+			Serial.println("Length ?");
+			read(inputBuffer);
+			length = atoi(inputBuffer);
+			Serial.printf("Length= %d\n", length);
+		}
 		else if (!strcmp(inputBuffer, "z"))
 		{
+			Serial.println("Go !");
+			trajectory[0].setBendRadiusMm(bendRadius);
+			trajectory[0].setLengthMm(length);
 			motionControlSystem.setTrajectory(trajectory);
 		}
+		else if (!strcmp(inputBuffer, "xy"))
+		{
+			ici = motionControlSystem.getPosition();
+			Serial.printf("x: %g | y: %g | o: %g\n", ici.x, ici.y, ici.orientation);
+		}
+		else if (!strcmp(inputBuffer, "rp"))
+		{
+			ici.x = 0;
+			ici.y = 0;
+			ici.orientation = 0;
+			ici.xSpeed = 0;
+			ici.ySpeed = 0;
+			motionControlSystem.setPosition(ici);
+		}
+		else if (!strcmp(inputBuffer, "deploy"))
+		{
+			Serial.println("Deploy !");
+			motionControlSystem.deployMove();
+		}
+		else if (!strcmp(inputBuffer, "reset"))
+		{
+			Serial.println("Reset !");
+			motionControlSystem.resetMove();
+		}
+
 		Serial.println("");
 	}
 }
