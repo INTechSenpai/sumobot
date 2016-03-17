@@ -24,7 +24,8 @@
 #define PIN_A_RIGHT_ENCODER	17
 #define PIN_B_RIGHT_ENCODER	16
 
-#define ROBOT_RADIUS		50.0	// Rayon du robot, en mm
+#define ROBOT_RADIUS		45.0	// Rayon du robot, en mm
+
 #define FREQ_ASSERV			2000	// Fréquence d'asservissement
 #define AVERAGE_SPEED_SIZE	50		// Nombre de valeurs à utiliser dans le calcul de la moyenne glissante permettant de lisser la mesure de vitesse
 #define TRACKER_SIZE		800 	// Nombre d'états consécutifs du système à stocker pour le débug
@@ -81,10 +82,11 @@ private:
 
 	// Vitesse de déplacement : variable partagée par les deux asservissements en position
 	volatile int32_t movingSpeed;		// ticks/seconde
+	// Pour le calcul de l'accélération :
+	volatile int32_t previousMovingSpeed; // en ticks.s^-2
 
-	//	Vitesses globales
-	volatile int32_t maxTranslationSpeed;		// definit la consigne max de vitesse de translation envoiée au PID (trapèze)
-	volatile int32_t maxRotationSpeed;			// definit la consigne max de vitesse de rotation envoiée au PID (trapèze)
+	// Accélération maximale (variation maximale de movingSpeed)
+	volatile int32_t maxAcceleration;	// ticks*s^-2
 
 
 	//	Pour faire de jolies courbes de réponse du système, la vitesse moyenne c'est mieux !
@@ -165,6 +167,9 @@ public:
 
 	/* Gestion des déplacements */
 	void setTrajectory(const Trajectory&);
+	uint32_t getCurrentMove();
+	void deployMove(); // permet de déployer les pelles du robot (à faire en début de match)
+	void resetMove(); // permet de ranger les pelles du robot (à faire pendant la préparation du match)
 	bool isMoving() const;
 	bool isBlocked() const;
 	void stop();

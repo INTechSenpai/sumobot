@@ -59,19 +59,19 @@ Trajectory Pathfinding::computePath(Position start, Position pointIntermediaire,
 Trajectory Pathfinding::computePath(Position start, Position goal) {
     Trajectory trajectoire;
     UnitMove unitmove;
-    unitmove.stopAfterMove = false;
     unitmove.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
     start.orientation = fmod(start.orientation,2*M_PI);
     goal.orientation = fmod(goal.orientation,2*M_PI);
 
     //rotation pure
     if ((start.x == goal.x)&&(start.y==goal.y)) {
+        unitmove.stopAfterMove = true;
         unitmove.setBendRadiusMm(0);
         unitmove.setLengthRadians(fmod(start.orientation - goal.orientation,2*M_PI));
-        return trajectoire;
     }
     //trajectoire droite
     else if ((start.orientation == goal.orientation)) {
+        unitmove.stopAfterMove = false;
         unitmove.setBendRadiusMm(INFINITE_RADIUS);
         unitmove.setLengthMm(sqrt((start.x - goal.x)*(start.x - goal.x) + (start.y - goal.y)*(start.y - goal.y)));
     }
@@ -80,10 +80,11 @@ Trajectory Pathfinding::computePath(Position start, Position goal) {
         float rayonCourbure = sqrt((start.x - goal.x)*(start.x - goal.x) + (start.y - goal.y)*(start.y - goal.y)) /
                               (2*cos( (M_PI/2) - fmod(start.orientation - goal.orientation,2*M_PI) / 2));
         float longueurMvt = rayonCourbure*(start.orientation - goal.orientation);
-        if (longueurMvt < 0) {
+       /* if (longueurMvt < 0) {
             longueurMvt *= -1;
-        }
+        }*/
 
+        unitmove.stopAfterMove = false;
         unitmove.setBendRadiusMm(rayonCourbure);
         unitmove.setLengthMm(longueurMvt);
     }
@@ -95,3 +96,47 @@ Trajectory Pathfinding::computePath(Position start, Position goal) {
 
 }
 
+Trajectory Pathfinding::computePath(float rotation, float rayonCourbure, float longueur) {
+
+    Trajectory trajectoire;
+    UnitMove rotation;
+    UnitMove ligneCourbe;
+
+    rotation.stopAfterMove = true;
+    rotation.setBendRadiusMm(0);
+    rotation.setLengthRadians(fmod(rotation,2*M_PI));
+    rotation.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+
+    trajectoire.push_back(rotation);
+
+    ligneCourbe.stopAfterMove = false;
+    ligneCourbe.setBendRadiusMm(rayonCourbure);
+    ligneCourbe.setLengthMm(longueur);
+    ligneCourbe.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+
+    trajectoire.push_back(ligneCourbe);
+
+}
+
+Trajectory computePathFoncerRobot(Position start, Position goal) {
+
+    Trajectory trajectoire;
+
+    UnitMove rotation;
+    rotation.stopAfterMove = true;
+    rotation.setBendRadiusMm(0);
+    rotation.setLengthRadians(fmod(start.orientation - goal.orientation,2*M_PI));
+    rotation.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+
+    trajectoire.push_back(rotation);
+
+    UnitMove avancerDroit;
+    avancerDroit.stopAfterMove = false;
+    avancerDroit.setBendRadiusMm(INFINITE_RADIUS);
+    avancerDroit.setLengthMm(sqrt((start.x - goal.x)*(start.x - goal.x) + (start.y - goal.y)*(start.y - goal.y)));
+    avancerDroit.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+
+    trajectoire.push_back(avancerDroit);
+
+
+}

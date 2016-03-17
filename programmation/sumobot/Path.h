@@ -18,8 +18,10 @@
 #include <vector>
 
 /* Conversion Tick-mm et Radians-mm */
-#define TICK_TO_MM 0.2077			// unité : mm/ticks
-#define TICK_TO_RADIAN 0.0014468	// unité : radians/ticks
+#define TICK_TO_MM 0.097143			// unité : mm/ticks
+#define TICK_TO_RADIAN 0.0017453	// unité : radians/ticks
+
+#define COS_PI_4	0.7071067811865	// cos(PI/4) utilisé pour les calculs
 
 
 /* Le rayon "infini" permet de définir une trajectoire rectiligne
@@ -88,7 +90,9 @@ public:
 
 	void setBendRadiusMm(int32_t bendRadiusMM)
 	{
-		bendRadius = bendRadiusMM / TICK_TO_MM;
+		bendRadius = bendRadiusMM;
+		bendRadius *= COS_PI_4;
+		bendRadius /= TICK_TO_MM;
 	}
 	void setBendRadiusTicks(int32_t bendRadiusTicks)
 	{

@@ -28,6 +28,8 @@ averageLeftSpeed(), averageRightSpeed()
 	rightSpeedPID.setOutputLimits(-1023, 1023);
 
 	movingSpeed = 0;
+	previousMovingSpeed = 0;
+	maxAcceleration = 13000;
 
 	delayToStop = 100;
 	minSpeed = 600;
@@ -65,11 +67,46 @@ void MotionControlSystem::enablePwmControl(bool enable)
 
 void MotionControlSystem::setTrajectory(const Trajectory& newTrajectory)
 {
+	currentMove = -1; // L'appel à nextMove() incrémentera currentMove et il vaudra bien 0
 	currentTrajectory = newTrajectory;
 	moving = true;
 	blocked = false;
-	currentMove = -1; // L'appel à nextMove() incrémentera currentMove et il vaudra bien 0
 	nextMove();
+}
+
+uint32_t MotionControlSystem::getCurrentMove()
+{
+	return currentMove;
+}
+
+void MotionControlSystem::deployMove()
+{
+	UnitMove deployMove;
+	deployMove.setBendRadiusMm(0); // trajectoire circulaire
+	deployMove.setLengthRadians(0.3);
+	deployMove.setSpeedMm_S(1000);
+	deployMove.stopAfterMove = false;
+	Trajectory deployTrajectory;
+	deployTrajectory.push_back(deployMove);
+
+	setTrajectory(deployTrajectory);
+
+	while (moving);
+}
+
+void MotionControlSystem::resetMove()
+{
+	UnitMove resetMove;
+	resetMove.setBendRadiusMm(0); // trajectoire circulaire
+	resetMove.setLengthRadians(-0.3);
+	resetMove.setSpeedMm_S(1000);
+	resetMove.stopAfterMove = false;
+	Trajectory resetTrajectory;
+	resetTrajectory.push_back(resetMove);
+
+	setTrajectory(resetTrajectory);
+
+	while (moving);
 }
 
 inline void MotionControlSystem::nextMove()
@@ -191,25 +228,51 @@ void MotionControlSystem::control()
 				}
 				else
 				{
-					movingSpeed = maxSpeed;
+					if (currentTrajectory[currentMove].getLengthTicks() > 0)
+					{
+						movingSpeed = maxSpeed;
+					}
+					else
+					{
+						movingSpeed = -maxSpeed;
+					}
 				}
 
+
+
+
+				/* Limitation des variations de movingSpeed (limitation de l'accélération) */
+				if (movingSpeed - previousMovingSpeed > maxAcceleration / FREQ_ASSERV)
+				{
+					movingSpeed = previousMovingSpeed + maxAcceleration / FREQ_ASSERV;
+				}
+				else if (previousMovingSpeed - movingSpeed > maxAcceleration / FREQ_ASSERV)
+				{
+					movingSpeed = previousMovingSpeed - maxAcceleration / FREQ_ASSERV;
+				}
+				previousMovingSpeed = movingSpeed;
+
+
+
+
+
 				/* Calcul des vitesses des deux moteurs à partir de movingSpeed et de bendRadius */
-				int32_t radius = currentTrajectory[currentMove].getBendRadiusTicks();
+				static int32_t radius;
+				radius = currentTrajectory[currentMove].getBendRadiusTicks();
 				if (radius == 0)
 				{
 					leftSpeedSetpoint = -movingSpeed;
 					rightSpeedSetpoint = movingSpeed;
 				}
-				else if (radius > 0)
+				else if (radius == INFINITE_RADIUS)
 				{
-					leftSpeedSetpoint = (int32_t)(((double)radius - ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
-					rightSpeedSetpoint = (int32_t)(((double)radius + ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
+					leftSpeedSetpoint = movingSpeed;
+					rightSpeedSetpoint = movingSpeed;
 				}
 				else
 				{
-					leftSpeedSetpoint = (int32_t)(((double)radius + ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
-					rightSpeedSetpoint = (int32_t)(((double)radius - ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
+					leftSpeedSetpoint = (int32_t)(((double)radius - ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
+					rightSpeedSetpoint = (int32_t)(((double)radius + ROBOT_RADIUS / TICK_TO_MM)*(double)movingSpeed / (double)radius);
 				}
 			}
 		}
@@ -223,8 +286,6 @@ void MotionControlSystem::control()
 	if (rightSpeedControlled)
 		rightSpeedPID.compute();	// Actualise la valeur de 'rightPWM'
 
-	//Serial.println(leftPWM);
-	//Serial.println(rightPWM);
 
 	if (pwmControlled)
 	{
@@ -313,6 +374,9 @@ void MotionControlSystem::stop() {
 
 	currentTrajectory.clear();
 	currentMove = 0;
+
+	movingSpeed = 0;
+	previousMovingSpeed = 0;
 
 	motor.runLeft(0);
 	motor.runRight(0);
