@@ -63,6 +63,7 @@ uint8_t read(char* string) {
 void setup()
 {
 	Serial.begin(9600);
+
 	pinMode(13, OUTPUT);
 	digitalWrite(13, HIGH);
 
@@ -101,7 +102,7 @@ void loop()
 	bool perdu;
 	perdu = table.updateObstacleMap(obstacleMap, ici);
 	motionControlSystem.setPosition(ici);
-
+/*
 	Serial.printf("avG: %d | avD %d ||| arG: %d | arD: %d\n",
 		obstacleMap.solAvantGauche,
 		obstacleMap.solAvantDroit,
@@ -110,10 +111,10 @@ void loop()
 		);
 
 	Serial.printf("x: %f | y: %f | o: %f | perdu: %d\n", ici.x, ici.y, ici.orientation, perdu);
+	*/
 
-
-	//table.updateObstacleMap(obstacleMap, ici);
-	//robotAdverse = table.getRobotAdverse();
+	table.updateObstacleMap(obstacleMap, ici);
+	robotAdverse = table.getRobotAdverse();
 
 	//*/
 
@@ -129,7 +130,7 @@ void loop()
 		obstacleMap.droit
 		);
 	//*/
-	/*
+	//*
 	Serial.printf("av: %d | avG: %d | avD %d ||| ar: %d | arG: %d | arD: %d ||| G: %d | D:%d\n",
 		obstacleMap.speedAvant,
 		obstacleMap.speedAvantGauche,
