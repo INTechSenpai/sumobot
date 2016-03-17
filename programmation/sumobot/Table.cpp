@@ -128,8 +128,366 @@ if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGa
 	}
 }
 
+if (donneesCapteurs.avant < 630) // cohérence capteur avant
+{
+	if (donneesCapteurs.avantDroit < 255)
+	{
+		if (donneesCapteurs.avantDroit - donneesCapteurs.avant > MARGE_COHERENCE)
+		{
+			donneesCapteurs.avantDroit = 255;
+		}
+		else
+		{
+			if (donneesCapteurs.avantDroit - donneesCapteurs.avant < -MARGE_COHERENCE)
+			{
+				donneesCapteurs.avant = 630;
+			}
+		}
+	}
+	if (donneesCapteurs.avantGauche < 255)
+	{
+		if (donneesCapteurs.avantGauche - donneesCapteurs.avant > MARGE_COHERENCE)
+		{
+			donneesCapteurs.avantGauche = 255;
+		}
+		else
+		{
+			if (donneesCapteurs.avantGauche - donneesCapteurs.avant < -MARGE_COHERENCE)
+			{
+				donneesCapteurs.avant = 630;
+			}
+		}
+	}
+	if (donneesCapteurs.droit < 255)
+	{
+		if (donneesCapteurs.droit - donneesCapteurs.avant > 0)
+		{
+			donneesCapteurs.droit = 255;
+		}
+		else
+		{
+			donneesCapteurs.avant = 630;
+		}
+	}
+	if (donneesCapteurs.arriereDroit < 255)
+	{
+		if (donneesCapteurs.arriereDroit - donneesCapteurs.avant > 0)
+		{
+			donneesCapteurs.arriereDroit = 255;
+		}
+		else
+		{
+			donneesCapteurs.avant = 630;
+		}
+	}
+	if (donneesCapteurs.arriere < 630)
+	{
+		if (donneesCapteurs.arriere - donneesCapteurs.avant > 0)
+		{
+			donneesCapteurs.arriere = 630;
+		}
+		else
+		{
+			donneesCapteurs.avant = 630;
+		}
+	}
+	if (donneesCapteurs.arriereGauche < 255)
+	{
+		if (donneesCapteurs.arriereGauche - donneesCapteurs.avant > 0)
+		{
+			donneesCapteurs.arriereGauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.avant = 630;
+		}
+	}
+	if (donneesCapteurs.gauche < 255)
+	{
+		if (donneesCapteurs.gauche - donneesCapteurs.avant > 0)
+		{
+			donneesCapteurs.gauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.avant = 630;
+		}
+	}
+}
 
+if (donneesCapteurs.avantDroit < 255) // coherence capteur avant droit  
+{
+	if (donneesCapteurs.avantGauche < 255)
+	{
+		if (donneesCapteurs.avantGauche - donneesCapteurs.avantDroit > MARGE_COHERENCE)
+		{
+			donneesCapteurs.avantGauche = 255;
+		}
+		else
+		{
+			if (donneesCapteurs.avantGauche - donneesCapteurs.avantDroit < -MARGE_COHERENCE)
+			{
+				donneesCapteurs.avantDroit = 255;
+			}
+		}
+	}
+	if (donneesCapteurs.droit < 255)
+	{
+		if (donneesCapteurs.droit - donneesCapteurs.avantDroit > MARGE_COHERENCE)
+		{
+			donneesCapteurs.droit = 255;
+		}
+		else
+		{
+			if (donneesCapteurs.droit - donneesCapteurs.avantDroit < -MARGE_COHERENCE)
+			donneesCapteurs.avantDroit = 255;
+		}
+	}
+	if (donneesCapteurs.arriereDroit < 255)
+	{
+		if (donneesCapteurs.arriereDroit - donneesCapteurs.avantDroit > 0)
+		{
+			donneesCapteurs.arriereDroit = 255;
+		}
+		else
+		{
+			donneesCapteurs.avantDroit = 255;
+		}
+	}
+	if (donneesCapteurs.arriere < 630)
+	{
+		if (donneesCapteurs.arriere - donneesCapteurs.avantDroit > 0)
+		{
+			donneesCapteurs.arriere = 630;
+		}
+		else
+		{
+			donneesCapteurs.avantDroit = 255;
+		}
+	}
+	if (donneesCapteurs.arriereGauche < 255)
+	{
+		if (donneesCapteurs.arriereGauche - donneesCapteurs.avantDroit > 0)
+		{
+			donneesCapteurs.arriereGauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.avantDroit = 255;
+		}
+	}
+	if (donneesCapteurs.gauche < 255)
+	{
+		if (donneesCapteurs.gauche - donneesCapteurs.avantDroit > 0)
+		{
+			donneesCapteurs.gauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.avantDroit = 255;
+		}
+	}
+}
 
+if (donneesCapteurs.droit < 255) // coherence capteur droit  
+{
+	if (donneesCapteurs.avantGauche < 255)
+	{
+		if (donneesCapteurs.avantGauche - donneesCapteurs.droit > 0)
+		{
+			donneesCapteurs.avantGauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.droit = 255;
+		}
+	}
+	if (donneesCapteurs.arriereDroit < 255)
+	{
+		if (donneesCapteurs.arriereDroit - donneesCapteurs.droit > MARGE_COHERENCE)
+		{
+			donneesCapteurs.arriereDroit = 255;
+		}
+		else
+		{
+			if (donneesCapteurs.arriereDroit - donneesCapteurs.droit < -MARGE_COHERENCE)
+			donneesCapteurs.droit = 255;
+		}
+	}
+	if (donneesCapteurs.arriere < 630)
+	{
+		if (donneesCapteurs.arriere - donneesCapteurs.droit > 0)
+		{
+			donneesCapteurs.arriere = 630;
+		}
+		else
+		{
+			donneesCapteurs.droit = 255;
+		}
+	}
+	if (donneesCapteurs.arriereGauche < 255)
+	{
+		if (donneesCapteurs.arriereGauche - donneesCapteurs.droit > 0)
+		{
+			donneesCapteurs.arriereGauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.droit = 255;
+		}
+	}
+	if (donneesCapteurs.gauche < 255)
+	{
+		if (donneesCapteurs.gauche - donneesCapteurs.droit > 0)
+		{
+			donneesCapteurs.gauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.droit = 255;
+		}
+	}
+}
+
+if (donneesCapteurs.arriereDroit < 255) // coherence capteur arriere droit
+{
+	if (donneesCapteurs.avantGauche < 255)
+	{
+		if (donneesCapteurs.avantGauche - donneesCapteurs.arriereDroit > 0)
+		{
+			donneesCapteurs.avantGauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.arriereDroit = 255;
+		}
+	}
+	if (donneesCapteurs.arriere < 630)
+	{
+		if (donneesCapteurs.arriere - donneesCapteurs.arriereDroit > MARGE_AVANT)
+		{
+			donneesCapteurs.arriere = 630;
+		}
+		else
+		{
+			if (donneesCapteurs.arriere - donneesCapteurs.arriereDroit < -MARGE_AVANT)
+			{
+				donneesCapteurs.arriereDroit = 255;
+			}
+		}
+	}
+	if (donneesCapteurs.arriereGauche < 255)
+	{
+		if (donneesCapteurs.arriereGauche - donneesCapteurs.arriereDroit > MARGE_COHERENCE)
+		{
+			donneesCapteurs.arriereGauche = 255;
+		}
+		else
+		{
+			if (donneesCapteurs.arriereGauche - donneesCapteurs.arriereDroit < -MARGE_COHERENCE)
+			{
+				donneesCapteurs.arriereDroit = 255;
+			}
+		}
+	}
+	if (donneesCapteurs.gauche < 255)
+	{
+		if (donneesCapteurs.gauche - donneesCapteurs.arriereDroit > 0)
+		{
+			donneesCapteurs.gauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.arriereDroit = 255;
+		}
+	}
+}
+
+if (donneesCapteurs.arriere < 630) // coherence capteur arriere
+{
+	if (donneesCapteurs.avantGauche < 255)
+	{
+		if (donneesCapteurs.avantGauche - donneesCapteurs.arriere > 0)
+		{
+			donneesCapteurs.avantGauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.arriere = 630;
+		}
+	}
+	if (donneesCapteurs.arriereGauche < 255)
+	{
+		if (donneesCapteurs.arriereGauche - donneesCapteurs.arriere > MARGE_COHERENCE)
+		{
+			donneesCapteurs.arriereGauche = 255;
+		}
+		else
+		{
+			if (donneesCapteurs.arriereGauche - donneesCapteurs.arriere < -MARGE_COHERENCE)
+			{
+				donneesCapteurs.arriere = 630;
+			}
+		}
+	}
+	if (donneesCapteurs.gauche < 255)
+	{
+		if (donneesCapteurs.gauche - donneesCapteurs.arriere > 0)
+		{
+			donneesCapteurs.gauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.arriere = 630;
+		}
+	}
+}
+
+if (donneesCapteurs.arriereGauche < 255) // coherence capteur arriere gauche
+{
+	if (donneesCapteurs.avantGauche < 255)
+	{
+		if (donneesCapteurs.avantGauche - donneesCapteurs.arriereGauche > 0)
+		{
+			donneesCapteurs.avantGauche = 255;
+		}
+		else
+		{
+			donneesCapteurs.arriereGauche = 255;
+		}
+	}
+	if (donneesCapteurs.gauche < 255)
+	{
+		if (donneesCapteurs.gauche - donneesCapteurs.arriereGauche > MARGE_COHERENCE)
+		{
+			donneesCapteurs.gauche = 255;
+		}
+		else
+		{
+			if (donneesCapteurs.gauche - donneesCapteurs.arriereGauche < -MARGE_COHERENCE)
+			{
+				donneesCapteurs.arriereGauche = 255;
+			}
+		}
+	}
+}
+if (donneesCapteurs.gauche < 255) // coherence capteur gauche
+{
+	if (donneesCapteurs.avantGauche < 255)
+	{
+		if (donneesCapteurs.avantGauche - donneesCapteurs.arriereGauche > MARGE_COHERENCE)
+		{
+			donneesCapteurs.avantGauche = 255;
+		}
+		else
+		{
+			if (donneesCapteurs.avantGauche - donneesCapteurs.arriereGauche > MARGE_COHERENCE)
+			{
+				donneesCapteurs.arriereGauche = 255;
+			}
+		}
+	}
+}
 
 /*
 on va checker les capteurs 1 a 1 dans le sens indirect à partir de l avant sachant qu il n est possible theoriquement d avoir
@@ -555,7 +913,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								angleAbsoluRA = notrePosition.orientation + ((float)M_PI_2 + (float)ANGLE_CAPTEUR) / 2;
 								distanceAway = ((float)donneesCapteurs.gauche + (float)donneesCapteurs.avantGauche) / 2 + (float)TAILLES_ROBOTS;
 
-								if (distanceAway < MARGE_COTE)  
+								if (distanceAway < MARGE_AVANT)  
 								{
 									perdu = true;
 								}
@@ -583,7 +941,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								angleAbsoluRA = notrePosition.orientation + (float)M_PI_2;
 								distanceAway = (float)donneesCapteurs.gauche + (float)TAILLES_ROBOTS;
 
-								if (distanceAway < MARGE_AVANT)  
+								if (distanceAway < MARGE_COTE)  
 								{
 									perdu = true;
 								}
@@ -649,42 +1007,44 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 if (angleAbsoluRA < 0)
 {
 	angleAbsoluRA += 2 * M_PI;
+	if (angleAbsoluRA < 0)
+	{
+		angleAbsoluRA += 2 * M_PI;
+	}
 }
 
 if (angleAbsoluRA > 2*M_PI)
 {
 	angleAbsoluRA -= 2 * M_PI;
+	if (angleAbsoluRA > 2 * M_PI)
+	{
+		angleAbsoluRA -= 2 * M_PI;
+	}
 }
 
 if (robotAdverse.position.orientation < 0)
 {
 	robotAdverse.position.orientation += 2 * M_PI;
+	if (robotAdverse.position.orientation < 0)
+	{
+		robotAdverse.position.orientation += 2 * M_PI;
+	}
 }
 
 if (robotAdverse.position.orientation > 2 * M_PI)
 {
 	robotAdverse.position.orientation -= 2 * M_PI;
+	if (robotAdverse.position.orientation > 2 * M_PI)
+	{
+		robotAdverse.position.orientation -= 2 * M_PI;
+	}
 }
 
-if (angleAbsoluRA < 0)
-{
-	angleAbsoluRA += 2 * M_PI;
-}
 
-if (angleAbsoluRA > 2 * M_PI)
-{
-	angleAbsoluRA -= 2 * M_PI;
-}
 
-if (robotAdverse.position.orientation < 0)
-{
-	robotAdverse.position.orientation += 2 * M_PI;
-}
 
-if (robotAdverse.position.orientation > 2 * M_PI)
-{
-	robotAdverse.position.orientation -= 2 * M_PI;
-}
+
+
 
 if (perdu)
 {
