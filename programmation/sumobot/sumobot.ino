@@ -95,7 +95,7 @@ void setup()
 
 void loop()
 {
-	/*
+	//*
 	ici = motionControlSystem.getPosition();
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	bool perdu;
@@ -117,7 +117,7 @@ void loop()
 
 	//*/
 
-	/*
+	//*
 	Serial.printf("av: %d | avG: %d | avD %d ||| ar: %d | arG: %d | arD: %d ||| G: %d | D:%d\n",
 		obstacleMap.avant,
 		obstacleMap.avantGauche,
@@ -148,7 +148,7 @@ void loop()
 		robotAdverse.position.xSpeed,
 		robotAdverse.position.ySpeed);
 	//*/
-	/*
+	//*
 	Serial.println();
 
 	delay(100);
