@@ -240,7 +240,9 @@ if (donneesCapteurs.avantDroit < 255) // coherence capteur avant droit
 		else
 		{
 			if (donneesCapteurs.droit - donneesCapteurs.avantDroit < -MARGE_COHERENCE)
-			donneesCapteurs.avantDroit = 255;
+			{
+				donneesCapteurs.avantDroit = 255;
+			}
 		}
 	}
 	if (donneesCapteurs.arriereDroit < 255)
@@ -311,7 +313,9 @@ if (donneesCapteurs.droit < 255) // coherence capteur droit
 		else
 		{
 			if (donneesCapteurs.arriereDroit - donneesCapteurs.droit < -MARGE_COHERENCE)
-			donneesCapteurs.droit = 255;
+			{
+				donneesCapteurs.droit = 255;
+			}
 		}
 	}
 	if (donneesCapteurs.arriere < 630)
