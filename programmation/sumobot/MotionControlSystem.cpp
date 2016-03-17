@@ -81,32 +81,30 @@ uint32_t MotionControlSystem::getCurrentMove()
 
 void MotionControlSystem::deployMove()
 {
-	UnitMove deployMove;
-	deployMove.setBendRadiusMm(0); // trajectoire circulaire
-	deployMove.setLengthRadians(0.3);
-	deployMove.setSpeedMm_S(1000);
-	deployMove.stopAfterMove = false;
-	Trajectory deployTrajectory;
-	deployTrajectory.push_back(deployMove);
-
-	setTrajectory(deployTrajectory);
-
-	while (moving);
+	positionControlled = false;
+	leftSpeedControlled = false;
+	rightSpeedControlled = false;
+	leftPWM = -1023;
+	rightPWM = 1023;
+	delay(100);
+	positionControlled = true;
+	leftSpeedControlled = true;
+	rightSpeedControlled = true;
+	stop();
 }
 
 void MotionControlSystem::resetMove()
 {
-	UnitMove resetMove;
-	resetMove.setBendRadiusMm(0); // trajectoire circulaire
-	resetMove.setLengthRadians(-0.3);
-	resetMove.setSpeedMm_S(1000);
-	resetMove.stopAfterMove = false;
-	Trajectory resetTrajectory;
-	resetTrajectory.push_back(resetMove);
-
-	setTrajectory(resetTrajectory);
-
-	while (moving);
+	positionControlled = false;
+	leftSpeedControlled = false;
+	rightSpeedControlled = false;
+	leftPWM = 1023;
+	rightPWM = -1023;
+	delay(100);
+	positionControlled = true;
+	leftSpeedControlled = true;
+	rightSpeedControlled = true;
+	stop();
 }
 
 inline void MotionControlSystem::nextMove()
