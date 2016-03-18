@@ -67,11 +67,13 @@ void MotionControlSystem::enablePwmControl(bool enable)
 
 void MotionControlSystem::setTrajectory(const Trajectory& newTrajectory)
 {
+	cli();
 	currentMove = -1; // L'appel à nextMove() incrémentera currentMove et il vaudra bien 0
 	currentTrajectory = newTrajectory;
 	moving = true;
 	blocked = false;
 	nextMove();
+	sei();
 }
 
 uint32_t MotionControlSystem::getCurrentMove()
