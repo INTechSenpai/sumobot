@@ -18,11 +18,18 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
 
     //sinon....
     else 
-	{
+	{   
+        //si on est trop proche du bord de table, on fonce sur l'ennemi
+        if (positionRobot.x*positionRobot.x + positionRobot.y*positionRobot.y > 
+            (table.getBordDeTable.rayon - 40)*(table.getBordDeTable.rayon - 40)) {
 
+            Position goal = table.getRobotAdverse().position;
+            goal.orientation = table.getAngleAbsoluRA();
+            trajectoireRetour = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
+            return;
+
+        }
         Position positionAdverse = table.getRobotAdverse().position;
-        //proposition 2 : se diriger en fonction de 3 points sur le coté de l'ennemi dans le cas général,
-        //foncer sur le robot ennemi quand on est trop pres/le robot adverse au bord de la table
 
         //si le robot ennemi n'est pas détecté.
         if ((positionAdverse.x == 1000)&&(positionAdverse.y == 1000)) 
@@ -40,9 +47,36 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
 
         }
 
-        else 
+        //si le robot ennemi est trop proche, on lui fonce dessus
+        else if (table.getDistanceAway() < 150)
+        {
+            Position goal = table.getRobotAdverse().position;
+            goal.orientation = table.getAngleAbsoluRA();
+            trajectoireRetour = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
+            return;
+        }
+        //sinon le robot prend une trajectoire courbe pour passer derriere l'ennemi
+        else
 		{
 
+            float rotation = table.getAngleAbsoluRA() - M_PI/3 - positionRobot.orientation;
+            float rayonCourbure = table.getDistanceAway()*1.14;
+            float longeur = M_PI * table.getDistanceAway()/2;
+
+            if ((rotation > 0.19)||(rotation < -0.19))
+            {
+                Position goal = positionRobot;
+                goal.orientation = positionRobot.orientation + rotation;
+                trajectoireRetour = pathfinding.computePath(positionRobot, goal);
+            }
+            else 
+            {
+                Trajectory trajectoireRetour = pathfinding.computePath(rayonCourbure, longueur);
+            }
+
+            
+
+            /*
             //tourner vers le robot ennemi, en verifiant qu'on ne dépasse pas sur la table.
             Position pointIntermediaire, goal;
 
@@ -66,6 +100,7 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
 				trajectoireRetour = pathfinding.computePath(positionRobot, pointIntermediaire, goal);
 				return;
             }
+            */
         }
     }
 }

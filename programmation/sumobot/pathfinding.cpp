@@ -3,7 +3,7 @@
 Pathfinding::Pathfinding()
 {}
 
-Trajectory Pathfinding::computePath(Position start, Position pointIntermediaire, Position goal) {
+Trajectory Pathfinding::computePath(Position &start, Position &pointIntermediaire, Position &goal) {
     float xCentre, yCentre, rayonCourbure, distanceParcourue;
     Trajectory trajectoire;
     xCentre = -1*(
@@ -46,7 +46,7 @@ Trajectory Pathfinding::computePath(Position start, Position pointIntermediaire,
 
 }
 
-Trajectory Pathfinding::computePath(Position start, Position goal) {
+Trajectory Pathfinding::computePath(Position &start, Position &goal) {
     Trajectory trajectoire;
     UnitMove unitmove;
     unitmove.setSpeedMm_S(400);
@@ -84,32 +84,24 @@ Trajectory Pathfinding::computePath(Position start, Position goal) {
 
 }
 
-/*
-Trajectory Pathfinding::computePath(float rot, float rayonCourbure, float longueur) {
+
+Trajectory Pathfinding::computePath(float rayonCourbure, float longueur) {
 
     Trajectory trajectoire;
-    UnitMove rotation;
     UnitMove ligneCourbe;
-
-    rotation.stopAfterMove = true;
-    rotation.setBendRadiusMm(0);
-    rotation.setLengthRadians(fmod(rot,2*M_PI));
-    rotation.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
-
-    trajectoire.push_back(rotation);
 
     ligneCourbe.stopAfterMove = false;
     ligneCourbe.setBendRadiusMm(rayonCourbure);
     ligneCourbe.setLengthMm(longueur);
-    ligneCourbe.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+    ligneCourbe.setSpeedMm_S(400);
 
     trajectoire.push_back(ligneCourbe);
 
     return trajectoire;
 
-}*/
+}
 
-Trajectory Pathfinding::computePathFoncerRobot(Position start, Position goal, float longueur) {
+Trajectory Pathfinding::computePathFoncerRobot(Position& start, Position& goal, float longueur) {
 
     Trajectory trajectoire;
 
