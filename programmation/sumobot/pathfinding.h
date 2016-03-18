@@ -24,7 +24,7 @@ public:
     Trajectory computePath(Position &start, Position &goal);
 
     //autre trajectoire : Tourne de rotation puis suit une trajecture de rayonCourbure de longueur donnée
-    Trajectory computePath(float rayonCourbure, float longueur);
+    Trajectory computePath(int rayonCourbure, float longueur);
 
     //Quand on est perdu : tourne sur lui meme puis fonce sur l'ennemi
     Trajectory computePathFoncerRobot(Position &start, Position &goal, float longueur);

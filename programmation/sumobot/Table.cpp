@@ -36,7 +36,7 @@ bool Detection; // pour savoir si tout les capteurs ne detectent rien que l'on c
 bool indicePerdu;
 Detection = true;
 indicePerdu = true;
-Serial.printf("donnescapteuravavnt  : %f \n", donneesCapteurs.avant);
+
 
 /*
 si il y une erreur et que l on obtient un 0 sur un capteur,
@@ -408,6 +408,7 @@ if (donneesCapteurs.arriereDroit < 255) // coherence capteur arriere droit
 		}
 	}
 }
+
 
 if (donneesCapteurs.arriere < 630) // coherence capteur arriere
 {

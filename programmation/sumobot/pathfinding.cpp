@@ -49,7 +49,7 @@ Trajectory Pathfinding::computePath(Position &start, Position &pointIntermediair
 Trajectory Pathfinding::computePath(Position &start, Position &goal) {
     Trajectory trajectoire;
     UnitMove unitmove;
-    unitmove.setSpeedMm_S(400);
+    unitmove.setSpeedMm_S(200);
     start.orientation = fmod(start.orientation,2*M_PI);
     goal.orientation = fmod(goal.orientation,2*M_PI);
 
@@ -63,7 +63,7 @@ Trajectory Pathfinding::computePath(Position &start, Position &goal) {
     else if ((start.orientation == goal.orientation)) {
         unitmove.stopAfterMove = false;
         unitmove.setBendRadiusMm(INFINITE_RADIUS);
-        unitmove.setLengthMm(350);
+        unitmove.setLengthMm(450);
     }
     //trajectoire courbe
     else {
@@ -85,7 +85,7 @@ Trajectory Pathfinding::computePath(Position &start, Position &goal) {
 }
 
 
-Trajectory Pathfinding::computePath(float rayonCourbure, float longueur) {
+Trajectory Pathfinding::computePath(int rayonCourbure, float longueur) {
 
     Trajectory trajectoire;
     UnitMove ligneCourbe;
@@ -93,7 +93,8 @@ Trajectory Pathfinding::computePath(float rayonCourbure, float longueur) {
     ligneCourbe.stopAfterMove = false;
     ligneCourbe.setBendRadiusMm(rayonCourbure);
     ligneCourbe.setLengthMm(longueur);
-    ligneCourbe.setSpeedMm_S(400);
+    ligneCourbe.setSpeedMm_S(200);
+	Serial.printf("rayon de courbure :%d \n longueur : %f", rayonCourbure, longueur);
 
     trajectoire.push_back(ligneCourbe);
 
@@ -104,14 +105,12 @@ Trajectory Pathfinding::computePath(float rayonCourbure, float longueur) {
 Trajectory Pathfinding::computePathFoncerRobot(Position &start, Position& goal, float longueur) {
 
     Trajectory trajectoire;
-
-    if ((fmod(goal.orientation - start.orientation,2*M_PI) > M_PI - 0.14)&&
-        (fmod(goal.orientation - start.orientation,2*M_PI) < M_PI + 0.14)) {
+    if (!((fmod(goal.orientation - start.orientation,2*M_PI) > M_PI - 0.14)&&
+        (fmod(goal.orientation - start.orientation,2*M_PI) < M_PI + 0.14))) {
         longueur *=-1;
     }
 
     float angleRotation = goal.orientation - start.orientation;
-	Serial.printf("notre orientation : %f \n", start.orientation);
 		
     while (angleRotation > M_PI/2) {
         angleRotation = angleRotation - M_PI;
@@ -141,8 +140,6 @@ Trajectory Pathfinding::computePathFoncerRobot(Position &start, Position& goal, 
     UnitMove avancerDroit;
     avancerDroit.stopAfterMove = false;
     avancerDroit.setBendRadiusMm(INFINITE_RADIUS);
-
-	Serial.printf("longueur : %f \n", longueur);
     avancerDroit.setLengthMm(longueur);
     avancerDroit.setSpeedMm_S(450);
 

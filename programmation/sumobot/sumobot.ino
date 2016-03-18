@@ -191,13 +191,13 @@ void loop()
 
 
 	/*
-	ici = motionControlSystem.getPosition();
+	motionControlSystem.getPosition(ici);
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	bool perdu;
 	perdu = table.updateObstacleMap(obstacleMap, ici);
 	motionControlSystem.setPosition(ici);
 
-	Serial.printf("avG: %d | avD %d ||| arG: %d | arD: %d\n",
+	/*Serial.printf("avG: %d | avD %d ||| arG: %d | arD: %d\n",
 		obstacleMap.solAvantGauche,
 		obstacleMap.solAvantDroit,
 		obstacleMap.solArriereGauche,
@@ -252,23 +252,21 @@ void loop()
 
 
 
-	//*
+	/*
 	static uint32_t begin, end;
 
 	begin = micros();
-
 	motionControlSystem.getPosition(ici);
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	robotPerdu = table.updateObstacleMap(obstacleMap, ici);
 
 	motionControlSystem.setPosition(ici);
-	loliRobotKawaii.strategy(table, true, motionControlSystem.isMoving(), ici, trajectory);
+	loliRobotKawaii.strategy(table, robotPerdu, motionControlSystem.isMoving(), ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
 	//disengageProcedure(ici);
-
-	while (millis() - begin < 100000);
+	while (micros() - begin < 100000);
+	*/
 	
-	//*/
 
 
 
