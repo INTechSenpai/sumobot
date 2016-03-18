@@ -5,15 +5,22 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     Pathfinding pathfinding;
-    Position start, goal;
+    Position start, pointInter, goal;
     start.x = 50;
     start.y = 5;
-    start.orientation = 3.63;
+    start.orientation = 0;
     start.xSpeed = 50;
     start.ySpeed = 50;
-    goal.x = -27.5;
-    goal.y = -49.5;
-    goal.orientation = 0.52;
+
+    pointInter.x = -71.35;
+    pointInter.y = 4.8;
+
+    goal.x = -56.8;
+    goal.y = -53.9;
+    goal.orientation = 0;
+    pathfinding.computePath(start, pointInter, goal);
+
     pathfinding.computePath(start, goal);
+
     return 0;
 }
