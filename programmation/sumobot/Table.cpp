@@ -33,8 +33,9 @@ float cosAngleAbsolu; //le cosinus que l'on sauvegarde car va être utiliser pour
 float sinAngleAbsolu; //le sinus que l'on sauvegarde car va être utiliser pour la position
 float vitesseRelative; //vitesse relative du robot adverse par rapport au notre 
 bool Detection; // pour savoir si tout les capteurs ne detectent rien que l'on changera a false si c'est le cas
-
+bool indicePerdu;
 Detection = true;
+indicePerdu = true;
 
 /*
 si il y une erreur et que l on obtient un 0 sur un capteur,
@@ -84,19 +85,19 @@ if (donneesCapteurs.arriere == 0)
 
 if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
 {
-	perdu = false;
+	indicePerdu = false;
 	notrePosition.x = 265;
 	notrePosition.y = 265;
 }
 if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
 {
-	perdu = false;
+	indicePerdu = false;
 	notrePosition.x = -265;
 	notrePosition.y = -265;
 }
 if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
 {
-	perdu = false;
+	indicePerdu = false;
 	notrePosition.x = 265;
 	notrePosition.y = -265;
 	if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
@@ -113,7 +114,7 @@ if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit !
 }
 if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
 {
-	perdu = false;
+	indicePerdu = false;
 	notrePosition.x = -265;
 	notrePosition.y = 265;
 	if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
@@ -1046,8 +1047,10 @@ if (robotAdverse.position.orientation > 2 * M_PI)
 
 
 
-
-
+if (!indicePerdu)
+{
+	perdu = false;
+}
 
 
 if (perdu)
