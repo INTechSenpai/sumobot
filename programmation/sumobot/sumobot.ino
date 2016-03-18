@@ -265,7 +265,6 @@ void loop()
 	loliRobotKawaii.strategy(table, true, ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
 	Serial.println(ici.x);
-	disengageProcedure(ici);
 	Serial.println();
 
 

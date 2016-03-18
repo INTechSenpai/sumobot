@@ -1,4 +1,5 @@
 #include "robot.h"
+#include "MotionControlSystem.h"
 
 Robot::Robot(){}
 
@@ -28,9 +29,15 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
 		{
 
             Position goal = positionRobot;
-            goal.orientation = positionRobot.orientation + 2*M_PI - 0.1;
-			trajectoireRetour = pathfinding.computePath(positionRobot, goal);
-			return;
+			if (!motionControlSystem.isMoving())
+			{
+				goal.orientation = positionRobot.orientation + 2 * M_PI - 0.1;
+				trajectoireRetour = pathfinding.computePath(positionRobot, goal);
+				return;
+			}
+			else
+				return;
+
         }
 
         else 
