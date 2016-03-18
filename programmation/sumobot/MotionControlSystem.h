@@ -170,6 +170,7 @@ public:
 	uint32_t getCurrentMove();
 	void deployMove(); // permet de déployer les pelles du robot (à faire en début de match)
 	void resetMove(); // permet de ranger les pelles du robot (à faire pendant la préparation du match)
+	void desengageMove(bool, bool);
 	bool isMoving() const;
 	bool isBlocked() const;
 	void stop();

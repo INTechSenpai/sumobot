@@ -23,7 +23,7 @@ BattControler battControler;
 IntervalTimer motionControlThread;
 IntervalTimer sensorThread;
 
-Table table(60,400,1000,1000);
+Table table(60,410,1000,1000);
 bool robotPerdu;
 Robot loliRobotKawaii;
 
@@ -107,7 +107,32 @@ void startupProcedure()
 	pinMode(PIN_DEL_ONBOARD, INPUT);
 }
 
+void disengageProcedure(Position position)
+{
+	uint32_t rayon = table.getBordDeTable().rayon - 85;
+	if (position.x*position.x + position.y*position.y >= rayon*rayon)
+	{ // On est sur le bord de table
 
+		bool forward, asymetric;
+		if (position.x > 0 || (position.x == 0 && position.y < 0))
+		{
+			forward = false;
+			if (position.x == 0)
+				asymetric = true;
+			else
+				asymetric = false;
+		}
+		else if (position.x < 0 || (position.x == 0 && position.y > 0))
+		{
+			forward = true;
+			if (position.x == 0)
+				asymetric = true;
+			else
+				asymetric = false;
+		}
+		motionControlSystem.desengageMove(forward, asymetric);
+	}
+}
 
 
 void setup()
@@ -233,11 +258,16 @@ void loop()
 	begin = micros();
 
 	ici = motionControlSystem.getPosition();
+	Serial.println(ici.x);
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	robotPerdu = table.updateObstacleMap(obstacleMap, ici);
 	motionControlSystem.setPosition(ici);
-	loliRobotKawaii.strategy(table, robotPerdu, ici, trajectory);
+	loliRobotKawaii.strategy(table, true, ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
+	Serial.println(ici.x);
+	disengageProcedure(ici);
+	Serial.println();
+
 
 
 	while (millis() - begin < 100000);
