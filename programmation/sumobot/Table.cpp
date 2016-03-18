@@ -115,16 +115,16 @@ if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit !
 if (donneesCapteurs.solArriereGauche < LIMITE_NB && donneesCapteurs.solArriereGauche != 0)
 {
 	indicePerdu = false;
-	notrePosition.x = -265;
-	notrePosition.y = 265;
+	notrePosition.x = -230;
+	notrePosition.y = 230;
 	if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
 	{
 		notrePosition.x = 0;
-		notrePosition.y = 375;
+		notrePosition.y = 325;
 	}
 	if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
 	{
-		notrePosition.x = -375;
+		notrePosition.x = -325;
 		notrePosition.y = 0;
 	}
 }
