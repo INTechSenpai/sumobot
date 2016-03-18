@@ -49,7 +49,7 @@ Trajectory Pathfinding::computePath(Position start, Position pointIntermediaire,
 Trajectory Pathfinding::computePath(Position start, Position goal) {
     Trajectory trajectoire;
     UnitMove unitmove;
-    unitmove.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+    unitmove.setSpeedMm_S(400);
     start.orientation = fmod(start.orientation,2*M_PI);
     goal.orientation = fmod(goal.orientation,2*M_PI);
 

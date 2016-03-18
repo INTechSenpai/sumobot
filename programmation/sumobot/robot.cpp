@@ -47,8 +47,8 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
             Position pointIntermediaire, goal;
 
             //position d'arrivée : point derriere le robot adverse
-            goal.x = positionAdverse.x + table.getDistanceAway()*cos(table.getAngleAbsoluRA() - (M_PI/4));
-            goal.y = positionAdverse.y + table.getDistanceAway()*sin(table.getAngleAbsoluRA() - (M_PI/4));
+            goal.x = positionAdverse.x + table.getRobotAdverse().rayon*cos(table.getAngleAbsoluRA() - (M_PI/4));
+            goal.y = positionAdverse.y + table.getRobotAdverse().rayon*sin(table.getAngleAbsoluRA() - (M_PI/4));
 
             //point intermediaire pour passer a coté du robot adverse
             pointIntermediaire.x = positionAdverse.x + (table.getDistanceAway()/2)*cos(table.getAngleAbsoluRA() - (2*M_PI/3));
