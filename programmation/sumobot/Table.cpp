@@ -513,7 +513,7 @@ if (donneesCapteurs.avant < 630)
 		}
 
 
-		if (donneesCapteurs.speedAvant < (int32_t)MARGE_V) // se rapproche
+		if (donneesCapteurs.speedAvant < -(int32_t)MARGE_V) // se rapproche
 		{
 			robotAdverse.position.orientation = angleAbsoluRA + (float)M_PI;
 			vitesseRelative = (float)donneesCapteurs.speedAvant;
@@ -546,7 +546,7 @@ if (donneesCapteurs.avant < 630)
 
 
 
-			if (donneesCapteurs.speedAvantGauche < (int32_t)MARGE_V && donneesCapteurs.speedAvant < (int32_t)MARGE_V)
+			if (donneesCapteurs.speedAvantGauche < -(int32_t)MARGE_V && donneesCapteurs.speedAvant < -(int32_t)MARGE_V)
 			{
 				robotAdverse.position.orientation = angleAbsoluRA - (float)M_PI;
 				vitesseRelative = ((float)donneesCapteurs.speedAvant+ (float)donneesCapteurs.speedAvantGauche)/2;
@@ -576,7 +576,7 @@ if (donneesCapteurs.avant < 630)
 
 
 
-			if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V)
+			if (donneesCapteurs.speedAvantDroit < -(int32_t)MARGE_V)
 			{
 				robotAdverse.position.orientation = angleAbsoluRA - (float)M_PI;
 				vitesseRelative = ((float)donneesCapteurs.speedAvant + (float)donneesCapteurs.speedAvantDroit) / 2;
@@ -612,7 +612,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 
 
 
-			if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V && donneesCapteurs.speedDroit < (int32_t)MARGE_V)
+			if (donneesCapteurs.speedAvantDroit < -(int32_t)MARGE_V && donneesCapteurs.speedDroit < -(int32_t)MARGE_V)
 			{
 				robotAdverse.position.orientation = angleAbsoluRA - (float)M_PI;
 				vitesseRelative = ((float)donneesCapteurs.speedAvantDroit + (float)donneesCapteurs.speedDroit) /2;
@@ -642,7 +642,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 
 
 
-			if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V)
+			if (donneesCapteurs.speedAvantDroit < -(int32_t)MARGE_V)
 			{
 				robotAdverse.position.orientation = angleAbsoluRA + (float)M_PI;
 				vitesseRelative = (float)donneesCapteurs.speedAvantDroit ;
@@ -676,7 +676,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 				}
 
 
-				if (donneesCapteurs.speedArriereDroit < (int32_t)MARGE_V && donneesCapteurs.speedDroit < (int32_t)MARGE_V)
+				if (donneesCapteurs.speedArriereDroit < -(int32_t)MARGE_V && donneesCapteurs.speedDroit < -(int32_t)MARGE_V)
 				{
 					robotAdverse.position.orientation = angleAbsoluRA - (float)M_PI;
 					vitesseRelative = ((float)donneesCapteurs.speedDroit + (float)donneesCapteurs.speedArriereDroit) / 2;
@@ -705,7 +705,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 				}
 
 
-				if (donneesCapteurs.speedDroit < (int32_t)MARGE_V)
+				if (donneesCapteurs.speedDroit < -(int32_t)MARGE_V)
 				{
 					robotAdverse.position.orientation = angleAbsoluRA + (float)M_PI;
 					vitesseRelative = (float)donneesCapteurs.speedDroit;
@@ -739,7 +739,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 					}
 
 
-					if (donneesCapteurs.speedArriere < (int32_t)MARGE_V) // se rapproche
+					if (donneesCapteurs.speedArriere < -(int32_t)MARGE_V) // se rapproche
 					{
 						robotAdverse.position.orientation = angleAbsoluRA + (float)M_PI;
 						vitesseRelative = (float)donneesCapteurs.speedArriere;
@@ -770,7 +770,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						}
 
 
-						if (donneesCapteurs.speedArriereGauche < (int32_t)MARGE_V && donneesCapteurs.speedArriere < (int32_t)MARGE_V)
+						if (donneesCapteurs.speedArriereGauche < -(int32_t)MARGE_V && donneesCapteurs.speedArriere < -(int32_t)MARGE_V)
 						{
 							robotAdverse.position.orientation = angleAbsoluRA - (float)M_PI;
 							vitesseRelative = ((float)donneesCapteurs.speedArriere+ (float)donneesCapteurs.speedArriereGauche)/2;
@@ -799,7 +799,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						}
 
 
-						if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V)
+						if (donneesCapteurs.speedAvantDroit < -(int32_t)MARGE_V)
 						{
 							robotAdverse.position.orientation = angleAbsoluRA + (float)M_PI;
 							vitesseRelative = ((float)donneesCapteurs.speedArriere + (float)donneesCapteurs.speedArriereDroit) / 2;
@@ -830,7 +830,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 						}
 
 
-						if (donneesCapteurs.speedAvantDroit < (int32_t)MARGE_V)
+						if (donneesCapteurs.speedAvantDroit < -(int32_t)MARGE_V)
 						{
 							robotAdverse.position.orientation = angleAbsoluRA + (float)M_PI;
 							vitesseRelative = (float)donneesCapteurs.speedArriereDroit;
@@ -861,7 +861,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							}
 
 
-							if (donneesCapteurs.speedArriereGauche < (int32_t)MARGE_V && donneesCapteurs.speedGauche < (int32_t)MARGE_V)
+							if (donneesCapteurs.speedArriereGauche < -(int32_t)MARGE_V && donneesCapteurs.speedGauche < -(int32_t)MARGE_V)
 							{
 								robotAdverse.position.orientation = angleAbsoluRA - (float)M_PI;
 								vitesseRelative = ((float)donneesCapteurs.speedGauche + (float)donneesCapteurs.speedArriereGauche) / 2;
@@ -890,7 +890,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 							}
 
 
-							if (donneesCapteurs.speedArriereGauche < (int32_t)MARGE_V)
+							if (donneesCapteurs.speedArriereGauche < -(int32_t)MARGE_V)
 							{
 								robotAdverse.position.orientation = angleAbsoluRA + (float)M_PI;
 								vitesseRelative = (float)donneesCapteurs.speedArriereGauche;
@@ -923,7 +923,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								}
 
 
-								if (donneesCapteurs.speedAvantGauche < (int32_t)MARGE_V && donneesCapteurs.speedGauche < (int32_t)MARGE_V)
+								if (donneesCapteurs.speedAvantGauche < -(int32_t)MARGE_V && donneesCapteurs.speedGauche < -(int32_t)MARGE_V)
 								{
 									robotAdverse.position.orientation = angleAbsoluRA - (float)M_PI;
 									vitesseRelative = ((float)donneesCapteurs.speedAvantGauche + (float)donneesCapteurs.speedGauche) / 2;
@@ -951,7 +951,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								}
 
 
-								if (donneesCapteurs.speedGauche < (int32_t)MARGE_V)
+								if (donneesCapteurs.speedGauche < -(int32_t)MARGE_V)
 								{
 									robotAdverse.position.orientation = angleAbsoluRA + (float)M_PI;
 									vitesseRelative = (float)donneesCapteurs.speedGauche;
@@ -981,7 +981,7 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 								}
 
 
-								if (donneesCapteurs.speedAvantGauche < (int32_t)MARGE_V)
+								if (donneesCapteurs.speedAvantGauche < -(int32_t)MARGE_V)
 								{
 									robotAdverse.position.orientation = angleAbsoluRA + (float)M_PI;
 									vitesseRelative = (float)donneesCapteurs.speedAvantGauche;

@@ -37,10 +37,10 @@ averageLeftSpeed(), averageRightSpeed()
 	toleranceTranslation = 50;
 	toleranceRotation = 50;
 
-	translationPID.setTunings(12, 0, 0);
+	translationPID.setTunings(6.5, 0, 250);
 	rotationPID.setTunings(15, 0, 0);
-	leftSpeedPID.setTunings(10, 0, 0);
-	rightSpeedPID.setTunings(10, 0, 0);
+	leftSpeedPID.setTunings(2, 0.01, 50);
+	rightSpeedPID.setTunings(2, 0.01, 50);
 	resetPosition();
 	stop();
 }
