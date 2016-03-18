@@ -1,4 +1,5 @@
 #include "robot.h"
+#include "MotionControlSystem.h"
 
 Robot::Robot(){}
 
@@ -28,9 +29,15 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
 		{
 
             Position goal = positionRobot;
-            goal.orientation = positionRobot.orientation + 2*M_PI - 0.1;
-			trajectoireRetour = pathfinding.computePath(positionRobot, goal);
-			return;
+			if (!motionControlSystem.isMoving())
+			{
+				goal.orientation = positionRobot.orientation + 2 * M_PI - 0.1;
+				trajectoireRetour = pathfinding.computePath(positionRobot, goal);
+				return;
+			}
+			else
+				return;
+
         }
 
         else 
@@ -40,8 +47,8 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
             Position pointIntermediaire, goal;
 
             //position d'arrivée : point derriere le robot adverse
-            goal.x = positionAdverse.x + table.getDistanceAway()*cos(table.getAngleAbsoluRA() - (M_PI/4));
-            goal.y = positionAdverse.y + table.getDistanceAway()*sin(table.getAngleAbsoluRA() - (M_PI/4));
+            goal.x = positionAdverse.x + table.getRobotAdverse().rayon*cos(table.getAngleAbsoluRA() - (M_PI/4));
+            goal.y = positionAdverse.y + table.getRobotAdverse().rayon*sin(table.getAngleAbsoluRA() - (M_PI/4));
 
             //point intermediaire pour passer a coté du robot adverse
             pointIntermediaire.x = positionAdverse.x + (table.getDistanceAway()/2)*cos(table.getAngleAbsoluRA() - (2*M_PI/3));
@@ -50,9 +57,6 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
             //si la trajectoire courbe sort de la table, on fait une ligne droite
             if (goal.x*goal.x + goal.y*goal.y > table.getBordDeTable().rayon*table.getBordDeTable().rayon) 
 			{
-                Position goal = table.getRobotAdverse().position;
-                goal.orientation = table.getAngleAbsoluRA();
-
 				trajectoireRetour = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
 				return;
             }

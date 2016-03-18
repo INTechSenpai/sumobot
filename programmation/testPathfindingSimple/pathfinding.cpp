@@ -1,6 +1,7 @@
 #include "pathfinding.h"
 #include <iostream>
 #include <math.h>
+
 Pathfinding::Pathfinding()
 {}
 
@@ -30,27 +31,25 @@ Trajectory Pathfinding::computePath(Position start, Position pointIntermediaire,
     float valeurAcos1 = (start.x - xCentre)/rayonCourbure;
     float valeurAcos2 = (goal.x - xCentre)/rayonCourbure;
 
+    std::cout << "valeurAcos1 : " << valeurAcos1 << std::endl;
+    std::cout << "valeurAcos2 : " << valeurAcos2 << std::endl;
+
     if ( (valeurAcos1<-1)||(valeurAcos1>1)||(valeurAcos2<-1)||(valeurAcos2>1)) {
-        std::cout << "mauvais paramètres !" << std::endl;
         return trajectoire;
     }
     distanceParcourue = rayonCourbure*(acos(valeurAcos1)-acos(valeurAcos2));
+
+    std::cout << "rayonCourbure : " << rayonCourbure << std::endl;
+    std::cout << "distanceParcourue : " << distanceParcourue << std::endl;
+
     if (distanceParcourue < 0) {
         distanceParcourue *= -1;
     }
 
-    std::cout << " xCentre : " << xCentre;
-    std::cout << " yCentre : " << yCentre;
-    std::cout << std::endl;
-    std::cout << " distanceParcourue : " << distanceParcourue;
-    std::cout << std::endl;
-
-    std::cout << " rayonCourbure : "<< rayonCourbure << std::endl;
-
     UnitMove unitmove;
     unitmove.setBendRadiusMm(rayonCourbure);
     unitmove.setLengthMm(distanceParcourue);
-    unitmove.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+    unitmove.setSpeedMm_S(350);
     trajectoire.push_back(unitmove);
     return trajectoire;
 

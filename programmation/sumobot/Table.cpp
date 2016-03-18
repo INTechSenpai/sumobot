@@ -1011,37 +1011,37 @@ if (donneesCapteurs.avantDroit < 255) // capteur avant droit
 }
 if (angleAbsoluRA < 0)
 {
-	angleAbsoluRA += 2 * M_PI;
+	angleAbsoluRA += 2 * (float)M_PI;
 	if (angleAbsoluRA < 0)
 	{
-		angleAbsoluRA += 2 * M_PI;
+		angleAbsoluRA += 2 * (float)M_PI;
 	}
 }
 
-if (angleAbsoluRA > 2*M_PI)
+if (angleAbsoluRA > 2*(float)M_PI)
 {
-	angleAbsoluRA -= 2 * M_PI;
-	if (angleAbsoluRA > 2 * M_PI)
+	angleAbsoluRA -= 2 * (float)M_PI;
+	if (angleAbsoluRA > 2 * (float)M_PI)
 	{
-		angleAbsoluRA -= 2 * M_PI;
+		angleAbsoluRA -= 2 * (float)M_PI;
 	}
 }
 
 if (robotAdverse.position.orientation < 0)
 {
-	robotAdverse.position.orientation += 2 * M_PI;
+	robotAdverse.position.orientation += 2 * (float)M_PI;
 	if (robotAdverse.position.orientation < 0)
 	{
-		robotAdverse.position.orientation += 2 * M_PI;
+		robotAdverse.position.orientation += 2 * (float)M_PI;
 	}
 }
 
-if (robotAdverse.position.orientation > 2 * M_PI)
+if (robotAdverse.position.orientation > 2 * (float)M_PI)
 {
-	robotAdverse.position.orientation -= 2 * M_PI;
-	if (robotAdverse.position.orientation > 2 * M_PI)
+	robotAdverse.position.orientation -= 2 * (float)M_PI;
+	if (robotAdverse.position.orientation > 2 * (float)M_PI)
 	{
-		robotAdverse.position.orientation -= 2 * M_PI;
+		robotAdverse.position.orientation -= 2 * (float)M_PI;
 	}
 }
 
