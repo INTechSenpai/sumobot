@@ -28,7 +28,7 @@
 
 #define FREQ_ASSERV			2000	// Fréquence d'asservissement
 #define AVERAGE_SPEED_SIZE	50		// Nombre de valeurs à utiliser dans le calcul de la moyenne glissante permettant de lisser la mesure de vitesse
-#define TRACKER_SIZE		800 	// Nombre d'états consécutifs du système à stocker pour le débug
+#define TRACKER_SIZE		1	 	// Nombre d'états consécutifs du système à stocker pour le débug
 
 class MotionControlSystem : public Singleton<MotionControlSystem>
 {

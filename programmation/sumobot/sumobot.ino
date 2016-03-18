@@ -7,6 +7,7 @@
 #include "Motor.h"
 #include "Path.h"
 #include "Table.h"
+#include "robot.h"
 #include <vector>
 
 #define INPUT_LENGH	64
@@ -23,6 +24,8 @@ IntervalTimer motionControlThread;
 IntervalTimer sensorThread;
 
 Table table(60,400,1000,1000);
+bool robotPerdu;
+Robot loliRobotKawaii;
 
 Trajectory trajectory;
 UnitMove unitMove;
@@ -133,15 +136,27 @@ void setup()
 
 	sensorMgr.powerON();
 
-	//startupProcedure();
-
 	motionControlThread.priority(64);
 	motionControlThread.begin(motionControlInterrupt, 500);
+
+	//startupProcedure();
 
 	sensorThread.priority(128);
 	sensorThread.begin(sensorInterrupt, 30000);
 
-	//while (analogRead(PIN_STARTUP_SIGNAL) < 500); // On attend que le bouton soit pressé
+	/*
+	while (analogRead(PIN_STARTUP_SIGNAL) < 500); // On attend que le bouton soit pressé
+	uint32_t t = millis();
+	pinMode(PIN_DEL_ONBOARD, OUTPUT);
+	while (millis() - t < 5000)
+	{
+		digitalWrite(PIN_DEL_ONBOARD, HIGH);
+		delay(100);
+		digitalWrite(PIN_DEL_ONBOARD, LOW);
+		delay(100);
+	}
+	motionControlSystem.deployMove();
+	*/
 	// TODO : attendre 5 secondes en faisant clignotter la DEL orange intégrée et en déterminant notre position initiale
 }
 
@@ -156,16 +171,17 @@ void loop()
 	bool perdu;
 	perdu = table.updateObstacleMap(obstacleMap, ici);
 	motionControlSystem.setPosition(ici);
-/*
+
 	Serial.printf("avG: %d | avD %d ||| arG: %d | arD: %d\n",
 		obstacleMap.solAvantGauche,
 		obstacleMap.solAvantDroit,
 		obstacleMap.solArriereGauche,
 		obstacleMap.solArriereDroit
 		);
-
+//*/
+	/*
 	Serial.printf("x: %f | y: %f | o: %f | perdu: %d\n", ici.x, ici.y, ici.orientation, perdu);
-	*/
+	//*/
 
 	//table.updateObstacleMap(obstacleMap, ici);
 	//robotAdverse = table.getRobotAdverse();
@@ -208,6 +224,28 @@ void loop()
 
 	delay(100);
 	//*/
+
+
+
+	//*
+	static uint32_t begin, end;
+
+	begin = micros();
+
+	ici = motionControlSystem.getPosition();
+	sensorMgr.getRelativeObstacleMap(obstacleMap);
+	robotPerdu = table.updateObstacleMap(obstacleMap, ici);
+	motionControlSystem.setPosition(ici);
+	loliRobotKawaii.strategy(table, true, ici, trajectory);
+	motionControlSystem.setTrajectory(trajectory);
+
+
+	while (millis() - begin < 100000);
+	
+	//*/
+
+
+
 
 	static float kp = 12, ki = 0, kd = 0;
 	static int speed = 350, bendRadius = INFINITE_RADIUS, length = 200;
@@ -341,7 +379,6 @@ void loop()
 void motionControlInterrupt()
 {
 	static int compteurTracker = 1;
-	static uint32_t t1, t2;
 
 	/* Asservissement du robot en vitesse et position */
 	motionControlSystem.control();

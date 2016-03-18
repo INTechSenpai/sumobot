@@ -1,6 +1,12 @@
 #ifndef _TABLE_h
 #define _TABLE_h
 
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
 #define TAILLES_ROBOTS      100
 #define ANGLE_CAPTEUR       0.1745329251994329576
 #define MARGE_V				50 // la marge de vitesse pour la detection de la vitesse de rapprochement ou non
