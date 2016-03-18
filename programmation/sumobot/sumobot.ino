@@ -122,9 +122,9 @@ void setup()
 
 		trajectory.push_back(unitMove);
 
-		ici.x = 50;
-		ici.y = 50;
-		ici.orientation = PI / 4 - ANGLE_CAPTEUR_SOL;
+		ici.x = 0;
+		ici.y = 0;
+		ici.orientation = 0;
 
 		motionControlSystem.setPosition(ici);
 		motionControlSystem.setRightSpeedTunings(2, 0.01, 50);
@@ -236,7 +236,7 @@ void loop()
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	robotPerdu = table.updateObstacleMap(obstacleMap, ici);
 	motionControlSystem.setPosition(ici);
-	loliRobotKawaii.strategy(table, true, ici, trajectory);
+	loliRobotKawaii.strategy(table, robotPerdu, ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
 
 
