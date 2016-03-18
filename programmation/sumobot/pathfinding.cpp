@@ -105,12 +105,13 @@ Trajectory Pathfinding::computePathFoncerRobot(Position& start, Position& goal, 
 
     Trajectory trajectoire;
 
-    if ((fmod(goal.orientation - start.orientation,2*M_PI) > M_PI - 0.14)&&
-        (fmod(goal.orientation - start.orientation,2*M_PI) < M_PI + 0.14)) {
+    float angleRotation = goal.orientation - start.orientation;
+
+    if ((fmod(angleRotation,2*M_PI) > M_PI - 0.14)&&
+        (fmod(angleRotation,2*M_PI) < M_PI + 0.14)) {
         longueur *=-1;
     }
 
-    float angleRotation = goal.orientation - start.orientation;
 
     while (angleRotation > M_PI/2) {
         angleRotation = angleRotation - M_PI;
