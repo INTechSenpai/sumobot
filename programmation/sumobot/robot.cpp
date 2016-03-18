@@ -11,7 +11,7 @@ void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & pos
 	{
         Position goal = table.getRobotAdverse().position;
         goal.orientation = table.getAngleAbsoluRA();
-
+		Serial.printf("distanceaway : %f \n", table.getDistanceAway());
 		trajectoireRetour = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
 		return;
     }
@@ -21,7 +21,7 @@ void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & pos
 	{   
         //si on est trop proche du bord de table, on fonce sur l'ennemi
         if (positionRobot.x*positionRobot.x + positionRobot.y*positionRobot.y > 
-            (table.getBordDeTable.rayon - 40)*(table.getBordDeTable.rayon - 40)) {
+            (table.getBordDeTable().rayon - 40)*(table.getBordDeTable().rayon - 40)) {
 
             Position goal = table.getRobotAdverse().position;
             goal.orientation = table.getAngleAbsoluRA();
@@ -61,7 +61,7 @@ void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & pos
 
             float rotation = table.getAngleAbsoluRA() - M_PI/3 - positionRobot.orientation;
             float rayonCourbure = table.getDistanceAway()*1.14;
-            float longeur = M_PI * table.getDistanceAway()/2;
+            float longueur = M_PI * table.getDistanceAway()/2;
 
             if ((rotation > 0.19)||(rotation < -0.19))
             {

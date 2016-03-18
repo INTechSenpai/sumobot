@@ -101,25 +101,25 @@ Trajectory Pathfinding::computePath(float rayonCourbure, float longueur) {
 
 }
 
-Trajectory Pathfinding::computePathFoncerRobot(Position& start, Position& goal, float longueur) {
+Trajectory Pathfinding::computePathFoncerRobot(Position &start, Position& goal, float longueur) {
 
     Trajectory trajectoire;
 
-    float angleRotation = goal.orientation - start.orientation;
-
-    if ((fmod(angleRotation,2*M_PI) > M_PI - 0.14)&&
-        (fmod(angleRotation,2*M_PI) < M_PI + 0.14)) {
+    if ((fmod(goal.orientation - start.orientation,2*M_PI) > M_PI - 0.14)&&
+        (fmod(goal.orientation - start.orientation,2*M_PI) < M_PI + 0.14)) {
         longueur *=-1;
     }
 
-
+    float angleRotation = goal.orientation - start.orientation;
+	Serial.printf("notre orientation : %f \n", start.orientation);
+		
     while (angleRotation > M_PI/2) {
         angleRotation = angleRotation - M_PI;
     }
     while (angleRotation < -1*M_PI/2) {
         angleRotation = M_PI + angleRotation;
     }
-
+	
 
 
     if (! ((angleRotation < 0.14)&&(-0.14 < angleRotation))) {
@@ -142,7 +142,7 @@ Trajectory Pathfinding::computePathFoncerRobot(Position& start, Position& goal, 
     avancerDroit.stopAfterMove = false;
     avancerDroit.setBendRadiusMm(INFINITE_RADIUS);
 
-
+	Serial.printf("longueur : %f \n", longueur);
     avancerDroit.setLengthMm(longueur);
     avancerDroit.setSpeedMm_S(450);
 

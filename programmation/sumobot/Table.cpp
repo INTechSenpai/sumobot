@@ -36,6 +36,7 @@ bool Detection; // pour savoir si tout les capteurs ne detectent rien que l'on c
 bool indicePerdu;
 Detection = true;
 indicePerdu = true;
+Serial.printf("donnescapteuravavnt  : %f \n", donneesCapteurs.avant);
 
 /*
 si il y une erreur et que l on obtient un 0 sur un capteur,
@@ -1070,6 +1071,7 @@ if (Detection)
 	robotAdverse.position.y = notrePosition.y + distanceAway*sinAngleAbsolu;
 	robotAdverse.position.xSpeed = notrePosition.xSpeed + vitesseRelative*cosAngleAbsolu;
 	robotAdverse.position.ySpeed = notrePosition.ySpeed + vitesseRelative*sinAngleAbsolu;
+	Serial.printf("x,y : %f,%f \n", robotAdverse.position.x,robotAdverse.position.y);
 }
 else
 {

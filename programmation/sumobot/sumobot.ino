@@ -262,7 +262,7 @@ void loop()
 	robotPerdu = table.updateObstacleMap(obstacleMap, ici);
 
 	motionControlSystem.setPosition(ici);
-	loliRobotKawaii.strategy(table, robotPerdu, motionControlSystem.isMoving(), ici, trajectory);
+	loliRobotKawaii.strategy(table, true, motionControlSystem.isMoving(), ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
 	//disengageProcedure(ici);
 
