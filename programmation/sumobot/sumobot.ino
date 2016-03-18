@@ -252,28 +252,19 @@ void loop()
 
 
 
-	/*
+	//*
 	static uint32_t begin, end;
 
 	begin = micros();
 
 	motionControlSystem.getPosition(ici);
-	//Serial.println(ici.x);
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	robotPerdu = table.updateObstacleMap(obstacleMap, ici);
 
 	motionControlSystem.setPosition(ici);
-	loliRobotKawaii.strategy(table, true, ici, trajectory);
+	loliRobotKawaii.strategy(table, robotPerdu, motionControlSystem.isMoving(), ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
-	Serial.println(robotPerdu);
-	Serial.println(ici.x);
-	Serial.println(ici.y);
-	Serial.println(ici.orientation);
 	//disengageProcedure(ici);
-
-	Serial.println();
-
-
 
 	while (millis() - begin < 100000);
 	
