@@ -82,33 +82,33 @@ if (donneesCapteurs.arriere == 0)
 	donneesCapteurs.arriere = 630;
 }
 
-
+// deteceur au sol et repisitionnement sur un cercle de 325 mm de diametre
 if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
 {
 	indicePerdu = false;
-	notrePosition.x = 265;
-	notrePosition.y = 265;
+	notrePosition.x = 230;
+	notrePosition.y = 230;
 }
 if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
 {
 	indicePerdu = false;
-	notrePosition.x = -265;
-	notrePosition.y = -265;
+	notrePosition.x = -230;
+	notrePosition.y = -230;
 }
 if (donneesCapteurs.solAvantDroit < LIMITE_NB && donneesCapteurs.solAvantDroit != 0)
 {
 	indicePerdu = false;
-	notrePosition.x = 265;
-	notrePosition.y = -265;
+	notrePosition.x = 230;
+	notrePosition.y = -230;
 	if (donneesCapteurs.solAvantGauche < LIMITE_NB && donneesCapteurs.solAvantGauche != 0)
 	{
-		notrePosition.x = 375;
+		notrePosition.x = 325;
 		notrePosition.y = 0;
 	}
 	if (donneesCapteurs.solArriereDroit < LIMITE_NB && donneesCapteurs.solArriereDroit != 0)
 	{
 		notrePosition.x = 0;
-		notrePosition.y = -375;
+		notrePosition.y = -325;
 	}
 
 }
