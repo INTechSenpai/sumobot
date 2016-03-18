@@ -90,13 +90,14 @@ Trajectory Pathfinding::computePath(Position start, Position goal) {
     }
 
     trajectoire.push_back(unitmove);
-    std::cout << unitmove.getBendRadiusMm() << std::endl;
-    std::cout << unitmove.getLengthMm() << std::endl;
+    std::cout << "R : " << unitmove.getBendRadiusMm() << std::endl;
+    std::cout << "L : " << unitmove.getLengthMm() << std::endl;
     return trajectoire;
 
 }
 
-Trajectory Pathfinding::computePath(float rotation, float rayonCourbure, float longueur) {
+/*
+Trajectory Pathfinding::computePath(float rot, float rayonCourbure, float longueur) {
 
     Trajectory trajectoire;
     UnitMove rotation;
@@ -104,7 +105,7 @@ Trajectory Pathfinding::computePath(float rotation, float rayonCourbure, float l
 
     rotation.stopAfterMove = true;
     rotation.setBendRadiusMm(0);
-    rotation.setLengthRadians(fmod(rotation,2*M_PI));
+    rotation.setLengthRadians(fmod(rot,2*M_PI));
     rotation.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
 
     trajectoire.push_back(rotation);
@@ -116,19 +117,25 @@ Trajectory Pathfinding::computePath(float rotation, float rayonCourbure, float l
 
     trajectoire.push_back(ligneCourbe);
 
-}
+    return trajectoire;
+
+}*/
 
 Trajectory computePathFoncerRobot(Position start, Position goal) {
 
     Trajectory trajectoire;
 
-    UnitMove rotation;
-    rotation.stopAfterMove = true;
-    rotation.setBendRadiusMm(0);
-    rotation.setLengthRadians(fmod(start.orientation - goal.orientation,2*M_PI));
-    rotation.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+    if (!((start.orientation - goal.orientation < 0.14)&&(-0.14 < start.orientation - goal.orientation))) {
+        UnitMove rotation;
+        rotation.stopAfterMove = true;
+        rotation.setBendRadiusMm(0);
+        rotation.setLengthRadians(fmod(start.orientation - goal.orientation,2*M_PI));
+        rotation.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
 
-    trajectoire.push_back(rotation);
+        trajectoire.push_back(rotation);
+
+    }
+
 
     UnitMove avancerDroit;
     avancerDroit.stopAfterMove = false;
@@ -138,5 +145,5 @@ Trajectory computePathFoncerRobot(Position start, Position goal) {
 
     trajectoire.push_back(avancerDroit);
 
-
+    return trajectoire;
 }
