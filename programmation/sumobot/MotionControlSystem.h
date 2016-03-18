@@ -192,8 +192,8 @@ public:
 	void getRightSpeedTunings(float &, float &, float &) const;
 
 	/* Setter et getter de la position */
-	void setPosition(Position &);
-	Position & getPosition();
+	void setPosition(const Position &);
+	void getPosition(Position &);
 	void resetPosition(void);
 	void setDelayToStop(uint32_t);
 

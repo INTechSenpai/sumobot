@@ -563,14 +563,14 @@ void MotionControlSystem::setRightSpeedTunings(float kp, float ki, float kd) {
 /*
 * Getters/Setters des variables de position haut niveau
 */
-void MotionControlSystem::setPosition(Position & newPosition)
+void MotionControlSystem::setPosition(const Position & newPosition)
 {
 	currentPosition = newPosition;
 }
 
-Position & MotionControlSystem::getPosition()
+void MotionControlSystem::getPosition(Position & returnedPosition)
 {
-	return currentPosition;
+	returnedPosition = currentPosition;
 }
 
 

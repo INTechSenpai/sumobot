@@ -252,20 +252,24 @@ void loop()
 
 
 
-	//*
+	/*
 	static uint32_t begin, end;
 
 	begin = micros();
 
-	ici = motionControlSystem.getPosition();
-	Serial.println(ici.x);
+	motionControlSystem.getPosition(ici);
+	//Serial.println(ici.x);
 	sensorMgr.getRelativeObstacleMap(obstacleMap);
 	robotPerdu = table.updateObstacleMap(obstacleMap, ici);
+
 	motionControlSystem.setPosition(ici);
 	loliRobotKawaii.strategy(table, true, ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
+	Serial.println(robotPerdu);
 	Serial.println(ici.x);
-	disengageProcedure(ici);
+	Serial.println(ici.y);
+	Serial.println(ici.orientation);
+	//disengageProcedure(ici);
 	Serial.println();
 
 
@@ -376,7 +380,7 @@ void loop()
 		}
 		else if (!strcmp(inputBuffer, "xy"))
 		{
-			ici = motionControlSystem.getPosition();
+			motionControlSystem.getPosition(ici);
 			Serial.printf("x: %g | y: %g | o: %g\n", ici.x, ici.y, ici.orientation);
 		}
 		else if (!strcmp(inputBuffer, "rp"))
