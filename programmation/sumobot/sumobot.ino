@@ -252,7 +252,6 @@ void loop()
 
 
 
-	/*
 	static uint32_t begin, end;
 
 	begin = micros();
@@ -263,9 +262,9 @@ void loop()
 	motionControlSystem.setPosition(ici);
 	loliRobotKawaii.strategy(table, robotPerdu, motionControlSystem.isMoving(), ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
-	//disengageProcedure(ici);
+	disengageProcedure(ici);
 	while (micros() - begin < 100000);
-	*/
+
 	
 
 

@@ -105,7 +105,7 @@ Trajectory Pathfinding::computePath(int rayonCourbure, float longueur) {
 Trajectory Pathfinding::computePathFoncerRobot(Position &start, Position& goal, float longueur) {
 
     Trajectory trajectoire;
-    if (!((fmod(goal.orientation - start.orientation,2*M_PI) > M_PI - 0.14)&&
+    if (((fmod(goal.orientation - start.orientation,2*M_PI) > M_PI - 0.14)&&
         (fmod(goal.orientation - start.orientation,2*M_PI) < M_PI + 0.14))) {
         longueur *=-1;
     }
