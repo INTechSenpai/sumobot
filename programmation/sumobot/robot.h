@@ -22,12 +22,10 @@ class Robot
 {
 public:
     Robot();
-    void strategy(Table &, bool, Position &, Trajectory &);
+    void strategy(Table &, bool, bool, Position &, Trajectory &);
 
 private:
     Pathfinding pathfinding;
-
-    MotionControlSystem motionControlSystem;
 };
 
 #endif // ROBOT_H

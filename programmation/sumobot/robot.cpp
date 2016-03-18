@@ -4,7 +4,7 @@
 Robot::Robot(){}
 
 
-void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Trajectory & trajectoireRetour) 
+void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & positionRobot, Trajectory & trajectoireRetour) 
 {
     //Si on est perdu, on considere qu'on est au milieu et on fonce sur l'ennemi
     if (estPerdu) 
@@ -36,7 +36,7 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
 		{
 
             Position goal = positionRobot;
-			if (!motionControlSystem.isMoving())
+			if (!isMoving)
 			{
 				goal.orientation = positionRobot.orientation + 2 * M_PI - 0.1;
 				trajectoireRetour = pathfinding.computePath(positionRobot, goal);
