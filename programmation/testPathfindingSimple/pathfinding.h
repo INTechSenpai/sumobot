@@ -20,7 +20,7 @@ public:
     //Trajectory computePath(float rot, float rayonCourbure, float longueur);
 
     //Quand on est perdu : tourne sur lui meme puis fonce sur l'ennemi
-    Trajectory computePathFoncerRobot(Position start, Position goal);
+    Trajectory computePathFoncerRobot(Position start, Position goal, float longueur);
 };
 
 #endif // PATHFINDING_H

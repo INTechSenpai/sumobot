@@ -22,7 +22,8 @@ void Robot::strategy() {
     if (estPerdu) {
         Position goal = table.getRobotAdverse().position;
         goal.orientation = table.getAngleAbsoluRA();
-        Trajectory trajectoireFoncerRobot = pathfinding.computePathFoncerRobot(positionRobot, goal);
+
+        Trajectory trajectoireFoncerRobot = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
         motionControlSystem.setTrajectory(trajectoireFoncerRobot);
     }
 
@@ -38,7 +39,7 @@ void Robot::strategy() {
 
             Position goal = positionRobot;
             goal.orientation = positionRobot.orientation + 2*M_PI - 0.1;
-            Trajectory trajectoireTourner = pathfinding.computePath(positionRobot, goal);
+            Trajectory trajectoireTourner = pathfinding.computePath(positionRobot, goal, table.getDistanceAway());
             if (!trajectoireTourner.empty()){
                 motionControlSystem.setTrajectory(trajectoireTourner);
             }
@@ -58,14 +59,24 @@ void Robot::strategy() {
             pointIntermediaire.x = positionAdverse.x + (table.getDistanceAway()/2)*cos(table.getAngleAbsoluRA() - (2*M_PI/3));
             pointIntermediaire.y = positionAdverse.y + (table.getDistanceAway()/2)*sin(table.getAngleAbsoluRA() - (2*M_PI/3));
 
-            //todo : verification de la
+            //si ça depasse on fonce
+            if (goal.x*goal.x + goal.y*goal.y > table.getBordDeTable().rayon*table.getBordDeTable().rayon) {
+                Position goal = table.getRobotAdverse().position;
+                goal.orientation = table.getAngleAbsoluRA();
 
-            //creation de la trajectoire
-            Trajectory trajectoireContourner = pathfinding.computePath(positionRobot, pointIntermediaire, goal);
-
-            if (!trajectoireContourner.empty()){
-                motionControlSystem.setTrajectory(trajectoireContourner);
+                Trajectory trajectoireFoncerRobot = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
+                motionControlSystem.setTrajectory(trajectoireFoncerRobot);
             }
+            else {
+                //creation de la trajectoire courbe
+                Trajectory trajectoireContourner = pathfinding.computePath(positionRobot, pointIntermediaire, goal);
+
+                if (!trajectoireContourner.empty()){
+                    motionControlSystem.setTrajectory(trajectoireContourner);
+                }
+            }
+
+
         }
     }
 

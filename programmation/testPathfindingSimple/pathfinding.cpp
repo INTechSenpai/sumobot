@@ -121,29 +121,54 @@ Trajectory Pathfinding::computePath(float rot, float rayonCourbure, float longue
 
 }*/
 
-Trajectory computePathFoncerRobot(Position start, Position goal) {
+Trajectory Pathfinding::computePathFoncerRobot(Position start, Position goal, float longueur) {
 
     Trajectory trajectoire;
 
-    if (!((start.orientation - goal.orientation < 0.14)&&(-0.14 < start.orientation - goal.orientation))) {
+    if ((fmod(goal.orientation - start.orientation,2*M_PI) > M_PI - 0.14)&&
+        (fmod(goal.orientation - start.orientation,2*M_PI) < M_PI + 0.14)) {
+        longueur *=-1;
+    }
+
+    float angleRotation = goal.orientation - start.orientation;
+
+    while (angleRotation > M_PI/2) {
+        angleRotation = angleRotation - M_PI;
+    }
+    while (angleRotation < -1*M_PI/2) {
+        angleRotation = M_PI + angleRotation;
+    }
+
+
+    std::cout << "angleRotation : " << angleRotation << std::endl;
+    std::cout << "longueur : " << longueur << std::endl;
+
+    if (! ((angleRotation < 0.14)&&(-0.14 < angleRotation))) {
+
         UnitMove rotation;
         rotation.stopAfterMove = true;
         rotation.setBendRadiusMm(0);
-        rotation.setLengthRadians(fmod(start.orientation - goal.orientation,2*M_PI));
         rotation.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
+
+        rotation.setLengthRadians(angleRotation);
+
 
         trajectoire.push_back(rotation);
 
     }
 
 
+    else {
     UnitMove avancerDroit;
     avancerDroit.stopAfterMove = false;
     avancerDroit.setBendRadiusMm(INFINITE_RADIUS);
-    avancerDroit.setLengthMm(sqrt((start.x - goal.x)*(start.x - goal.x) + (start.y - goal.y)*(start.y - goal.y)));
+
+
+    avancerDroit.setLengthMm(longueur);
     avancerDroit.setSpeedMm_S(sqrt(start.xSpeed*start.xSpeed + start.ySpeed*start.ySpeed));
 
     trajectoire.push_back(avancerDroit);
+    }
 
     return trajectoire;
 }

@@ -6,21 +6,20 @@ int main(int argc, char *argv[])
 {
     Pathfinding pathfinding;
     Position start, pointInter, goal;
-    start.x = 50;
-    start.y = 5;
-    start.orientation = 0;
-    start.xSpeed = 50;
-    start.ySpeed = 50;
+    start.x = 6;
+    start.y = 26;
+    start.orientation = 2.86;
+    start.xSpeed = 450;
+    start.ySpeed = 450;
 
     pointInter.x = -71.35;
     pointInter.y = 4.8;
 
-    goal.x = -56.8;
-    goal.y = -53.9;
-    goal.orientation = 0;
-    pathfinding.computePath(start, pointInter, goal);
+    goal.x = 5;
+    goal.y = 4;
+    goal.orientation = 0.65;
 
-    pathfinding.computePath(start, goal);
+    pathfinding.computePathFoncerRobot(start, goal);
 
     return 0;
 }
