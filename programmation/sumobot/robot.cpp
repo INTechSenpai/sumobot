@@ -50,9 +50,6 @@ void Robot::strategy(Table & table, bool estPerdu, Position & positionRobot, Tra
             //si la trajectoire courbe sort de la table, on fait une ligne droite
             if (goal.x*goal.x + goal.y*goal.y > table.getBordDeTable().rayon*table.getBordDeTable().rayon) 
 			{
-                Position goal = table.getRobotAdverse().position;
-                goal.orientation = table.getAngleAbsoluRA();
-
 				trajectoireRetour = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
 				return;
             }
