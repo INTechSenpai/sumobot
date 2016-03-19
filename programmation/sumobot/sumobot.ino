@@ -107,31 +107,47 @@ void startupProcedure()
 	pinMode(PIN_DEL_ONBOARD, INPUT);
 }
 
-void disengageProcedure(Position position)
+void disengageProcedure(bool avG, bool avD, bool arG, bool arD)
 {
-	uint32_t rayon = table.getBordDeTable().rayon - 85;
-	if (position.x*position.x + position.y*position.y >= rayon*rayon)
-	{ // On est sur le bord de table
-
-		bool forward, asymetric;
-		if (position.x > 0 || (position.x == 0 && position.y < 0))
-		{
-			forward = false;
-			if (position.x == 0)
-				asymetric = true;
-			else
-				asymetric = false;
-		}
-		else if (position.x < 0 || (position.x == 0 && position.y > 0))
-		{
-			forward = true;
-			if (position.x == 0)
-				asymetric = true;
-			else
-				asymetric = false;
-		}
-		motionControlSystem.desengageMove(forward, asymetric);
+	/* Marche arrière à effectuer */
+	if ((avG && !avD) && (!arG && !arD))
+	{
+		motionControlSystem.desengageMove(false, false);
 	}
+	else if ((!avG && avD) && (!arG && !arD))
+	{
+		motionControlSystem.desengageMove(false, false);
+	}
+	else if ((avG && avD) && (!arG && !arD))
+	{
+		motionControlSystem.desengageMove(false, false);
+	}
+
+	/* Marche avant à effectuer */
+	else if ((!avG && !avD) && (arG && !arD))
+	{
+		motionControlSystem.desengageMove(true, false);
+	}
+	else if ((!avG && !avD) && (!arG && arD))
+	{
+		motionControlSystem.desengageMove(true, false);
+	}
+	else if ((!avG && !avD) && (arG && arD))
+	{
+		motionControlSystem.desengageMove(true, false);
+	}
+
+	/* Dégagement courbe */
+	else if ((avG && !avD) && (arG && !arD))
+	{
+		motionControlSystem.desengageMove(true, true);
+	}
+	else if ((!avG && !avD) && (!arG && !arD))
+	{
+		motionControlSystem.desengageMove(false, true);
+	}
+
+	/* Dans les autres cas, soit on ne sait pas se dégager, soit on est encore sur la table */
 }
 
 
@@ -262,7 +278,6 @@ void loop()
 	motionControlSystem.setPosition(ici);
 	loliRobotKawaii.strategy(table, robotPerdu, motionControlSystem.isMoving(), ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
-	disengageProcedure(ici);
 	while (micros() - begin < 100000);
 
 	
@@ -421,9 +436,12 @@ void motionControlInterrupt()
 /* Fonction appellée toutes les 30ms mettant à jour les capteurs (à tour de rôle pour les capteurs lents) */
 void sensorInterrupt()
 {
+	static RelativeObstacleMap floorObstacleMap; // Utilisé pour détecter les bords de table le plus bas niveau (rapidement) possible
+
 	/* Mise à jour des DELs indiquant l'état de la batterie */
 	battControler.control();
 
+	// Mise à jour des capteurs du sol
 	sensorMgr.updateFloor();
 
 	static uint8_t compteur = 0;
@@ -442,6 +460,16 @@ void sensorInterrupt()
 		sensorMgr.updateSides();
 		compteur = 0;
 	}
+
+
+	sensorMgr.getRelativeObstacleMap(floorObstacleMap);
+	/* LIMITE_NB est défini dans table.h */
+	disengageProcedure(
+		floorObstacleMap.solAvantGauche < LIMITE_NB,
+		floorObstacleMap.solAvantDroit < LIMITE_NB,
+		floorObstacleMap.solArriereGauche < LIMITE_NB,
+		floorObstacleMap.solArriereDroit < LIMITE_NB
+		);
 }
 
 
