@@ -13,8 +13,8 @@
 #define D_CAPTEUR_SOL		75 // distance en le centre du robot et les capteurs sol
 #define ANGLE_CAPTEUR_SOL	0.6283185307179586476 // l'angle entre "l avant" du robot et le capteur avant gauche
 #define LIMITE_NB			800		// Limite de décision en "noir" et "blanc"
-#define MARGE_COTE			130		// la marge pour etre en mode perdu sur les cotés
-#define MARGE_AVANT			158		// la marge pour etre en mode perdu sur l'avant et l'arriere cotés
+#define MARGE_COTE			145		// la marge pour etre en mode perdu sur les cotés
+#define MARGE_AVANT			165		// la marge pour etre en mode perdu sur l'avant et l'arriere cotés
 #define MARGE_COHERENCE		200		// la marge pour que deux valeur de capteur adjacents sooit acceptés
 #define _USE_MATH_DEFINES	
 #include "Position.h"

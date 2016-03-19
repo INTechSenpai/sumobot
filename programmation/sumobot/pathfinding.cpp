@@ -46,7 +46,7 @@ Trajectory Pathfinding::computePath(Position &start, Position &pointIntermediair
 
 }
 
-Trajectory Pathfinding::computePath(Position &start, Position &goal) {
+Trajectory Pathfinding::computePathP(Position &start, Position &goal) {
     Trajectory trajectoire;
     UnitMove unitmove;
     unitmove.setSpeedMm_S(200);
@@ -85,7 +85,7 @@ Trajectory Pathfinding::computePath(Position &start, Position &goal) {
 }
 
 
-Trajectory Pathfinding::computePath(int rayonCourbure, float longueur) {
+Trajectory Pathfinding::computePathR(int rayonCourbure, float longueur) {
 
     Trajectory trajectoire;
     UnitMove ligneCourbe;
@@ -94,7 +94,6 @@ Trajectory Pathfinding::computePath(int rayonCourbure, float longueur) {
     ligneCourbe.setBendRadiusMm(rayonCourbure);
     ligneCourbe.setLengthMm(longueur);
     ligneCourbe.setSpeedMm_S(350);
-	Serial.printf("rayon de courbure :%d \n longueur : %f", rayonCourbure, longueur);
 
     trajectoire.push_back(ligneCourbe);
 
@@ -105,23 +104,25 @@ Trajectory Pathfinding::computePath(int rayonCourbure, float longueur) {
 Trajectory Pathfinding::computePathFoncerRobot(Position &start, Position& goal, float longueur) {
 
     Trajectory trajectoire;
-    if (((fmod(goal.orientation - start.orientation,2*M_PI) > M_PI - 0.14)&&
-        (fmod(goal.orientation - start.orientation,2*M_PI) < M_PI + 0.14))) {
+    if (((fmod(goal.orientation - start.orientation,2*M_PI) > M_PI - 0.20)&&
+        (fmod(goal.orientation - start.orientation,2*M_PI) < M_PI + 0.20))) {
         longueur *=-1;
     }
-
-    float angleRotation = goal.orientation - start.orientation;
-		
-    while (angleRotation > M_PI/2) {
-        angleRotation = angleRotation - M_PI;
-    }
-    while (angleRotation < -1*M_PI/2) {
-        angleRotation = M_PI + angleRotation;
-    }
 	
-
-
-    if (! ((angleRotation < 0.19)&&(-0.19 < angleRotation))) {
+    float angleRotation = goal.orientation - start.orientation;
+	if (angleRotation > 3 * M_PI_2) {
+		angleRotation = angleRotation - 2 * M_PI;
+	}
+	if (angleRotation < -3*M_PI_2) {
+		angleRotation = -2*M_PI + angleRotation;
+	}
+	if (angleRotation > M_PI_2) {
+		angleRotation = angleRotation - M_PI;
+	}
+	if (angleRotation < -M_PI_2) {
+		angleRotation = M_PI + angleRotation;
+	}
+    if (! ((angleRotation < 0.14)&&(-0.14 < angleRotation))) {
 
         UnitMove rotation;
 		rotation.stopAfterMove = !((angleRotation < 0.32) && (-0.32 < angleRotation));

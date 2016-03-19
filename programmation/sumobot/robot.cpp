@@ -7,6 +7,7 @@ Robot::Robot(){}
 void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & positionRobot, Trajectory & trajectoireRetour) 
 {
     //Si on est perdu, on considere qu'on est au milieu et on fonce sur l'ennemi
+	Position positionAdverse = table.getRobotAdverse().position;
     if (estPerdu) 
 	{
         Position goal = table.getRobotAdverse().position;
@@ -19,7 +20,7 @@ void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & pos
     else 
 	{   
         //si on est trop proche du bord de table, on fonce sur l'ennemi
-        if (positionRobot.x*positionRobot.x + positionRobot.y*positionRobot.y > 
+        /*if (positionRobot.x*positionRobot.x + positionRobot.y*positionRobot.y > 
             (table.getBordDeTable().rayon - 40)*(table.getBordDeTable().rayon - 40)) {
 
             Position goal = table.getRobotAdverse().position;
@@ -28,7 +29,6 @@ void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & pos
             return;
 
         }
-        Position positionAdverse = table.getRobotAdverse().position;
 
         //si le robot ennemi n'est pas détecté.
         /*if ((positionAdverse.x == 1000)&&(positionAdverse.y == 1000)) 
@@ -45,45 +45,78 @@ void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & pos
         }
 
         //si le robot ennemi est trop proche, on lui fonce dessus
-        else*/ if (table.getDistanceAway() < 200)
+        else lalalalala if (table.getDistanceAway() < 200)
         {
-            Position goal = table.getRobotAdverse().position;
-            goal.orientation = table.getAngleAbsoluRA();
-            trajectoireRetour = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
-            return;
+			Position goal = table.getRobotAdverse().position;
+			goal.orientation = table.getAngleAbsoluRA();
+			trajectoireRetour = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
+			return;
         }
         //sinon le robot prend une trajectoire courbe pour passer derriere l'ennemi
         else
-		{
-			float rotation = table.getAngleAbsoluRA() - M_PI/2 - positionRobot.orientation;
-            int rayonCourbure = (int)(table.getDistanceAway()/2);
-            float longueur = M_PI * table.getDistanceAway()/2;
+		{*/
+			float rotation;
+			int rayonCourbure;
+			float longueur;
+			if (!((positionAdverse.x == 1000) && (positionAdverse.y == 1000)))
+				angleRAPrecedent = table.getAngleAbsoluRA();
+
+				rotation = fmod(angleRAPrecedent - M_PI_2 - positionRobot.orientation, 2 * M_PI);
+
+			if (fmod(angleRAPrecedent - positionRobot.orientation, 2 * M_PI) >= 0 && fmod(angleRAPrecedent - positionRobot.orientation, 2 * M_PI) < M_PI)
+			{
+				rayonCourbure = (int)(table.getDistanceAway() / 2);
+				if (rayonCourbure < 101)
+				{
+					Position goal = table.getRobotAdverse().position;
+					goal.orientation = angleRAPrecedent;
+					trajectoireRetour = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
+					return;
+				}
+				longueur = M_PI * table.getDistanceAway() / 2;
+
+			}
+			else //if (table.getAngleAbsoluRA > M_PI && angleRAPrecedent <= 2*M_PI)
+			{
+				rotation = fmod(rotation + M_PI,2*M_PI);
+				rayonCourbure = (int)(-table.getDistanceAway() / 2);
+				if (rayonCourbure > -101)
+				{
+					Position goal = table.getRobotAdverse().position;
+					goal.orientation = angleRAPrecedent;
+					trajectoireRetour = pathfinding.computePathFoncerRobot(positionRobot, goal, table.getDistanceAway());
+					return;
+				}
+				longueur = -M_PI * table.getDistanceAway() / 2;
+			}
 			if (!((positionAdverse.x == 1000) && (positionAdverse.y == 1000)))
 				ancientRayon = rayonCourbure;
+			else
+				rayonCourbure = ancientRayon;
 
-			while (rotation > M_PI) {
-				rotation = rotation - 2*M_PI;
+			while (rotation > 3*M_PI_2) {
+				rotation = -rotation + 2*M_PI;
 			}
-			while (rotation < -1 * M_PI) {
-				rotation = 2*M_PI + rotation;
+			while (rotation > M_PI_2) {
+				rotation = -M_PI + rotation;
 			}
 
             if ((rotation > 0.19)||(rotation < -0.19))
             {
                 Position goal = positionRobot;
                 goal.orientation = positionRobot.orientation + rotation;
-                trajectoireRetour = pathfinding.computePath(positionRobot, goal);
+                trajectoireRetour = pathfinding.computePathP(positionRobot, goal);
 				//Trajectory trajectoireAvancer = pathfinding.computePath(rayonCourbure, longueur);
 				//UnitMove avancerCourbe = trajectoireAvancer.front();
 				//trajectoireRetour.push_back(avancerCourbe);
 				//trajectoireRetour = pathfinding.computePath(rayonCourbure, longueur);
 				if ((positionAdverse.x == 1000) && (positionAdverse.y == 1000))
-				trajectoireRetour = pathfinding.computePath(ancientRayon, 500);
+				trajectoireRetour = pathfinding.computePathR(rayonCourbure, longueur);
 				return;
             }
             else 
             {
-                trajectoireRetour = pathfinding.computePath(rayonCourbure, longueur);
+                trajectoireRetour = pathfinding.computePathR(rayonCourbure, longueur);
 				//trajectoireRetour = pathfinding.computePath(INFINITE_RADIUS, longueur);
 				return;
             }
@@ -115,6 +148,6 @@ void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & pos
 				return;
             }
             */
-        }
+        //}
     }
 }
