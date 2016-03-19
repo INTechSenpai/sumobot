@@ -276,6 +276,13 @@ public:
 		sei(); // Réactivation des interruptions
 	}
 
+	void getRelativeObstacleMapNoReset(RelativeObstacleMap & output)
+	{
+		cli();
+		output = relativeObstacleMap;
+		sei();
+	}
+
 
 private:
 	ToFSensor capteurAvantGauche;

@@ -1072,7 +1072,6 @@ if (Detection)
 	robotAdverse.position.y = notrePosition.y + distanceAway*sinAngleAbsolu;
 	robotAdverse.position.xSpeed = notrePosition.xSpeed + vitesseRelative*cosAngleAbsolu;
 	robotAdverse.position.ySpeed = notrePosition.ySpeed + vitesseRelative*sinAngleAbsolu;
-	Serial.printf("x,y : %f,%f \n", robotAdverse.position.x,robotAdverse.position.y);
 }
 else
 {

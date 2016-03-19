@@ -142,7 +142,7 @@ void disengageProcedure(bool avG, bool avD, bool arG, bool arD)
 	{
 		motionControlSystem.desengageMove(true, true);
 	}
-	else if ((!avG && !avD) && (!arG && !arD))
+	else if ((!avG && avD) && (!arG && arD))
 	{
 		motionControlSystem.desengageMove(false, true);
 	}
@@ -213,13 +213,20 @@ void loop()
 	perdu = table.updateObstacleMap(obstacleMap, ici);
 	motionControlSystem.setPosition(ici);
 
-	/*Serial.printf("avG: %d | avD %d ||| arG: %d | arD: %d\n",
-		obstacleMap.solAvantGauche,
-		obstacleMap.solAvantDroit,
-		obstacleMap.solArriereGauche,
-		obstacleMap.solArriereDroit
-		);
-//*/
+
+	if ((obstacleMap.solAvantGauche != 0 || obstacleMap.solAvantDroit != 0) || (obstacleMap.solArriereGauche != 0 || obstacleMap.solArriereDroit != 0))
+	{
+		Serial.printf("avG: %d | avD %d ||| arG: %d | arD: %d\n",
+			obstacleMap.solAvantGauche,
+			obstacleMap.solAvantDroit,
+			obstacleMap.solArriereGauche,
+			obstacleMap.solArriereDroit
+			);
+		Serial.println();
+	}
+	delay(100);
+	//*/
+	
 	/*
 	Serial.printf("x: %f | y: %f | o: %f | perdu: %d\n", ici.x, ici.y, ici.orientation, perdu);
 	//*/
@@ -266,8 +273,7 @@ void loop()
 	delay(100);
 	//*/
 
-
-
+	//*
 	static uint32_t begin, end;
 
 	begin = micros();
@@ -276,11 +282,11 @@ void loop()
 	robotPerdu = table.updateObstacleMap(obstacleMap, ici);
 
 	motionControlSystem.setPosition(ici);
-	loliRobotKawaii.strategy(table, robotPerdu, motionControlSystem.isMoving(), ici, trajectory);
+	loliRobotKawaii.strategy(table, true, motionControlSystem.isMoving(), ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
 	while (micros() - begin < 100000);
 
-	
+	//*/
 
 
 
@@ -460,17 +466,17 @@ void sensorInterrupt()
 		sensorMgr.updateSides();
 		compteur = 0;
 	}
+	
 
-
-	sensorMgr.getRelativeObstacleMap(floorObstacleMap);
+	sensorMgr.getRelativeObstacleMapNoReset(floorObstacleMap);
 	/* LIMITE_NB est défini dans table.h */
 	disengageProcedure(
-		floorObstacleMap.solAvantGauche < LIMITE_NB,
-		floorObstacleMap.solAvantDroit < LIMITE_NB,
-		floorObstacleMap.solArriereGauche < LIMITE_NB,
-		floorObstacleMap.solArriereDroit < LIMITE_NB
+		floorObstacleMap.solAvantGauche < LIMITE_NB && floorObstacleMap.solAvantGauche != 0,
+		floorObstacleMap.solAvantDroit < LIMITE_NB && floorObstacleMap.solAvantDroit != 0,
+		floorObstacleMap.solArriereGauche < LIMITE_NB && floorObstacleMap.solArriereGauche != 0,
+		floorObstacleMap.solArriereDroit < LIMITE_NB && floorObstacleMap.solArriereDroit != 0
 		);
-}
+} 
 
 
 /* Ce bout de code permet de compiler avec std::vector */
