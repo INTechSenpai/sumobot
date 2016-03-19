@@ -45,7 +45,7 @@ void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & pos
         }
 
         //si le robot ennemi est trop proche, on lui fonce dessus
-        else*/ if (table.getDistanceAway() < 150)
+        else*/ if (table.getDistanceAway() < 200)
         {
             Position goal = table.getRobotAdverse().position;
             goal.orientation = table.getAngleAbsoluRA();
@@ -55,17 +55,17 @@ void Robot::strategy(Table & table, bool estPerdu, bool isMoving, Position & pos
         //sinon le robot prend une trajectoire courbe pour passer derriere l'ennemi
         else
 		{
-			float rotation = table.getAngleAbsoluRA() + M_PI/3 - positionRobot.orientation;
-            int rayonCourbure = (int)table.getDistanceAway()/2;
+			float rotation = table.getAngleAbsoluRA() - M_PI/2 - positionRobot.orientation;
+            int rayonCourbure = (int)(table.getDistanceAway()/2);
             float longueur = M_PI * table.getDistanceAway()/2;
 			if (!((positionAdverse.x == 1000) && (positionAdverse.y == 1000)))
 				ancientRayon = rayonCourbure;
 
-			while (rotation > M_PI / 2) {
-				rotation = rotation - M_PI;
+			while (rotation > M_PI) {
+				rotation = rotation - 2*M_PI;
 			}
-			while (rotation < -1 * M_PI / 2) {
-				rotation = M_PI + rotation;
+			while (rotation < -1 * M_PI) {
+				rotation = 2*M_PI + rotation;
 			}
 
             if ((rotation > 0.19)||(rotation < -0.19))
