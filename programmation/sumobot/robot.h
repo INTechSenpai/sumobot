@@ -26,6 +26,9 @@ public:
 
 private:
     Pathfinding pathfinding;
+	float angleRAPrecedente;
+	int ancientRayon;
+
 };
 
 #endif // ROBOT_H
