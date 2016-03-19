@@ -102,7 +102,7 @@ void MotionControlSystem::resetMove()
 	rightSpeedControlled = false;
 	leftPWM = 1023;
 	rightPWM = -1023;
-	delay(100);
+	delay(200);
 	positionControlled = true;
 	leftSpeedControlled = true;
 	rightSpeedControlled = true;
@@ -138,7 +138,7 @@ void MotionControlSystem::desengageMove(bool forward, bool asymetric)
 		}
 		rightPWM = -1023;
 	}
-	delay(1000);
+	delay(500);
 	positionControlled = true;
 	leftSpeedControlled = true;
 	rightSpeedControlled = true;
