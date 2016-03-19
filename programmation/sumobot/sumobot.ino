@@ -72,7 +72,7 @@ void startupProcedure()
 	uint32_t beginPressedTime = 0;
 	bool pressed = false;
 	uint32_t beginTime = millis();
-	while (millis() - beginTime < 5000 || pressed)
+	while (millis() - beginTime < 4000 || pressed)
 	{
 		if (analogRead(PIN_STARTUP_SIGNAL) < 500)
 		{// Bouton relaché
@@ -84,7 +84,7 @@ void startupProcedure()
 			pressed = true;
 		}
 
-		if (millis() - beginPressedTime > 3000 && pressed)
+		if (millis() - beginPressedTime > 2000 && pressed)
 		{// Bouton appuyé depuis plus de 3 secondes
 			pinMode(PIN_DEL_OK, OUTPUT);
 			pinMode(PIN_DEL_BATT, OUTPUT);
@@ -168,8 +168,6 @@ void setup()
 		ici.orientation = 0;
 
 		motionControlSystem.setPosition(ici);
-		motionControlSystem.setRightSpeedTunings(2, 0.01, 50);
-		motionControlSystem.setLeftSpeedTunings(2, 0.01, 50);
 	// Bullshit de debug (fin)
 
 	Wire.begin();
@@ -180,12 +178,12 @@ void setup()
 	motionControlThread.priority(64);
 	motionControlThread.begin(motionControlInterrupt, 500);
 
-	//startupProcedure();
+	startupProcedure();
 
 	sensorThread.priority(128);
 	sensorThread.begin(sensorInterrupt, 30000);
 
-	/*
+
 	while (analogRead(PIN_STARTUP_SIGNAL) < 500); // On attend que le bouton soit pressé
 	uint32_t t = millis();
 	pinMode(PIN_DEL_ONBOARD, OUTPUT);
@@ -197,8 +195,7 @@ void setup()
 		delay(100);
 	}
 	motionControlSystem.deployMove();
-	*/
-	// TODO : attendre 5 secondes en faisant clignotter la DEL orange intégrée et en déterminant notre position initiale
+	motionControlSystem.resetMove();
 }
 
 void loop()
@@ -274,7 +271,7 @@ void loop()
 	//*/
 
 	//*
-	static uint32_t begin, end;
+	static uint32_t begin;
 
 	begin = micros();
 	motionControlSystem.getPosition(ici);
@@ -282,7 +279,7 @@ void loop()
 	robotPerdu = table.updateObstacleMap(obstacleMap, ici);
 
 	motionControlSystem.setPosition(ici);
-	loliRobotKawaii.strategy(table, true, motionControlSystem.isMoving(), ici, trajectory);
+	loliRobotKawaii.strategy(table, robotPerdu, motionControlSystem.isMoving(), ici, trajectory);
 	motionControlSystem.setTrajectory(trajectory);
 	while (micros() - begin < 100000);
 
@@ -290,7 +287,7 @@ void loop()
 
 
 
-
+/*
 	static float kp = 12, ki = 0, kd = 0;
 	static int speed = 350, bendRadius = INFINITE_RADIUS, length = 200;
 
@@ -334,12 +331,12 @@ void loop()
 		}
 		else if (!strcmp(inputBuffer, "d"))
 		{
-			//*
+
 			Serial.printf("Kp= %g\n", kp);
 			Serial.printf("Ki= %g\n", ki);
 			Serial.printf("Kd= %g\n", kd);
 			Serial.printf("Speed= %d\n", speed);
-			//*/
+
 			Serial.printf("Length= %d\n", length);
 			Serial.printf("BendR= %d\n", bendRadius);
 		}
@@ -415,6 +412,7 @@ void loop()
 
 		Serial.println("");
 	}
+	*/
 }
 
 
