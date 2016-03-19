@@ -102,7 +102,7 @@ void MotionControlSystem::resetMove()
 	rightSpeedControlled = false;
 	leftPWM = 1023;
 	rightPWM = -1023;
-	delay(200);
+	delay(100);
 	positionControlled = true;
 	leftSpeedControlled = true;
 	rightSpeedControlled = true;

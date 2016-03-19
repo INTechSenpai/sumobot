@@ -72,7 +72,7 @@ void startupProcedure()
 	uint32_t beginPressedTime = 0;
 	bool pressed = false;
 	uint32_t beginTime = millis();
-	while (millis() - beginTime < 4000 || pressed)
+	while (millis() - beginTime < 2000 || pressed)
 	{
 		if (analogRead(PIN_STARTUP_SIGNAL) < 500)
 		{// Bouton relaché
@@ -84,8 +84,8 @@ void startupProcedure()
 			pressed = true;
 		}
 
-		if (millis() - beginPressedTime > 2000 && pressed)
-		{// Bouton appuyé depuis plus de 3 secondes
+		if (millis() - beginPressedTime > 1500 && pressed)
+		{// Bouton appuyé depuis plus de 1,5 secondes
 			pinMode(PIN_DEL_OK, OUTPUT);
 			pinMode(PIN_DEL_BATT, OUTPUT);
 
