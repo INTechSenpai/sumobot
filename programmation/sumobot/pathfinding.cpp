@@ -93,7 +93,7 @@ Trajectory Pathfinding::computePath(int rayonCourbure, float longueur) {
     ligneCourbe.stopAfterMove = false;
     ligneCourbe.setBendRadiusMm(rayonCourbure);
     ligneCourbe.setLengthMm(longueur);
-    ligneCourbe.setSpeedMm_S(200);
+    ligneCourbe.setSpeedMm_S(350);
 	Serial.printf("rayon de courbure :%d \n longueur : %f", rayonCourbure, longueur);
 
     trajectoire.push_back(ligneCourbe);
@@ -121,12 +121,12 @@ Trajectory Pathfinding::computePathFoncerRobot(Position &start, Position& goal, 
 	
 
 
-    if (! ((angleRotation < 0.14)&&(-0.14 < angleRotation))) {
+    if (! ((angleRotation < 0.19)&&(-0.19 < angleRotation))) {
 
         UnitMove rotation;
-        rotation.stopAfterMove = true;
+		rotation.stopAfterMove = !((angleRotation < 0.32) && (-0.32 < angleRotation));
         rotation.setBendRadiusMm(0);
-        rotation.setSpeedMm_S(400);
+        rotation.setSpeedMm_S(450);
 
         rotation.setLengthRadians(angleRotation);
 
