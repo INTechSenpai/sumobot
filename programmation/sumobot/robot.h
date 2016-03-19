@@ -26,7 +26,7 @@ public:
 
 private:
     Pathfinding pathfinding;
-	float angleRAPrecedente;
+	float angleRAPrecedent;
 	int ancientRayon;
 
 };

@@ -21,10 +21,10 @@ public:
     //pas besoin de préciser l'orientation de start et goal
     Trajectory computePath(Position &start, Position &pointIntermediaire, Position &goal);
     //besoin de préciser l'orientation de start et goal
-    Trajectory computePath(Position &start, Position &goal);
+    Trajectory computePathP(Position &start, Position &goal);
 
     //autre trajectoire : Tourne de rotation puis suit une trajecture de rayonCourbure de longueur donnée
-    Trajectory computePath(int rayonCourbure, float longueur);
+    Trajectory computePathR(int rayonCourbure, float longueur);
 
     //Quand on est perdu : tourne sur lui meme puis fonce sur l'ennemi
     Trajectory computePathFoncerRobot(Position &start, Position &goal, float longueur);
