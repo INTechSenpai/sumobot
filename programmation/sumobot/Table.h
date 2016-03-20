@@ -15,7 +15,7 @@
 #define LIMITE_NB			800		// Limite de décision en "noir" et "blanc"
 #define MARGE_COTE			145		// la marge pour etre en mode perdu sur les cotés
 #define MARGE_AVANT			165		// la marge pour etre en mode perdu sur l'avant et l'arriere cotés
-#define MARGE_COHERENCE		200		// la marge pour que deux valeur de capteur adjacents sooit acceptés
+#define MARGE_COHERENCE		200		// la marge pour que deux valeurs de capteurs adjacents soient acceptées
 #define _USE_MATH_DEFINES	
 #include "Position.h"
 #include "RelativeObstacleMap.h"

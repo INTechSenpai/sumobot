@@ -25,3 +25,30 @@ int modulo(int nombre, int modulo)
 		return modulo - ((-nombre) % modulo);
 	}
 }
+
+
+// Fait clignotter la LED de batterie faible avec les delais ON/OFF indiqués en ms
+void blink(uint8_t pin, unsigned int periodeON, unsigned int periodeOFF)
+{
+	static uint32_t lastChange = 0;
+	static bool ledON = false;
+
+	if (ledON)
+	{
+		if (millis() - lastChange >= periodeON && periodeOFF != 0)
+		{
+			digitalWrite(pin, LOW);
+			ledON = false;
+			lastChange = millis();
+		}
+	}
+	else
+	{
+		if (millis() - lastChange >= periodeOFF && periodeON != 0)
+		{
+			digitalWrite(pin, HIGH);
+			ledON = true;
+			lastChange = millis();
+		}
+	}
+}

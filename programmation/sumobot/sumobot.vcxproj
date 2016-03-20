@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3;D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\utils;D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\avr;D:\Documents\Git\sumobot\programmation\sumobot;D:\Program Files (x86)\Arduino\libraries;D:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries;D:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\oygoay3a.b2w\Micro Platforms\default\debuggers;D:\Documents\Arduino\libraries;D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3;D:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\Wire;D:\Program Files (x86)\Arduino\libraries;D:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries;D:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\oygoay3a.b2w\Micro Platforms\default\debuggers;D:\Documents\Arduino\libraries;D:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\Wire\utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3;D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\utils;D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\avr;D:\Documents\Git\sumobot\programmation\sumobot;D:\Program Files (x86)\Arduino\libraries;D:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries;D:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\oygoay3a.b2w\Micro Platforms\default\debuggers;D:\Documents\Arduino\libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>D:\Documents\Git\sumobot\programmation\sumobot\__vm\.sumobot.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>__HARDWARE_MK20dx256__;__HARDWARE_MK20DX256__;__MK20DX256__;TEENSYDUINO=127;ARDUINO=10607;F_CPU=72000000;ARDUINO_ARCH_AVR;USB_SERIAL;LAYOUT_FRENCH;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -135,6 +135,7 @@
     <ClInclude Include="Average.h" />
     <ClInclude Include="BattControler.h" />
     <ClInclude Include="ColorSensor.h" />
+    <ClInclude Include="CUnit.h" />
     <ClInclude Include="direct_pin_read.h" />
     <ClInclude Include="Encoder.h" />
     <ClInclude Include="InfraredSensor.h" />
@@ -144,12 +145,10 @@
     <ClInclude Include="Motor.h" />
     <ClInclude Include="Obstacle.h" />
     <ClInclude Include="Path.h" />
-    <ClInclude Include="pathfinding.h" />
     <ClInclude Include="PID.h" />
     <ClInclude Include="Position.h" />
     <ClInclude Include="ProximitySensor.h" />
     <ClInclude Include="RelativeObstacleMap.h" />
-    <ClInclude Include="robot.h" />
     <ClInclude Include="SensorMgr.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Table.h" />
@@ -163,8 +162,6 @@
     <ClCompile Include="ColorSensor.cpp" />
     <ClCompile Include="Encoder.cpp" />
     <ClCompile Include="MotionControlSystem.cpp" />
-    <ClCompile Include="pathfinding.cpp" />
-    <ClCompile Include="robot.cpp" />
     <ClCompile Include="Table.cpp" />
     <ClCompile Include="utils.c" />
     <ClCompile Include="VL6180X.cpp" />

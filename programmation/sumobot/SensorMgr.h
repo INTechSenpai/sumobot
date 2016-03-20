@@ -44,7 +44,7 @@
 #define PERIODE_SOL	20000
 
 
-class SensorMgr
+class SensorMgr : public Singleton<SensorMgr>
 {
 public:
 	SensorMgr() : 

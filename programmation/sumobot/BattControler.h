@@ -7,6 +7,8 @@
 	#include "WProgram.h"
 #endif
 
+#include "utils.h"
+
 #define PIN_SENSE_BATT	A10
 #define PIN_DEL_BATT	29
 #define PIN_DEL_OK		30
@@ -50,17 +52,17 @@ public:
 
 		if (currentVoltage <= VOLTAGE_WARNING && currentVoltage > VOLTAGE_DANGER)
 		{ // Zone d'avertissement
-			blinkLED(PIN_DEL_BATT, 200, 800);
+			blink(PIN_DEL_BATT, 200, 800);
 			digitalWrite(PIN_DEL_OK, LOW);
 		}
 		else if (currentVoltage <= VOLTAGE_DANGER && currentVoltage > VOLTAGE_UNPLUGGED)
 		{ // Zone de danger
-			blinkLED(PIN_DEL_BATT, 100, 100);
+			blink(PIN_DEL_BATT, 100, 100);
 			digitalWrite(PIN_DEL_OK, LOW);
 		}
 		else
 		{ // Zone de sécurité
-			blinkLED(PIN_DEL_BATT, 0, 1000);
+			blink(PIN_DEL_BATT, 0, 1000);
 			digitalWrite(PIN_DEL_OK, HIGH);
 		}
 	}
@@ -75,34 +77,6 @@ private:
 	{
 		return (float)analogRead(PIN_SENSE_BATT) * ADC_TO_VOLT + OFFSET_READ;
 	}
-
-
-	// Fait clignotter la LED de batterie faible avec les delais ON/OFF indiqués en ms
-	void blinkLED(uint8_t pin, unsigned int periodeON, unsigned int periodeOFF)
-	{
-		static uint32_t lastChange = 0;
-		static bool ledON = false;
-
-		if (ledON)
-		{
-			if (millis() - lastChange >= periodeON && periodeOFF != 0)
-			{
-				digitalWrite(pin, LOW);
-				ledON = false;
-				lastChange = millis();
-			}
-		}
-		else
-		{
-			if (millis() - lastChange >= periodeOFF && periodeON != 0)
-			{
-				digitalWrite(pin, HIGH);
-				ledON = true;
-				lastChange = millis();
-			}
-		}
-	}
-
 
 	float currentVoltage;
 };

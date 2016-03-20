@@ -633,5 +633,5 @@ void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float 
 	{}
 	enablePositionControl(true);
 	stop();
-	//printTracking();
+	printTracking();
 }
