@@ -8,7 +8,7 @@ Pathfinding::Pathfinding(){}
 
 //A tester : distance basée également sur écart d'orientation
 float Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
-    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*10000);
+    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*1000);
 }
 
 //yolo
@@ -123,10 +123,27 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
 
     //cas où on avance de distanceParEtape suivant un rayon R1 vers la gauche.
 
-    tmp.orientation = fmod(start.orientation + (distanceParEtape/R1),2*M_PI);
+    /*
+    *
+    * M_PI/2 - acos(2*R/(distance(start, tmp))) = alpha = (tmp.orientation - start.orientation)/2
+    *
+    * distance(start, tmp) = 2*R*cos(M_PI/2 - alpha);
+    * (start.x - tmp.x)^2 + (start.y - tmp.y)^2 = (2*R*cos(M_PI/2 - alpha))^2;
+    *
+    *
+    */
 
-    tmp.x = ( start.x - R1*sin(start.orientation) ) - R1*sin(tmp.orientation);
-    tmp.y = (start.y + R1*cos(start.orientation)) + R1*sin(tmp.orientation);
+    float alpha, beta, distanceStartTmp;
+
+    alpha = distanceParEtape/(2*R1);
+    beta = alpha + start.orientation;
+    distanceStartTmp = 2*R1*cos(M_PI/2 - alpha);
+
+    tmp.orientation = fmod(start.orientation + 2*alpha,2*M_PI);
+
+
+    tmp.x = start.x + distanceStartTmp*cos(beta);
+    tmp.y = start.y + distanceStartTmp*sin(beta);
     tmp.trajectoire = Avancer1g;
 
     checkCandidat(tmp, map, start, goal);
