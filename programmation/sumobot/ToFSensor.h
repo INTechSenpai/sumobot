@@ -25,7 +25,7 @@ public:
 	{
 		if (isON)
 		{
-			distance = vlSensor.readRangeContinuous();
+			distance = vlSensor.readRangeContinuousFast();
 			if (vlSensor.timeoutOccurred())
 			{
 				distance = 0;

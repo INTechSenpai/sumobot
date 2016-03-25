@@ -107,6 +107,7 @@ class VL6180X
     void stopContinuous();
 
     uint8_t readRangeContinuous();
+	uint8_t readRangeContinuousFast();
     uint16_t readAmbientContinuous();
 
     void setTimeout(uint16_t timeout);

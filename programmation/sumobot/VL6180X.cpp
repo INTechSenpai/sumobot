@@ -285,6 +285,21 @@ uint8_t VL6180X::readRangeContinuous()
   return range;
 }
 
+// Returns a range reading when continuous mode is activated
+// It will NOT wait for the sensor to be ready. If the sensor have not
+// yet performed its mesurement this function return 0
+uint8_t VL6180X::readRangeContinuousFast()
+{
+	uint8_t range = 0;
+	if ((readReg(RESULT__INTERRUPT_STATUS_GPIO) & 0x04) != 0)
+	{
+		range = readReg(RESULT__RANGE_VAL);
+		writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01);
+	}
+	return range;
+}
+
+
 // Returns an ambient light reading when continuous mode is activated
 // (readAmbientSingle() also calls this function after starting a single-shot
 // ambient light measurement)

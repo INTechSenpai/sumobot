@@ -1,3 +1,4 @@
+#include "Table.h"
 #include "CUnit.h"
 #include "BattControler.h"
 #include "SensorMgr.h"
@@ -7,7 +8,7 @@
 #include "MotionControlSystem.h"
 #include "Motor.h"
 #include "Path.h"
-#include "Table.h"
+#include "Obstacle.h"
 #include <vector>
 
 
@@ -20,6 +21,7 @@ void setup()
 {
 	Serial.begin(9600);
 	Wire.begin();
+	Wire.setClock(1500000);
 	delay(50);
 }
 
@@ -28,8 +30,11 @@ void loop()
 {
 	MotionControlSystem & motionControlSystem = MotionControlSystem::Instance();
 	SensorMgr & sensorMgr = SensorMgr::Instance();
+	Table & table = Table::Instance();
 	IntervalTimer motionControlThread;
 	IntervalTimer sensorThread;
+
+	CUnit test;
 
 	sensorMgr.powerON();
 
@@ -39,7 +44,13 @@ void loop()
 	sensorThread.priority(128);
 	sensorThread.begin(sensorInterrupt, 30000);
 
-	
+	Position ici;
+	Obstacle obstacle(ici, CIRCLE);
+
+	while (true)
+	{
+		
+	}
 }
 
 

@@ -186,7 +186,6 @@ public:
 					obstacleMap.solArriereGauche,
 					obstacleMap.solArriereDroit
 					);
-				Serial.println();
 			}
 		}
 
@@ -214,7 +213,6 @@ public:
 					obstacleMap.gauche,
 					obstacleMap.droit
 					);
-				Serial.println();
 			}
 		}
 
@@ -242,9 +240,11 @@ public:
 					obstacleMap.speedGauche,
 					obstacleMap.speedDroit
 					);
-				Serial.println();
 			}
 		}
+
+		Serial.println();
+		delay(100);
 	}
 
 
