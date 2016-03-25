@@ -8,7 +8,7 @@
 #include "../sumobot/Position.h"
 #include "../sumobot/Path.h"
 
-#define distanceParEtape 50.0
+#define distanceParEtape 200.0
 #define R1 50.0
 #define R2 100.0
 #define R3 500.0
