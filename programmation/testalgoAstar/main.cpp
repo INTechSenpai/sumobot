@@ -29,21 +29,10 @@ int main(int argc, char *argv[])
     start.x = 300;
     start.y = 0;
 
-    goal.orientation = M_PI;
+    goal.orientation = M_PI/2;
     goal.x = 0;
-    goal.y = 400;
+    goal.y = 150;
 
-    vector<PositionTrajectoire> ResultatAstar = pathfinding.Astar(map, start, goal);
-
-    cout << "chemin proposé :" << endl;
-    for (int i=0; i<ResultatAstar.size();i++) {
-        cout << "(" << ResultatAstar[i].x;
-        cout << "," << ResultatAstar[i].y;
-        cout << ") orientation = " << ResultatAstar[i].orientation;
-        cout << " type de trajectoire : " << ResultatAstar[i].trajectoire;
-        cout << endl;
-
-    }
-
+    pathfinding.Astar(map, start, goal);
     return 0;
 }
