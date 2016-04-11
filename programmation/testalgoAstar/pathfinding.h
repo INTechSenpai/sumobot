@@ -8,7 +8,7 @@
 #include "../sumobot/Position.h"
 #include "../sumobot/Path.h"
 
-#define distanceParEtape 200.0
+#define distanceParEtape 100.0
 #define R1 50.0
 #define R2 100.0
 #define R3 500.0
@@ -17,7 +17,8 @@ enum Trajectoire{Depart,
                 Avancer1g,Avancer1d,Reculer1g,Reculer1d,
                 Avancer2g,Avancer2d,Reculer2g,Reculer2d,
                 Avancer3g,Avancer3d,Reculer3g,Reculer3d,
-                AvancerToutDroit};
+                AvancerToutDroit, ReculerToutDroit, TournerSurPlaceTrigo,
+                TournerSurPlaceAntiTrigo};
 
 struct PositionTrajectoire
 {
@@ -42,7 +43,7 @@ class Pathfinding
 {
 public:
     Pathfinding();
-    std::vector<PositionTrajectoire> Astar(const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal);
+    Trajectory Astar(const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal);
 
 private:
 
