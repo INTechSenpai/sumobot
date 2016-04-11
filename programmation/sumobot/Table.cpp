@@ -4,7 +4,12 @@ Table::Table()
 {
 }
 
-void Table::initObstacleMap(ObstacleMap & obstacleMap, uint8_t shellConfig)
+ObstacleMap Table::getObstacleMap() const
+{
+	return obstacleMap;
+}
+
+void Table::initObstacleMap(Side side, uint8_t shellConfig)
 {
 	obstacleMap.fixedInvisible.clear();
 	obstacleMap.fixedVisible.clear();
@@ -109,7 +114,7 @@ void Table::initObstacleMap(ObstacleMap & obstacleMap, uint8_t shellConfig)
 
 }
 
-bool Table::updateObstacleMap(ObstacleMap obstacleMap, const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition)
+bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition)
 {
 	return false;
 }

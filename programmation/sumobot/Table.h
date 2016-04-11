@@ -3,6 +3,8 @@
 	La liste des obstacles présents, connus, supposés, détectés, etc...
 	Permet de positionner les obstacles à partir des données des capteurs.
 	Repositionne le robot en fonction des bords de la table si ils sont détectés.
+
+	Cette classe est singleton
 */
 
 /*
@@ -35,18 +37,23 @@ adverse			|					 ║						 |
 
 #include "Singleton.h"
 #include "Obstacle.h"
+#include "RelativeObstacleMap.h"
+#include "utils.h"
 
 class Table : public Singleton<Table>
 {
 public:
 	Table();
 
+
+	ObstacleMap getObstacleMap() const;
+
 	/*
 		Initialise la 'ostacleMap' avec la configuration connue de la table au début du match.
 		shellConfig : le placement des coquillages se fait selon l'une des 5 configurations données,
 		le numéro correspond à celui utilisé dans le règlement de la coupe.
 	*/
-	void initObstacleMap(ObstacleMap & obstacleMap, uint8_t shellConfig);
+	void initObstacleMap(Side side, uint8_t shellConfig);
 
 
 	/*
@@ -59,10 +66,10 @@ public:
 		notrePosition : position du robot calculée par le bas niveau (avec une certaine incertitude).
 		retour : cette fonction retourne 'true' si le paramètre 'notrePosition' a été modifié, 'false' sinon.
 	*/
-	bool updateObstacleMap(ObstacleMap obstacleMap, const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition);
+	bool updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition);
 
 private:
-
+	ObstacleMap obstacleMap;
 };
 
 #endif

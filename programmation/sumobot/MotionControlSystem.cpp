@@ -579,8 +579,6 @@ void MotionControlSystem::resetPosition()
 	currentPosition.x = 0;
 	currentPosition.y = 0;
 	currentPosition.orientation = 0;
-	currentPosition.xSpeed = 0;
-	currentPosition.ySpeed = 0;
 	stop();
 }
 

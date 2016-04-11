@@ -39,8 +39,6 @@ public:
 		ici.x = 0;
 		ici.y = 0;
 		ici.orientation = 0;
-		ici.xSpeed = 0;
-		ici.ySpeed = 0;
 
 		unitMove.setLengthMm(0);
 		unitMove.setBendRadiusMm(0);
@@ -136,8 +134,6 @@ public:
 					ici.x = 0;
 					ici.y = 0;
 					ici.orientation = 0;
-					ici.xSpeed = 0;
-					ici.ySpeed = 0;
 					motionControlSystem.setPosition(ici);
 				}
 				else if (!strcmp(inputBuffer, "deploy"))

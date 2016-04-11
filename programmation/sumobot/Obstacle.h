@@ -25,6 +25,8 @@ public:
 		yRadius = 0;
 		toPush = false;
 		lastTimeSeen = 0;
+		priority = 0;
+		orientationToPush = -1;
 	}
 
 
@@ -121,14 +123,36 @@ public:
 		return yRadius;
 	}
 
+	void setPriority(uint8_t priority)
+	{
+		this->priority = priority;
+	}
+
+	uint8_t getPriority()
+	{
+		return priority;
+	}
+
+	void setOrientationToPush(float orientation)
+	{
+		orientationToPush = orientation;
+	}
+
+	float getOrientationToPush()
+	{
+		return orientationToPush;
+	}
+
 private:
 	Position center; // Point autour duquel l'obstacle est centré
 	uint32_t lastTimeSeen; // Date à laquelle l'obstacle a été détecté pour la dernière fois (en ms)
 
 	bool toPush; // Indique si cet obstacle doit être poussé au lieu d'être évité. Un seul obstacle peut être poussé à la fois
 	static bool anObstacleIsPushed;
+	float orientationToPush;	// Désigne l'orientation que le robot doit avoir au moment où il entre en contact avec l'obstacle pour le pousser. La valeur '-1' signifie 'indifférent'
 
 	ObstacleShape type; // Indique si la forme de l'obstacle est un CERCLE, un RECTANGLE, ou bien un EDGE_OF_TABLE (un rectangle dont la zone interdite est l'extérieur)
+	uint8_t priority;	// Correspond à une quantité de points rapportés par l'objet s'il est rapporté par le robot. Par défaut : 0
 
 	/* Dans le cas où l'obstacle est un cercle, ce champ est renseigné ( !=0 ) */
 	float radius; // Rayon de l'obstacle (en mm)
@@ -137,9 +161,6 @@ private:
 	float xRadius;
 	float yRadius;
 };
-
-/* Initialisation de la classe Obstacle : initialement aucun objet n'est défini donc aucun n'est dans l'état "poussé" */
-bool Obstacle::anObstacleIsPushed = false;
 
 
 /* Contient l'ensemble des obstacles de la table (connus par le robot) */

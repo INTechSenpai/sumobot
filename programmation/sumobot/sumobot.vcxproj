@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3;D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\utils;D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\avr;D:\Documents\Git\sumobot\programmation\sumobot;D:\Program Files (x86)\Arduino\libraries;D:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries;D:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\oygoay3a.b2w\Micro Platforms\default\debuggers;D:\Documents\Arduino\libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3;D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\utils;D:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\avr;D:\Documents\Git\sumobot\programmation\sumobot;D:\Program Files (x86)\Arduino\libraries;D:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries;D:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\4gzw0gec.zfv\Micro Platforms\default\debuggers;D:\Documents\Arduino\libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>D:\Documents\Git\sumobot\programmation\sumobot\__vm\.sumobot.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>__HARDWARE_MK20dx256__;__HARDWARE_MK20DX256__;__MK20DX256__;TEENSYDUINO=127;ARDUINO=10607;F_CPU=72000000;ARDUINO_ARCH_AVR;USB_SERIAL;LAYOUT_FRENCH;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -149,6 +149,7 @@
     <ClInclude Include="Position.h" />
     <ClInclude Include="ProximitySensor.h" />
     <ClInclude Include="RelativeObstacleMap.h" />
+    <ClInclude Include="Robot.h" />
     <ClInclude Include="SensorMgr.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Table.h" />
@@ -162,6 +163,8 @@
     <ClCompile Include="ColorSensor.cpp" />
     <ClCompile Include="Encoder.cpp" />
     <ClCompile Include="MotionControlSystem.cpp" />
+    <ClCompile Include="Obstacle.cpp" />
+    <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Table.cpp" />
     <ClCompile Include="utils.c" />
     <ClCompile Include="VL6180X.cpp" />

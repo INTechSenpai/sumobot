@@ -34,8 +34,6 @@ public:
 		x = 0;
 		y = 0;
 		orientation = 0;
-		xSpeed = 0;
-		ySpeed = 0;
 		xUncertainty = 0;
 		yUncertainty = 0;
 		oUncertainty = 0;
@@ -46,8 +44,6 @@ public:
 		this->x = x;
 		this->y = y;
 		this->orientation = orientation;
-		xSpeed = 0;
-		ySpeed = 0;
 		xUncertainty = 0;
 		yUncertainty = 0;
 		oUncertainty = 0;
@@ -56,8 +52,6 @@ public:
 	float x;
 	float y;
 	float orientation;
-	float xSpeed;
-	float ySpeed;
 	float xUncertainty;
 	float yUncertainty;
 	float oUncertainty;

@@ -1,3 +1,4 @@
+#include "Robot.h"
 #include "Table.h"
 #include "CUnit.h"
 #include "BattControler.h"
@@ -49,7 +50,7 @@ void loop()
 
 	while (true)
 	{
-		
+		test.sensors(false, true, false, false);
 	}
 }
 
@@ -81,14 +82,17 @@ void motionControlInterrupt()
 void sensorInterrupt()
 {
 	static SensorMgr & sensorMgr = SensorMgr::Instance();
+	static Table & table = Table::Instance();
 	static BattControler battControler;
 
 
 	/* Mise à jour des DELs indiquant l'état de la batterie */
 	battControler.control();
 
+	/* Les capteurs de couleur du sol ne sont pour l'instant plus utilisés
 	// Mise à jour des capteurs du sol
 	sensorMgr.updateFloor();
+	*/
 
 	static uint8_t compteur = 0;
 	if (compteur == 0)

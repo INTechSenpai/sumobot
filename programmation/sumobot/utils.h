@@ -14,6 +14,11 @@
 #define ABS(x) (((x) > 0) ? (x) : -(x))
 #define CONSTRAIN(x,y,z) ( ((x)<(y))?(y):( ((x)>(z))?(z):(x) ) )
 
+enum Side
+{
+	GREEN, PURPLE
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
