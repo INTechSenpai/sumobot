@@ -17,8 +17,8 @@
 				|					/|\						 |
 				|					 ║						 |
 				|					 ║						 |
-Zone de départ	|					 ║						 | Notre zone de départ
-adverse			|					 ║						 |
+Zone de départ	|					 ║						 | Zone de départ VERTE
+VIOLETTE		|					 ║						 |
 				|					 ║						 |
 				|					 ║						 |
 				|____________________o════════════════════>X |
@@ -40,6 +40,12 @@ adverse			|					 ║						 |
 #include "RelativeObstacleMap.h"
 #include "utils.h"
 
+
+#define KNOWN_SAND_PRIORITY		90
+#define DETECTED_SAND_PRIORITY	16
+#define DOORS_PRIORITY			128
+#define SHELL_PRIORITY			80
+
 class Table : public Singleton<Table>
 {
 public:
@@ -50,10 +56,9 @@ public:
 
 	/*
 		Initialise la 'ostacleMap' avec la configuration connue de la table au début du match.
-		shellConfig : le placement des coquillages se fait selon l'une des 5 configurations données,
-		le numéro correspond à celui utilisé dans le règlement de la coupe.
+		side : le côté de la table sur lequel nous nous trouvons
 	*/
-	void initObstacleMap(Side side, uint8_t shellConfig);
+	void initObstacleMap(Side side);
 
 
 	/*
@@ -66,7 +71,7 @@ public:
 		notrePosition : position du robot calculée par le bas niveau (avec une certaine incertitude).
 		retour : cette fonction retourne 'true' si le paramètre 'notrePosition' a été modifié, 'false' sinon.
 	*/
-	bool updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition);
+	bool updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, Position & positionUncertainty);
 
 private:
 	ObstacleMap obstacleMap;

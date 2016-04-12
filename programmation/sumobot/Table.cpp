@@ -9,7 +9,7 @@ ObstacleMap Table::getObstacleMap() const
 	return obstacleMap;
 }
 
-void Table::initObstacleMap(Side side, uint8_t shellConfig)
+void Table::initObstacleMap(Side side)
 {
 	obstacleMap.fixedInvisible.clear();
 	obstacleMap.fixedVisible.clear();
@@ -63,7 +63,6 @@ void Table::initObstacleMap(Side side, uint8_t shellConfig)
 	rectangle.setYRadius(100);
 	obstacleMap.fixedInvisible.push_back(rectangle);
 
-
 	// Tasseau de limite de la dune, côté x<0
 	centre.x = -689;
 	centre.y = 1900;
@@ -72,8 +71,11 @@ void Table::initObstacleMap(Side side, uint8_t shellConfig)
 	rectangle.setYRadius(100);
 	obstacleMap.fixedInvisible.push_back(rectangle);
 
-	// Tasseau de limite de notre bac à sable
-	centre.x = 312;
+	// Tasseau de limite de NOTRE bac à sable
+	if(side == GREEN)
+		centre.x = 312;
+	else
+		centre.x = -312;
 	centre.y = 761;
 	rectangle.setCenter(centre);
 	rectangle.setXRadius(288);
@@ -81,7 +83,10 @@ void Table::initObstacleMap(Side side, uint8_t shellConfig)
 	obstacleMap.fixedInvisible.push_back(rectangle);
 
 	// Bac à sable adverse (inclu le tasseau de délimitation)
-	centre.x = -312;
+	if(side == GREEN)
+		centre.x = -312;
+	else
+		centre.x = 312;
 	centre.y = 950;
 	rectangle.setCenter(centre);
 	rectangle.setXRadius(288);
@@ -97,24 +102,180 @@ void Table::initObstacleMap(Side side, uint8_t shellConfig)
 	obstacleMap.fixedVisible.push_back(rectangle);
 
 	// Serivette adverse
-	centre.x = -1350;
+	if (side == GREEN)
+		centre.x = -1350;
+	else
+		centre.x = 1350;
 	centre.y = 1150;
 	rectangle.setCenter(centre);
 	rectangle.setXRadius(150);
 	rectangle.setYRadius(250);
 	obstacleMap.fixedInvisible.push_back(rectangle);
 
+	// Dune de sable (simplifiée)
+	centre.x = 0;
+	centre.y = 1940;
+	rectangle.setCenter(centre);
+	rectangle.setXRadius(678);
+	rectangle.setYRadius(60);
+	obstacleMap.fixedInvisible.push_back(rectangle);
 
 
 	/*
 		##### Eléments de jeu #####
 	*/
 
+	// Tas de sable face à notre serviette
+	if (side == GREEN)
+		centre.x = 850;
+	else
+		centre.x = -850;
+	centre.y = 1100;
+	rectangle.setCenter(centre);
+	rectangle.setXRadius(60);
+	rectangle.setYRadius(60);
+	if (side == GREEN)
+		rectangle.setOrientationToPush(PI);
+	else
+		rectangle.setOrientationToPush(0);
+	rectangle.setPriority(KNOWN_SAND_PRIORITY);
+	obstacleMap.movableVisible.push_back(rectangle);
 
+
+
+	/*
+	################################
+		   ## Coquillages ##
+	################################
+	*/
+	
+	// Gestion de la symétrie
+	int mirror;
+	if (side == GREEN)
+		mirror = 1;
+	else
+		mirror = -1;
+
+	// De notre côté
+	centre.x = mirror * 1300;
+	centre.y = 750;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	cercle.setOrientationToPush(ORIENTATION_BACKWARD);
+	cercle.setPriority(SHELL_PRIORITY);
+	obstacleMap.movableInvisible.push_back(cercle);
+
+	centre.x = mirror * 1300;
+	centre.y = 450;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	cercle.setOrientationToPush(ORIENTATION_BACKWARD);
+	cercle.setPriority(SHELL_PRIORITY);
+	obstacleMap.movableInvisible.push_back(cercle);
+
+	centre.x = mirror * 800;
+	centre.y = 750;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	cercle.setOrientationToPush(ORIENTATION_BACKWARD);
+	cercle.setPriority(SHELL_PRIORITY * 3 / 5);
+	obstacleMap.movableInvisible.push_back(cercle);
+
+	centre.x = mirror * 800;
+	centre.y = 450;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	obstacleMap.fixedInvisible.push_back(cercle);
+
+	centre.x = mirror * 800;
+	centre.y = 150;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	cercle.setOrientationToPush(ORIENTATION_BACKWARD);
+	cercle.setPriority(SHELL_PRIORITY / 5);
+	obstacleMap.movableInvisible.push_back(cercle);
+
+	centre.x = mirror * 600;
+	centre.y = 550;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	cercle.setOrientationToPush(ORIENTATION_BACKWARD);
+	cercle.setPriority(SHELL_PRIORITY * 2 / 5);
+	obstacleMap.movableInvisible.push_back(cercle);
+
+	centre.x = mirror * 300;
+	centre.y = 350;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	obstacleMap.fixedInvisible.push_back(cercle);
+
+	// Au centre
+	centre.x = 0;
+	centre.y = 450;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	cercle.setOrientationToPush(ORIENTATION_BACKWARD);
+	cercle.setPriority(SHELL_PRIORITY * 2 / 5);
+	obstacleMap.movableInvisible.push_back(cercle);
+
+	centre.x = 0;
+	centre.y = 150;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	cercle.setOrientationToPush(ORIENTATION_BACKWARD);
+	cercle.setPriority(SHELL_PRIORITY * 2 / 5);
+	obstacleMap.movableInvisible.push_back(cercle);
+
+	// Côté adverse
+	centre.x = mirror * -1300;
+	centre.y = 750;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	obstacleMap.fixedInvisible.push_back(cercle);
+
+	centre.x = mirror * -1300;
+	centre.y = 450;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	obstacleMap.fixedInvisible.push_back(cercle);
+
+	centre.x = mirror * -800;
+	centre.y = 750;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	obstacleMap.fixedInvisible.push_back(cercle);
+
+	centre.x = mirror * -800;
+	centre.y = 450;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	cercle.setOrientationToPush(ORIENTATION_BACKWARD);
+	cercle.setPriority(SHELL_PRIORITY * 3 / 5);
+	obstacleMap.movableInvisible.push_back(cercle);
+
+	centre.x = mirror * -800;
+	centre.y = 150;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	cercle.setOrientationToPush(ORIENTATION_BACKWARD);
+	cercle.setPriority(SHELL_PRIORITY * 1 / 5);
+	obstacleMap.movableInvisible.push_back(cercle);
+
+	centre.x = mirror * -600;
+	centre.y = 550;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	obstacleMap.fixedInvisible.push_back(cercle);
+
+	centre.x = mirror * -300;
+	centre.y = 350;
+	cercle.setCenter(centre);
+	cercle.setRadius(40);
+	obstacleMap.fixedInvisible.push_back(cercle);
 
 }
 
-bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition)
+bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, Position & positionUncertainty)
 {
 	return false;
 }

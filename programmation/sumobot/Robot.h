@@ -35,13 +35,28 @@ public:
 	Side checkSide();
 
 
+	/* 
+		Initialise les attributs de l'objet Robot. Notamment la Table.
+	*/
+	void init(Side side);
+
+
 	/*
 		Fonction bloquante qui attend le retrait du jumper
 		Utilise la DEL intégrée à la Teensy comme acquittement visuel
 	*/
 	void waitForBegining();
 
-	void winMatch();
+
+	/*
+		Fait fonctionner le robot pendant le temps indiqué, et le fait gagner le match si possible.
+		duration : durée d'exécution de la fonction, en ms
+	*/
+	void winMatch(uint32_t duration);
+
+
+	/* Déploie le parasol */
+	void deployUmbrella();
 
 private:
 	ObstacleMap obstacleMap;

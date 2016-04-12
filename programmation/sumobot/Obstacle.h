@@ -5,6 +5,13 @@
 #include "stdint.h"
 #include <vector>
 
+
+/* Valeurs spéciales de OrientationToPush */
+#define ORIENTATION_UNDEFINED	-1	// Orientation indifférente
+#define ORIENTATION_FORWARD		-2	// Orientation indifférente mais il faut pousser en marche avant
+#define ORIENTATION_BACKWARD	-3	// Orientation indifférente mais il faut pousser en marche arrière
+
+
 enum ObstacleShape
 {
 	CIRCLE, RECTANGLE, EDGE_OF_TABLE
@@ -25,8 +32,9 @@ public:
 		yRadius = 0;
 		toPush = false;
 		lastTimeSeen = 0;
+		timeToLive = UINT32_MAX;
 		priority = 0;
-		orientationToPush = -1;
+		orientationToPush = ORIENTATION_UNDEFINED;
 	}
 
 
@@ -146,10 +154,11 @@ public:
 private:
 	Position center; // Point autour duquel l'obstacle est centré
 	uint32_t lastTimeSeen; // Date à laquelle l'obstacle a été détecté pour la dernière fois (en ms)
+	uint32_t timeToLive;  // Durée de vie de l'obstacle lorsqu'il est hors de vue (en ms)
 
 	bool toPush; // Indique si cet obstacle doit être poussé au lieu d'être évité. Un seul obstacle peut être poussé à la fois
 	static bool anObstacleIsPushed;
-	float orientationToPush;	// Désigne l'orientation que le robot doit avoir au moment où il entre en contact avec l'obstacle pour le pousser. La valeur '-1' signifie 'indifférent'
+	float orientationToPush;	// Désigne l'orientation que le robot doit avoir au moment où il entre en contact avec l'obstacle pour le pousser. La valeur est comprise entre 0 et 2pi
 
 	ObstacleShape type; // Indique si la forme de l'obstacle est un CERCLE, un RECTANGLE, ou bien un EDGE_OF_TABLE (un rectangle dont la zone interdite est l'extérieur)
 	uint8_t priority;	// Correspond à une quantité de points rapportés par l'objet s'il est rapporté par le robot. Par défaut : 0

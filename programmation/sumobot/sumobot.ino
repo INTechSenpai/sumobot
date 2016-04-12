@@ -29,9 +29,8 @@ void setup()
 
 void loop()
 {
-	MotionControlSystem & motionControlSystem = MotionControlSystem::Instance();
+	Robot & robot = Robot::Instance();
 	SensorMgr & sensorMgr = SensorMgr::Instance();
-	Table & table = Table::Instance();
 	IntervalTimer motionControlThread;
 	IntervalTimer sensorThread;
 
@@ -42,11 +41,20 @@ void loop()
 	motionControlThread.priority(64);
 	motionControlThread.begin(motionControlInterrupt, 500);
 
+	/*
+	Side side = robot.checkSide();
+	robot.init(side);
+	//*/
+
 	sensorThread.priority(128);
 	sensorThread.begin(sensorInterrupt, 30000);
 
-	Position ici;
-	Obstacle obstacle(ici, CIRCLE);
+	/*
+	robot.waitForBegining();
+	robot.winMatch(90000);
+	delay(2000);
+	robot.deployUmbrella();
+	//*/
 
 	while (true)
 	{

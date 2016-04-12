@@ -34,9 +34,6 @@ public:
 		x = 0;
 		y = 0;
 		orientation = 0;
-		xUncertainty = 0;
-		yUncertainty = 0;
-		oUncertainty = 0;
 	}
 
 	Position(float x, float y, float orientation)
@@ -44,17 +41,11 @@ public:
 		this->x = x;
 		this->y = y;
 		this->orientation = orientation;
-		xUncertainty = 0;
-		yUncertainty = 0;
-		oUncertainty = 0;
 	}
 
 	float x;
 	float y;
 	float orientation;
-	float xUncertainty;
-	float yUncertainty;
-	float oUncertainty;
 };
 
 #endif
