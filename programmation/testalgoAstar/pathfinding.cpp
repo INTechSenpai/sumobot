@@ -510,31 +510,42 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
 
     for (int i=0;i<obstaclesSurLaMap.size();i++) {
 
+        //si l'obstacle est à pousser, il ne faut pas l'éviter
+        if (obstaclesSurLaMap[i].isPushed()) {
+            continue;
+        }
+
         //si l'obstacle est un CERCLE
         if (obstaclesSurLaMap[i].getShape()==0) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            return (pow(x-positionObstacle.x,2)+pow(y-positionObstacle.y,2) < pow(obstaclesSurLaMap[i].getRadius(),2));
+            if (pow(x-positionObstacle.x,2)+pow(y-positionObstacle.y,2) < pow(obstaclesSurLaMap[i].getRadius(),2)) {
+                return true;
+            }
         }
 
         //si l'obstacle est un RECTANGLE
         else if (obstaclesSurLaMap[i].getShape()==1) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            return ( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
+            if ( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
                      (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
                      (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
-                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) );
+                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) ) {
+                return true;
+            }
         }
 
         //si l'obstacle est un BORD_DE_TABLE
         else if (obstaclesSurLaMap[i].getShape()==2) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            return !( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
+            if (!( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
                      (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
                      (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
-                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) );
+                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) )) {
+                return true;
+            }
 
         }
 
@@ -543,6 +554,7 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
             std::cerr << "problèmes dans l'obstaclemap : getShape renvoie un nombre > 2";
         }
     }
+    return false;
 }
 
 void Pathfinding::PlacerDansOpenSet(const noeud& nouveauNoeud) {
