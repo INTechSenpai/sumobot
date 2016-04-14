@@ -35,6 +35,6 @@ int main(int argc, char *argv[])
     goal.x = 0;
     goal.y = 150;
 
-    pathfinding.Astar(map, start, goal);
+    pathfinding.Astar(start, goal);
     return 0;
 }
