@@ -5,6 +5,7 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     pathfinding.cpp \
+    ../sumobot/Obstacle.cpp
 
 HEADERS += \
     pathfinding.h \
