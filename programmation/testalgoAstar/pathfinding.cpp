@@ -524,14 +524,14 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
             }
         }
 
-        //si l'obstacle est un RECTANGLE
+        //si l'obstacle est un RECTANGLE xRadius = largeur, yRadius = hauteur
         else if (obstaclesSurLaMap[i].getShape()==1) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            if ( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
-                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
-                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
-                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) ) {
+            if ( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()/2) &&
+                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()/2) &&
+                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()/2) &&
+                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()/2) ) {
                 return true;
             }
         }
@@ -540,10 +540,10 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
         else if (obstaclesSurLaMap[i].getShape()==2) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            if (!( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
-                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
-                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
-                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) )) {
+            if (!( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()/2) &&
+                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()/2) &&
+                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()/2) &&
+                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()/2) )) {
                 return true;
             }
 
