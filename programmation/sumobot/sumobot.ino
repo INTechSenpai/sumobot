@@ -47,14 +47,17 @@ void loop()
 	//*/
 
 	sensorThread.priority(128);
-	sensorThread.begin(sensorInterrupt, 30000);
-
+	sensorThread.begin(sensorInterrupt, 25000);
+	
 	/*
 	robot.waitForBegining();
 	robot.winMatch(90000);
 	delay(2000);
 	robot.deployUmbrella();
 	//*/
+
+
+	test.serialInterface();
 
 	while (true)
 	{
@@ -90,33 +93,27 @@ void motionControlInterrupt()
 void sensorInterrupt()
 {
 	static SensorMgr & sensorMgr = SensorMgr::Instance();
+	static MotionControlSystem & motionControlSystem = MotionControlSystem::Instance();
+	static Position robotPosition;
+	static Position robotPositionUncertainty;
 	static Table & table = Table::Instance();
+	static RelativeObstacleMap relativeObstacleMap;
 	static BattControler battControler;
-
 
 	/* Mise à jour des DELs indiquant l'état de la batterie */
 	battControler.control();
 
-	/* Les capteurs de couleur du sol ne sont pour l'instant plus utilisés
-	// Mise à jour des capteurs du sol
-	sensorMgr.updateFloor();
-	*/
+	sensorMgr.updateFront();
+	sensorMgr.updateBack();
+	sensorMgr.updateSides();
 
-	static uint8_t compteur = 0;
-	if (compteur == 0)
+	sensorMgr.getRelativeObstacleMap(relativeObstacleMap);
+	motionControlSystem.getPosition(robotPosition);
+	motionControlSystem.getPositionUncertainty(robotPositionUncertainty);
+	if (table.updateObstacleMap(relativeObstacleMap, robotPosition, robotPositionUncertainty))
 	{
-		sensorMgr.updateFront();
-		compteur++;
-	}
-	else if (compteur == 1)
-	{
-		sensorMgr.updateBack();
-		compteur++;
-	}
-	else if (compteur == 2)
-	{
-		sensorMgr.updateSides();
-		compteur = 0;
+		motionControlSystem.setPosition(robotPosition);
+		motionControlSystem.setPositionUncertainty(robotPositionUncertainty);
 	}
 } 
 

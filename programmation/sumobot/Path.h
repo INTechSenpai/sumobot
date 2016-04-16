@@ -18,8 +18,8 @@
 #include <vector>
 
 /* Conversion Tick-mm et Radians-mm */
-#define TICK_TO_MM 0.097143			// unité : mm/ticks
-#define TICK_TO_RADIAN 0.0017453	// unité : radians/ticks
+#define TICK_TO_MM 0.085			// unité : mm/ticks
+#define TICK_TO_RADIAN 0.001406		// unité : radians/ticks
 
 #define COS_PI_4	0.7071067811865	// cos(PI/4) utilisé pour les calculs
 
@@ -61,6 +61,14 @@
 class UnitMove
 {
 public:
+	UnitMove()
+	{
+		length = 0;
+		bendRadius = INFINITE_RADIUS;
+		speed = 350;
+		stopAfterMove = true;
+	}
+
 	bool stopAfterMove; // Indique si le robot doit s'arrêter à la fin de ce mouvement avant d'enchainer sur le suivant
 
 	void setLengthMm(int32_t lengthMM)
@@ -90,9 +98,16 @@ public:
 
 	void setBendRadiusMm(int32_t bendRadiusMM)
 	{
-		bendRadius = bendRadiusMM;
-		bendRadius *= COS_PI_4;
-		bendRadius /= TICK_TO_MM;
+		if (bendRadiusMM == INFINITE_RADIUS)
+		{
+			bendRadius = INFINITE_RADIUS;
+		}
+		else
+		{
+			bendRadius = bendRadiusMM;
+			bendRadius *= COS_PI_4;
+			bendRadius /= TICK_TO_MM;
+		}
 	}
 	void setBendRadiusTicks(int32_t bendRadiusTicks)
 	{

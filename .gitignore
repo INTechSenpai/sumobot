@@ -1,5 +1,8 @@
 *~
 
+/Factures/
+/Photos/
+
 ### SketchUp ###
 *.skb
 
@@ -280,3 +283,4 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+/electronique/Datasheet/VL6180 examples
