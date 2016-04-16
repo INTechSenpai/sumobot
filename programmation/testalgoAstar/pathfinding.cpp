@@ -36,18 +36,96 @@ bool Pathfinding::PosSuffisammentProches(const PositionTrajectoire& p1, const Po
 }
 
 
+Trajectory Pathfinding::ComputePath(ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation) {
 
-Trajectory Pathfinding::Astar(const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
+    //transforme Position en PositionTrajectoire
+    PositionTrajectoire Astart;
+    Astart.orientation = start.orientation;
+    Astart.x = start.x;
+    Astart.y = start.y;
+    Astart.trajectoire = Depart;
+
+    PositionTrajectoire Agoal;
+    Agoal.orientation = goal.orientation;
+    Agoal.x = goal.x;
+    Agoal.y = goal.y;
+    Agoal.trajectoire = Depart;
+
+    //Transforme l'obstacleMap en un seul vector
+
+    obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.fixedInvisible.begin(), map.fixedInvisible.end());
+    obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.fixedVisible.begin(), map.fixedVisible.end());
+    obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.movableInvisible.begin(), map.movableInvisible.end());
+    obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.movableVisible.begin(), map.movableVisible.end());
+    obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.oponentRobot.begin(), map.oponentRobot.end());
+    obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.toBeSpecified.begin(), map.toBeSpecified.end());
+
+
+
+
+    //Détermine si il faut passer par un obstacle
+
+    if (Obstacle::isAnObstaclePushed()) {
+
+    //si oui, on trouve l'obstacle à pousser
+        Obstacle obstacleApousser = obstaclesSurLaMap[0];
+        int i = 1;
+        while ((i<obstaclesSurLaMap.size())&&(!obstacleApousser.isPushed())) {
+
+            if (obstaclesSurLaMap[i].isPushed()) {
+                obstacleApousser = obstaclesSurLaMap[i];
+            }
+            i++;
+        }
+
+        //récupération de la position de l'obstacle
+        Position obstaclePositionT;
+        obstacleApousser.getCenter(obstaclePositionT);
+
+        //création de la PositionTrajectoire de l'obstacle
+        PositionTrajectoire obstaclePosition;
+        obstaclePosition.orientation = intermediateOrientation;
+        obstaclePosition.x = obstaclePositionT.x;
+        obstaclePosition.y = obstaclePositionT.y;
+
+
+
+        //puis appel de l'algorithme A* deux fois et concaténation du résultat
+        Trajectory startToObject = Astar(Astart, obstaclePosition);
+        Trajectory objectToGoal = Astar(obstaclePosition, Agoal);
+
+        //si startToObject vide (A* ne renvoie rien), meme si goalToObject
+        //renvoie une trajectoire non vide, computePath renvoie une trajectoire
+        //vide ce qui évite au robot de faire n'importe quoi dans ce cas.
+
+        if (!startToObject.empty()) {
+            //concaténation
+            startToObject.insert(startToObject.end(), objectToGoal.begin(), objectToGoal.end());
+            return startToObject;
+        }
+
+
+
+    }
+
+    else {
+        //si non, on appelle directement A*
+        Trajectory trajectory = Astar(Astart, Agoal);
+        return trajectory;
+    }
+}
+
+
+Trajectory Pathfinding::Astar(const PositionTrajectoire& start, const PositionTrajectoire& goal) {
 
     std::vector<PositionTrajectoire> chemin_solution;
 
     Trajectory trajectoire;
-    if (EstUnTrajetImpossible(map, start, goal)) {
+   /* if (EstUnTrajetImpossible(start, goal)) {
         return trajectoire;
-    }
+    }*/
     int passageDansBoucle=0;
     PositionTrajectoire n_courant = start;
-    n_courant.trajectoire = Depart;
     noeud noeuddepart;
     noeuddepart.cout_g = 0;
     noeuddepart.cout_h = distance(start.x, start.y, start.orientation, goal.x, goal.y, goal.orientation);
@@ -57,7 +135,7 @@ Trajectory Pathfinding::Astar(const ObstacleMap& map, const PositionTrajectoire&
     OpenSet.push_back(noeuddepart);
     n_courant = MettreAjourClosedSet();
     while (!(PosSuffisammentProches(n_courant, goal))&&(passageDansBoucle<300)) {
-        MettreAjourOpenSet(map, n_courant, goal);
+        MettreAjourOpenSet(n_courant, goal);
         n_courant = MettreAjourClosedSet();
         passageDansBoucle++;
     }
@@ -85,10 +163,6 @@ Trajectory Pathfinding::Astar(const ObstacleMap& map, const PositionTrajectoire&
     }
     */
 
-    //la vitesse du trajet sera égale a celle d'arrivée
-    chemin_solution.front().xSpeed = goal.xSpeed;
-    chemin_solution.front().ySpeed = goal.ySpeed;
-
 
     //affichage pour debug
 
@@ -105,10 +179,9 @@ Trajectory Pathfinding::Astar(const ObstacleMap& map, const PositionTrajectoire&
     return (trajectoire);
 }
 
-bool Pathfinding::EstUnTrajetImpossible(const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
+/*bool Pathfinding::EstUnTrajetImpossible(const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
     if (map[0].obstaclePlein) {
         return (goal.x*goal.x + goal.y*goal.y > map[1].rayon*map[1].rayon);
-
     }
     else if (map[1].obstaclePlein){
         return (goal.x*goal.x + goal.y*goal.y > map[0].rayon*map[0].rayon);
@@ -116,10 +189,10 @@ bool Pathfinding::EstUnTrajetImpossible(const ObstacleMap& map, const PositionTr
     else {
         return true;
     }
-}
+}*/
 
 
-void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
+void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const PositionTrajectoire& goal) {
 
     // on ajoute à la liste ouverte les noeuds voisins et on calcule leurs coûts
 
@@ -142,7 +215,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
     tmp.trajectoire = Avancer1g;
 
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on avance de distanceParEtape suivant un rayon R1 vers la droite.
 
@@ -157,7 +230,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
     tmp.y = start.y + distanceStartTmp*sin(beta);
     tmp.trajectoire = Avancer1d;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R1 par la gauche.
 
@@ -176,7 +249,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
 
     tmp.trajectoire = Reculer1g;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R1 par la droite.
 
@@ -193,7 +266,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
 
     tmp.trajectoire = Reculer1d;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on avance de distanceParEtape suivant un rayon R2 vers la gauche.
 
@@ -209,7 +282,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
     tmp.trajectoire = Avancer2g;
 
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on avance de distanceParEtape suivant un rayon R2 vers la droite.
 
@@ -224,7 +297,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
     tmp.y = start.y + distanceStartTmp*sin(beta);
     tmp.trajectoire = Avancer2d;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R2 par la gauche.
 
@@ -241,7 +314,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
 
     tmp.trajectoire = Reculer2g;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R2 par la droite.
 
@@ -258,7 +331,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
 
     tmp.trajectoire = Reculer2d;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
 
 
@@ -277,7 +350,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
     tmp.trajectoire = Avancer3g;
 
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on avance de distanceParEtape suivant un rayon R3 vers la droite.
 
@@ -292,7 +365,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
     tmp.y = start.y + distanceStartTmp*sin(beta);
     tmp.trajectoire = Avancer3d;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R3 par la gauche.
 
@@ -310,7 +383,7 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
 
     tmp.trajectoire = Reculer3g;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on recule de distanceParEtape suivant un rayon R3 par la droite.
 
@@ -327,61 +400,53 @@ void Pathfinding::MettreAjourOpenSet(const ObstacleMap &map, const PositionTraje
 
     tmp.trajectoire = Reculer3d;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas ou on avance en ligne droite de distanceParEtape
 
     tmp.x = start.x + distanceParEtape*cos(start.orientation);
     tmp.y = start.y + distanceParEtape*sin(start.orientation);
     tmp.orientation = start.orientation;
-    tmp.xSpeed = 0;
-    tmp.ySpeed = 0;
     tmp.trajectoire = AvancerToutDroit;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas ou on recule en ligne droite de distanceParEtape
 
     tmp.x = start.x - distanceParEtape*cos(start.orientation);
     tmp.y = start.y - distanceParEtape*sin(start.orientation);
     tmp.orientation = start.orientation;
-    tmp.xSpeed = 0;
-    tmp.ySpeed = 0;
     tmp.trajectoire = ReculerToutDroit;
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on tourne de distanceParEtape/R3 dans le sens trigonométrique.
 
     tmp.orientation = start.orientation + (distanceParEtape/R3);
     tmp.x = start.x;
     tmp.y = start.y;
-    tmp.xSpeed = 0;
-    tmp.ySpeed = 0;
     tmp.trajectoire = TournerSurPlaceTrigo;
 
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
     //cas où on tourne de distanceParEtape/R3 dans le sens horaire.
 
     tmp.orientation = start.orientation - (distanceParEtape/R3);
     tmp.x = start.x;
     tmp.y = start.y;
-    tmp.xSpeed = 0;
-    tmp.ySpeed = 0;
     tmp.trajectoire = TournerSurPlaceTrigo;
 
 
-    checkCandidat(tmp, map, start, goal);
+    checkCandidat(tmp, start, goal);
 
 }
 
-void Pathfinding::checkCandidat(const PositionTrajectoire& candidat, const ObstacleMap& map, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
+void Pathfinding::checkCandidat(const PositionTrajectoire& candidat, const PositionTrajectoire& start, const PositionTrajectoire& goal) {
 
     //on vérifie la présence d'Obstacle
 
-    if (!estSurUnObstacle(candidat.x,candidat.y, map)) {
+    if (!estSurUnObstacle(candidat.x,candidat.y)) {
         //on vérifie la présence dans la liste fermée.
         if (chercheDansClosedSet(candidat)==-1) {
             // Création du noeud
@@ -438,32 +503,57 @@ PositionTrajectoire Pathfinding::MettreAjourClosedSet() {
     ClosedSet.push_back(min_noeud);
     // il faut le supprimer de la liste ouverte, ce n'est plus une solution explorable
     OpenSet.erase(OpenSet.begin());
-    return min_noeud.position;
+    return (min_noeud.position);
 }
 
-bool Pathfinding::estSurUnObstacle(float x, float y, const ObstacleMap &map) {
+bool Pathfinding::estSurUnObstacle(float x, float y) {
 
-    for (int i=0;i<map.size();i++) {
+    for (int i=0;i<obstaclesSurLaMap.size();i++) {
 
-        if (map[i].obstaclePlein) {
-            if ( (map[i].position.x - x)*(map[i].position.x - x) +
-                  (map[i].position.y - y)*(map[i].position.y - y)
-                  < map[i].rayon
-                    ) {
+        //si l'obstacle est à pousser, il ne faut pas l'éviter
+        if (obstaclesSurLaMap[i].isPushed()) {
+            continue;
+        }
+
+        //si l'obstacle est un CERCLE
+        if (obstaclesSurLaMap[i].getShape()==0) {
+            Position positionObstacle;
+            obstaclesSurLaMap[i].getCenter(positionObstacle);
+            if (pow(x-positionObstacle.x,2)+pow(y-positionObstacle.y,2) < pow(obstaclesSurLaMap[i].getRadius(),2)) {
                 return true;
             }
         }
 
+        //si l'obstacle est un RECTANGLE xRadius = largeur, yRadius = hauteur
+        else if (obstaclesSurLaMap[i].getShape()==1) {
+            Position positionObstacle;
+            obstaclesSurLaMap[i].getCenter(positionObstacle);
+            if ( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()/2) &&
+                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()/2) &&
+                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()/2) &&
+                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()/2) ) {
+                return true;
+            }
+        }
+
+        //si l'obstacle est un BORD_DE_TABLE
+        else if (obstaclesSurLaMap[i].getShape()==2) {
+            Position positionObstacle;
+            obstaclesSurLaMap[i].getCenter(positionObstacle);
+            if (!( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()/2) &&
+                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()/2) &&
+                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()/2) &&
+                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()/2) )) {
+                return true;
+            }
+
+        }
+
+        //si l'obstacle n'a pas été précisé (problème en amont)
         else {
-            if ( (map[i].position.x - x)*(map[i].position.x - x) +
-                  (map[i].position.y - y)*(map[i].position.y - y)
-                  > map[i].rayon*map[i].rayon
-                    ) {
-                return true;
-            }
+            std::cerr << "problèmes dans l'obstaclemap : getShape renvoie un nombre > 2";
         }
-     }
-
+    }
     return false;
 }
 

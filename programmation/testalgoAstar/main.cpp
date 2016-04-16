@@ -8,21 +8,23 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     Pathfinding pathfinding;
-    ObstacleCercle unObstacle;
-    unObstacle.obstaclePlein = true;
-    unObstacle.position.x = -300;
-    unObstacle.position.y = 0;
-    unObstacle.rayon = 100;
+    Position positionUnObstacle;
+    positionUnObstacle.x = -300;
+    positionUnObstacle.y = 0;
+    Obstacle unObstacle(positionUnObstacle, CIRCLE);
+    unObstacle.setRadius(100);
 
-    ObstacleCercle BordDeTable;
-    BordDeTable.obstaclePlein = false;
-    BordDeTable.position.x = 0;
-    BordDeTable.position.y = 0;
-    BordDeTable.rayon = 740;
+    Position positionDeuxiemeObstacle;
+    positionDeuxiemeObstacle.x = 0;
+    positionDeuxiemeObstacle.y = 0;
+    Obstacle deuxiemeObstacle(positionDeuxiemeObstacle, RECTANGLE);
+    deuxiemeObstacle.setXRadius(100);
+    deuxiemeObstacle.setYRadius(100);
+
 
     ObstacleMap map;
-    map.push_back(unObstacle);
-    map.push_back(BordDeTable);
+    map.movableInvisible.push_back(unObstacle);
+    map.fixedVisible.push_back(deuxiemeObstacle);
 
     PositionTrajectoire start,goal;
     start.orientation = 0;
@@ -33,6 +35,6 @@ int main(int argc, char *argv[])
     goal.x = 0;
     goal.y = 150;
 
-    pathfinding.Astar(map, start, goal);
+    pathfinding.Astar(start, goal);
     return 0;
 }
