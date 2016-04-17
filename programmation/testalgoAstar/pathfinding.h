@@ -8,10 +8,6 @@
 #include "../sumobot/Position.h"
 #include "../sumobot/Path.h"
 
-#define distanceParEtape 100.0
-#define R1 50.0
-#define R2 100.0
-#define R3 500.0
 
 enum Trajectoire{Depart,
                 Avancer1g,Avancer1d,Reculer1g,Reculer1d,
@@ -41,7 +37,7 @@ class Pathfinding
 {
 public:
     Pathfinding();
-    Trajectory ComputePath(ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation);
+    Trajectory computePath(ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation);
     //a passser en private les tests terminés
     Trajectory Astar(const PositionTrajectoire& start, const PositionTrajectoire& goal);
 
@@ -55,6 +51,20 @@ private:
     //Contient tous les obstacles dans un seul vecteur
     std::vector<Obstacle> obstaclesSurLaMap;
 
+    //Contient tous les rayons à tester
+
+    //la distance parcourue pour une boucle de l'algorithme
+    const float distanceParEtape;
+
+    //contient les différents rayons de courbures possibles
+    std::vector<float> rayonsDeCourbures;
+
+    //rotations autorisées ou non pour A*
+    bool rotationAllowed;
+
+
+
+private:
 
     float distance(float x1, float y1, float o1, float x2, float y2, float o2);
 

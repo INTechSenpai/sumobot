@@ -26,15 +26,17 @@ int main(int argc, char *argv[])
     map.movableInvisible.push_back(unObstacle);
     map.fixedVisible.push_back(deuxiemeObstacle);
 
-    PositionTrajectoire start,goal;
-    start.orientation = 0;
+    Position start,goal;
+    start.orientation = 4.05;
     start.x = 300;
     start.y = 0;
 
     goal.orientation = M_PI/2;
-    goal.x = 0;
-    goal.y = 150;
+    goal.x = -120;
+    goal.y = 0;
 
-    pathfinding.Astar(start, goal);
+    float intermediateOrientation = 3.0;
+
+    pathfinding.computePath(map, start, goal, intermediateOrientation);
     return 0;
 }
