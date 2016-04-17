@@ -13,11 +13,6 @@
 #include <vector>
 
 
-#define PIN_STARTUP_SIGNAL	A11 // Pin de l'interrupteur de démarrage du match
-#define PIN_DEL_ONBOARD		13	// Pin de la DEL intégrée à la Teensy
-
-
-
 void setup()
 {
 	Serial.begin(9600);
@@ -33,6 +28,7 @@ void loop()
 	SensorMgr & sensorMgr = SensorMgr::Instance();
 	IntervalTimer motionControlThread;
 	IntervalTimer sensorThread;
+	IntervalTimer battControlerThread;
 
 	CUnit test;
 
@@ -41,23 +37,25 @@ void loop()
 	motionControlThread.priority(64);
 	motionControlThread.begin(motionControlInterrupt, 500);
 
-	/*
-	Side side = robot.checkSide();
-	robot.init(side);
-	//*/
-
 	sensorThread.priority(128);
 	sensorThread.begin(sensorInterrupt, 25000);
-	
-	/*
+
+	//*
+	Side side = robot.checkSide();
+	//*/
+
+	battControlerThread.priority(80);
+	battControlerThread.begin(battControlerInterrupt, 50000);
+
 	robot.waitForBegining();
+	/*
 	robot.winMatch(90000);
 	delay(2000);
 	robot.deployUmbrella();
 	//*/
 
 
-	test.serialInterface();
+	//test.serialInterface();
 
 	while (true)
 	{
@@ -98,16 +96,12 @@ void sensorInterrupt()
 	static Position robotPositionUncertainty;
 	static Table & table = Table::Instance();
 	static RelativeObstacleMap relativeObstacleMap;
-	static BattControler battControler;
-
-	/* Mise à jour des DELs indiquant l'état de la batterie */
-	battControler.control();
 
 	sensorMgr.updateFront();
 	sensorMgr.updateBack();
 	sensorMgr.updateSides();
-
-	sensorMgr.getRelativeObstacleMap(relativeObstacleMap);
+	
+	sensorMgr.getRelativeObstacleMapNoReset(relativeObstacleMap);
 	motionControlSystem.getPosition(robotPosition);
 	motionControlSystem.getPositionUncertainty(robotPositionUncertainty);
 	if (table.updateObstacleMap(relativeObstacleMap, robotPosition, robotPositionUncertainty))
@@ -115,7 +109,15 @@ void sensorInterrupt()
 		motionControlSystem.setPosition(robotPosition);
 		motionControlSystem.setPositionUncertainty(robotPositionUncertainty);
 	}
-} 
+}
+
+
+/* Mise à jour des DELs indiquant l'état de la batterie */
+void battControlerInterrupt()
+{
+	static BattControler battControler;
+	battControler.control();
+}
 
 
 /* Ce bout de code permet de compiler avec std::vector */

@@ -23,6 +23,11 @@
 #include "Table.h"
 #include "utils.h"
 
+#define PIN_JUMPER			A11 // Pin du jumer déclenchant le début du match
+#define PIN_DEL_ONBOARD		13	// Pin de la DEL intégrée à la Teensy
+#define PIN_DEL_RED			29	// Pin de la DEL verte (du contrôleur de tension)
+#define PIN_DEL_GREEN		30	// Pin de la DEL rouge (du contrôleur de tension)
+
 class Robot : public Singleton<Robot>
 {
 public:
@@ -36,7 +41,7 @@ public:
 
 
 	/* 
-		Initialise les attributs de l'objet Robot. Notamment la Table.
+		Initialise les attributs de l'objet Robot. Notamment la Table, ainsi que la position initiale du robot.
 	*/
 	void init(Side side);
 

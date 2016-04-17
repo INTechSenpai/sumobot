@@ -66,10 +66,10 @@ public:
 		Interprète les obstacles vus comme élément de jeu, bord de table ou bien robot adverse.
 		Repositionne éventuellement notre robot si un bord de table détecté le permet.
 
-		obstacleMap : liste courante des obstacles de la table, elle sera mise à jour par cette fonction.
 		relativeObstacleMap : données lues par les capteurs (distances lues en mm).
-		notrePosition : position du robot calculée par le bas niveau (avec une certaine incertitude).
-		retour : cette fonction retourne 'true' si le paramètre 'notrePosition' a été modifié, 'false' sinon.
+		notrePosition : position du robot calculée par le bas niveau.
+		positionUncertainty : incertitude sur la position
+		retour : cette fonction retourne 'true' si les paramètre 'notrePosition' et/ou 'positionUncertainty' a/ont été(s) modifié(s), 'false' sinon.
 	*/
 	bool updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, Position & positionUncertainty);
 
