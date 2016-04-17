@@ -41,13 +41,13 @@ void loop()
 	sensorThread.begin(sensorInterrupt, 25000);
 
 	//*
-	Side side = robot.checkSide();
+	//Side side = robot.checkSide();
 	//*/
 
 	battControlerThread.priority(80);
 	battControlerThread.begin(battControlerInterrupt, 50000);
 
-	robot.waitForBegining();
+	//robot.waitForBegining();
 	/*
 	robot.winMatch(90000);
 	delay(2000);
