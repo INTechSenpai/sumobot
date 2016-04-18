@@ -1,6 +1,7 @@
 #include "pathfinding.h"
+#define ESTSURORDI
 
-Pathfinding::Pathfinding() : distanceParEtape(50.0), rotationAllowed(true) {
+Pathfinding::Pathfinding() : distanceParEtape(20.0), rotationAllowed(true) {
 
     rayonsDeCourbures.push_back(50.0);
     rayonsDeCourbures.push_back(150.0);
@@ -137,6 +138,10 @@ Trajectory Pathfinding::Astar(const PositionTrajectoire& start, const PositionTr
     noeuddepart.cout_h = distance(start.x, start.y, start.orientation, goal.x, goal.y, goal.orientation);
     noeuddepart.cout_f = noeuddepart.cout_h;
     noeuddepart.position = n_courant;
+
+    if (estSurUnObstacle(start.x, start.y)) {
+        std::cout << "le robot est dans un obstacle";
+    }
 
     OpenSet.push_back(noeuddepart);
     n_courant = MettreAjourClosedSet();
@@ -299,6 +304,7 @@ void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const Pos
     checkCandidat(tmp, start, goal);
 
     if (rotationAllowed) {
+        /*
         //cas où on tourne de distanceParEtape/R3 dans le sens trigonométrique.
 
         tmp.orientation = start.orientation + 0.2;
@@ -307,14 +313,14 @@ void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const Pos
         tmp.trajectoire = TournerSurPlaceTrigo;
 
 
-        checkCandidat(tmp, start, goal);
+        checkCandidat(tmp, start, goal);*/
 
         //cas où on tourne sur place dans le sens horaire.
 
         tmp.orientation = start.orientation - 0.2;
         tmp.x = start.x;
         tmp.y = start.y;
-        tmp.trajectoire = TournerSurPlaceTrigo;
+        tmp.trajectoire = TournerSurPlaceAntiTrigo;
 
 
         checkCandidat(tmp, start, goal);
@@ -361,11 +367,16 @@ void Pathfinding::checkCandidat(const PositionTrajectoire& candidat, const Posit
 
             }
     }
+
+    else {
+        std::cout << "le noeud (" << candidat.x << ", " << candidat.y;
+        std::cout << ")" << "est sur un obstacle " <<std::endl;
+    }
 }
 
 
 
-PositionTrajectoire Pathfinding::MettreAjourClosedSet() {
+Pathfinding::PositionTrajectoire Pathfinding::MettreAjourClosedSet() {
     // Recherche du minimum des coûts dans OpenSet
     // ici le vector est trié donc on prend le premier élément
 
@@ -399,20 +410,32 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
         if (obstaclesSurLaMap[i].getShape()==0) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            if (pow(x-positionObstacle.x,2)+pow(y-positionObstacle.y,2) < pow(obstaclesSurLaMap[i].getRadius(),2)) {
-                return true;
+            if (positionObstacle.orientation == 0){
+                if (pow(x-positionObstacle.x,2)+pow(y-positionObstacle.y,2) < pow(obstaclesSurLaMap[i].getRadius(),2)) {
+                    std::cout <<  "obstacle cercle numero " << i << std::endl;
+                    return true;
+                }
+            }
+            else {
+                //a faire
             }
         }
 
-        //si l'obstacle est un RECTANGLE xRadius = largeur, yRadius = hauteur
+        //si l'obstacle est un RECTANGLE
         else if (obstaclesSurLaMap[i].getShape()==1) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            if ( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()/2) &&
-                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()/2) &&
-                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()/2) &&
-                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()/2) ) {
-                return true;
+            if (positionObstacle.orientation == 0) {
+                if ( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
+                         (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
+                         (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
+                         (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) ) {
+                    std::cout <<  "obstacle rectangle numero " << i << std::endl;
+                    return true;
+                }
+                else {
+                    //a faire
+                }
             }
         }
 
@@ -420,11 +443,19 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
         else if (obstaclesSurLaMap[i].getShape()==2) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            if (!( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()/2) &&
-                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()/2) &&
-                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()/2) &&
-                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()/2) )) {
-                return true;
+            if (positionObstacle.orientation == 0){
+                if (!( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
+                       (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
+                       (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
+                       (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) )) {
+                    std::cout <<  "obstacle bord de table numero " << i << std::endl;
+
+                    return true;
+                }
+            }
+
+            else {
+                //a faire
             }
 
         }
@@ -492,130 +523,160 @@ int Pathfinding::chercheDansClosedSet(const PositionTrajectoire& positionAtest) 
     }
 }
 
+
+//stopAfterMove :
 Trajectory Pathfinding::positionsToTrajectory(const std::vector<PositionTrajectoire>& chemin_solution) {
 
     Trajectory trajectoire;
+    float pasPourTourner = 0.2;
 
     for (int i=0;i<chemin_solution.size();i++) {
         UnitMove unitmove;
+        unitmove.stopAfterMove = true;
+
+
         switch (chemin_solution[i].trajectoire) {
 
-        case Depart:
-            break;
-        case Avancer1g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[0]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Depart:
+                continue;
+                break;
+            case Avancer1g:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[0]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer1d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[0]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer1d:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[0]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer1g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[0]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer1g:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[0]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer1d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[0]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer1d:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[0]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer2g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[1]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer2g:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[1]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer2d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[1]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer2d:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[1]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer2g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[1]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer2g:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[1]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer2d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[1]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer2d:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[1]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer3g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[2]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer3g:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[2]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer3d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[2]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer3d:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[2]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer3g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[2]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer3g:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[2]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer3d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[2]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer3d:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[2]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case AvancerToutDroit:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(INFINITE_RADIUS);
-            unitmove.setSpeedMm_S(450);
-            break;
+            case AvancerToutDroit:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(INFINITE_RADIUS);
+                unitmove.setSpeedMm_S(450);
+                break;
 
-        case ReculerToutDroit:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(INFINITE_RADIUS);
-            unitmove.setSpeedMm_S(450);
-            break;
+            case ReculerToutDroit:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(INFINITE_RADIUS);
+                unitmove.setSpeedMm_S(450);
+                break;
 
-        case TournerSurPlaceTrigo:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(0.2);
-            unitmove.setBendRadiusMm(0);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case TournerSurPlaceTrigo:
+                unitmove.setLengthRadians(pasPourTourner);
+                unitmove.setBendRadiusMm(0);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case TournerSurPlaceAntiTrigo:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-0.2);
-            unitmove.setBendRadiusMm(0);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case TournerSurPlaceAntiTrigo:
+                unitmove.setLengthRadians(-1*pasPourTourner);
+                unitmove.setBendRadiusMm(0);
+                unitmove.setSpeedMm_S(400);
+                break;
+
         }
 
-        trajectoire.push_back(unitmove);
+
+        trajectoire.insert(trajectoire.begin(), unitmove);
+    }
+
+    //concaténation
+    int i = 0;
+    while (i<trajectoire.size()-1) {
+        if ((trajectoire[i].getLengthMm()*trajectoire[i+1].getLengthMm() > 0)&&
+               (trajectoire[i].getBendRadiusMm() == trajectoire[i+1].getBendRadiusMm())) {
+           if (trajectoire[i].getBendRadiusMm() == 0) {
+               trajectoire[i].setLengthRadians(trajectoire[i].getLengthRadians() + trajectoire[i+1].getLengthRadians());
+           }
+           else {
+               trajectoire[i].setLengthMm(trajectoire[i].getLengthMm() + trajectoire[i+1].getLengthMm());
+           }
+           trajectoire.erase(trajectoire.begin()+i+1);
+        }
+
+        else {
+            i++;
+        }
+    }
+
+    //décider de la variable stopAfterMove
+    for (int i=0;i<trajectoire.size();i++) {
+        float R1,R2;
+        R1 = trajectoire[i].getBendRadiusMm();
+        if (i!= trajectoire.size()-1) {
+            R2 = trajectoire[i+1].getBendRadiusMm();
+            if ((R2==0)||(R1==0)) {
+                trajectoire[i].stopAfterMove = true;
+            }
+            else {
+                trajectoire[i].stopAfterMove = ((R1-R2 > SEUIL_ROTATION)||(R1-R2 < -1*SEUIL_ROTATION));
+            }
+        }
+        else {
+            trajectoire[i].stopAfterMove = true;
+        }
     }
     return trajectoire;
 }

@@ -8,33 +8,35 @@
 #include "../sumobot/Position.h"
 #include "../sumobot/Path.h"
 
-
-enum Trajectoire{Depart,
-                Avancer1g,Avancer1d,Reculer1g,Reculer1d,
-                Avancer2g,Avancer2d,Reculer2g,Reculer2d,
-                Avancer3g,Avancer3d,Reculer3g,Reculer3d,
-                AvancerToutDroit, ReculerToutDroit, TournerSurPlaceTrigo,
-                TournerSurPlaceAntiTrigo};
-
-struct PositionTrajectoire
-{
-    float x;
-    float y;
-    float orientation;
-    Trajectoire trajectoire;
-
-};
-
-struct noeud {
-    PositionTrajectoire parent;
-    PositionTrajectoire position;
-    float cout_g, cout_h, cout_f;
-};
-
-
+#define SEUIL_ROTATION 150
 
 class Pathfinding
 {
+
+private:
+
+    enum Trajectoire{Depart,
+                    Avancer1g,Avancer1d,Reculer1g,Reculer1d,
+                    Avancer2g,Avancer2d,Reculer2g,Reculer2d,
+                    Avancer3g,Avancer3d,Reculer3g,Reculer3d,
+                    AvancerToutDroit, ReculerToutDroit, TournerSurPlaceTrigo,
+                    TournerSurPlaceAntiTrigo};
+
+    struct PositionTrajectoire
+    {
+        float x;
+        float y;
+        float orientation;
+        Trajectoire trajectoire;
+
+    };
+
+    struct noeud {
+        PositionTrajectoire parent;
+        PositionTrajectoire position;
+        float cout_g, cout_h, cout_f;
+    };
+
 public:
     Pathfinding();
     Trajectory computePath(const ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation);
