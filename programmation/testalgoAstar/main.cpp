@@ -18,8 +18,6 @@ int main(int argc, char *argv[])
     goal.x = 1200;
     goal.y = 1000;
 
-    float intermediateOrientation = 3.0;
-
-    Trajectory trajectoire = pathfinding.computePath(map, start, goal, intermediateOrientation);
+    Trajectory trajectoire = pathfinding.computePath(map, start, goal);
     return 0;
 }

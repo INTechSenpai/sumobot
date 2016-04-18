@@ -39,7 +39,7 @@ private:
 
 public:
     Pathfinding();
-    Trajectory computePath(const ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation);
+    Trajectory computePath(const ObstacleMap& map, const Position& start, const Position& goal);
     //a passser en private les tests terminés
     Trajectory Astar(const PositionTrajectoire& start, const PositionTrajectoire& goal);
 
@@ -57,6 +57,8 @@ private:
 
     //la distance parcourue pour une boucle de l'algorithme
     const float distanceParEtape;
+
+    const float coeffOrientation;
 
     //contient les différents rayons de courbures possibles
     std::vector<float> rayonsDeCourbures;
@@ -84,8 +86,9 @@ private:
     int chercheDansOpenSet(const PositionTrajectoire& positionAtest);
     int chercheDansClosedSet(const PositionTrajectoire& positionAtest);
 
-
-    bool estSurUnObstacle(float x, float y);
+    //renvoie -1 si la position donnée se trouve sur un obstacle
+    //sinon renvoie l'entier correspondant a l'obstacle dans obstaclesSurLaMap
+    int estSurUnObstacle(float x, float y);
 
     //vérifie si deux positions sont égales
     bool PosEgales(const PositionTrajectoire &p1, const PositionTrajectoire &p2);

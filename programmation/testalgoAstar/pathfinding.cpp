@@ -1,44 +1,15 @@
 #include "pathfinding.h"
 #define ESTSURORDI
 
-Pathfinding::Pathfinding() : distanceParEtape(20.0), rotationAllowed(true) {
+Pathfinding::Pathfinding() : distanceParEtape(20.0), coeffOrientation(1000), rotationAllowed(true) {
 
     rayonsDeCourbures.push_back(50.0);
     rayonsDeCourbures.push_back(150.0);
     rayonsDeCourbures.push_back(500.0);
 }
 
-//A tester : distance basée également sur écart d'orientation
-float Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
-    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*1000);
-}
 
-
-bool Pathfinding::PosEgales(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
-    return (
-            (p1.orientation == p2.orientation) &&
-            (p1.x == p2.x) &&
-            (p1.y == p2.y)
-           );
-}
-
-bool Pathfinding::PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
-    float precisionXY = 20.0;
-    float precisionOrientation = 0.3;
-    return (
-            (p1.orientation < p2.orientation + precisionOrientation) &&
-            (p2.orientation - precisionOrientation < p1.orientation) &&
-
-            (p1.x < p2.x + precisionXY) &&
-            (p2.x - precisionXY < p1.x) &&
-
-            (p1.y < p2.y + precisionXY) &&
-            (p2.y - precisionXY < p1.y)
-           );
-}
-
-
-Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation) {
+Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& start, const Position& goal) {
 
     //transforme Position en PositionTrajectoire
     PositionTrajectoire Astart;
@@ -64,6 +35,18 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.toBeSpecified.begin(), map.toBeSpecified.end());
 
 
+    //Détermine si on est sur un obstacle
+    int numeroObstacle = estSurUnObstacle(start.x, start.y);
+    if (numeroObstacle != -1) {
+        if (numeroObstacle < map.fixedInvisible.size() + map.fixedVisible.size()) {
+            //si l'obstacle est fixed, rajouter une trajectoire pour s'éloigner
+
+        }
+        else {
+            //si pas fixed, on l'enleve de nos obstacles
+            obstaclesSurLaMap.erase(obstaclesSurLaMap.begin()+numeroObstacle);
+        }
+    }
 
 
     //Détermine si il faut passer par un obstacle
@@ -87,7 +70,7 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
 
         //création de la PositionTrajectoire de l'obstacle
         PositionTrajectoire obstaclePosition;
-        obstaclePosition.orientation = intermediateOrientation;
+        obstaclePosition.orientation = obstaclePositionT.orientation;
         obstaclePosition.x = obstaclePositionT.x;
         obstaclePosition.y = obstaclePositionT.y;
 
@@ -138,10 +121,6 @@ Trajectory Pathfinding::Astar(const PositionTrajectoire& start, const PositionTr
     noeuddepart.cout_h = distance(start.x, start.y, start.orientation, goal.x, goal.y, goal.orientation);
     noeuddepart.cout_f = noeuddepart.cout_h;
     noeuddepart.position = n_courant;
-
-    if (estSurUnObstacle(start.x, start.y)) {
-        std::cout << "le robot est dans un obstacle";
-    }
 
     OpenSet.push_back(noeuddepart);
     n_courant = MettreAjourClosedSet();
@@ -332,7 +311,7 @@ void Pathfinding::checkCandidat(const PositionTrajectoire& candidat, const Posit
 
     //on vérifie la présence d'Obstacle
 
-    if (!estSurUnObstacle(candidat.x,candidat.y)) {
+    if (estSurUnObstacle(candidat.x,candidat.y) == -1) {
         //on vérifie la présence dans la liste fermée.
         if (chercheDansClosedSet(candidat)==-1) {
             // Création du noeud
@@ -397,7 +376,7 @@ Pathfinding::PositionTrajectoire Pathfinding::MettreAjourClosedSet() {
     return (min_noeud.position);
 }
 
-bool Pathfinding::estSurUnObstacle(float x, float y) {
+int Pathfinding::estSurUnObstacle(float x, float y) {
 
     for (int i=0;i<obstaclesSurLaMap.size();i++) {
 
@@ -412,8 +391,7 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
             obstaclesSurLaMap[i].getCenter(positionObstacle);
             if (positionObstacle.orientation == 0){
                 if (pow(x-positionObstacle.x,2)+pow(y-positionObstacle.y,2) < pow(obstaclesSurLaMap[i].getRadius(),2)) {
-                    std::cout <<  "obstacle cercle numero " << i << std::endl;
-                    return true;
+                    return i;
                 }
             }
             else {
@@ -430,8 +408,7 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
                          (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
                          (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
                          (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) ) {
-                    std::cout <<  "obstacle rectangle numero " << i << std::endl;
-                    return true;
+                    return i;
                 }
                 else {
                     //a faire
@@ -448,9 +425,8 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
                        (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
                        (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
                        (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) )) {
-                    std::cout <<  "obstacle bord de table numero " << i << std::endl;
 
-                    return true;
+                    return i;
                 }
             }
 
@@ -465,7 +441,7 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
             //std::cerr << "problèmes dans l'obstaclemap : getShape renvoie un nombre > 2";
         }
     }
-    return false;
+    return -1;
 }
 
 void Pathfinding::PlacerDansOpenSet(const noeud& nouveauNoeud) {
@@ -679,4 +655,32 @@ Trajectory Pathfinding::positionsToTrajectory(const std::vector<PositionTrajecto
         }
     }
     return trajectoire;
+}
+
+float Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
+    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*coeffOrientation);
+}
+
+
+bool Pathfinding::PosEgales(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
+    return (
+            (p1.orientation == p2.orientation) &&
+            (p1.x == p2.x) &&
+            (p1.y == p2.y)
+           );
+}
+
+bool Pathfinding::PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
+    float precisionXY = 20.0;
+    float precisionOrientation = 0.3;
+    return (
+            (p1.orientation < p2.orientation + precisionOrientation) &&
+            (p2.orientation - precisionOrientation < p1.orientation) &&
+
+            (p1.x < p2.x + precisionXY) &&
+            (p2.x - precisionXY < p1.x) &&
+
+            (p1.y < p2.y + precisionXY) &&
+            (p2.y - precisionXY < p1.y)
+           );
 }
