@@ -1,10 +1,6 @@
 #include "pathfinding.h"
-#include "mapdeuxdes.h"
-#include <vector>
-#include <math.h>
-#include <iostream>
 
-Pathfinding::Pathfinding() : distanceParEtape(100.0), rotationAllowed(true) {
+Pathfinding::Pathfinding() : distanceParEtape(50.0), rotationAllowed(true) {
 
     rayonsDeCourbures.push_back(50.0);
     rayonsDeCourbures.push_back(150.0);
@@ -41,7 +37,7 @@ bool Pathfinding::PosSuffisammentProches(const PositionTrajectoire& p1, const Po
 }
 
 
-Trajectory Pathfinding::computePath(ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation) {
+Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation) {
 
     //transforme Position en PositionTrajectoire
     PositionTrajectoire Astart;
@@ -58,6 +54,7 @@ Trajectory Pathfinding::computePath(ObstacleMap& map, const Position& start, con
 
     //Transforme l'obstacleMap en un seul vector
 
+    //agrandir les obstacles en prenant en compte que le robot est un cercle de rayon rayonRobot
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.fixedInvisible.begin(), map.fixedInvisible.end());
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.fixedVisible.begin(), map.fixedVisible.end());
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.movableInvisible.begin(), map.movableInvisible.end());
@@ -175,6 +172,7 @@ Trajectory Pathfinding::Astar(const PositionTrajectoire& start, const PositionTr
 
     //affichage pour debug
 
+#ifdef ESTSURORDI
     std::cout << "chemin proposé :" << std::endl;
     for (int i=0; i<chemin_solution.size();i++) {
         std::cout << "(" << chemin_solution[i].x;
@@ -183,6 +181,7 @@ Trajectory Pathfinding::Astar(const PositionTrajectoire& start, const PositionTr
         std::cout << " type de trajectoire : " << chemin_solution[i].trajectoire;
         std::cout << std::endl;
     }
+#endif
 
     trajectoire = positionsToTrajectory(chemin_solution);
     return (trajectoire);
@@ -432,7 +431,7 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
 
         //si l'obstacle n'a pas été précisé (problème en amont)
         else {
-            std::cerr << "problèmes dans l'obstaclemap : getShape renvoie un nombre > 2";
+            //std::cerr << "problèmes dans l'obstaclemap : getShape renvoie un nombre > 2";
         }
     }
     return false;

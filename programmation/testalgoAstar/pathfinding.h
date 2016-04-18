@@ -1,8 +1,8 @@
 #ifndef PATHFINDING_H
 #define PATHFINDING_H
-#include <utility>
-#include "mapdeuxdes.h"
 #include <vector>
+#include <iostream>
+#include <math.h>
 #include "../sumobot/Obstacle.h"
 #include "../sumobot/Table.h"
 #include "../sumobot/Position.h"
@@ -37,7 +37,7 @@ class Pathfinding
 {
 public:
     Pathfinding();
-    Trajectory computePath(ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation);
+    Trajectory computePath(const ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation);
     //a passser en private les tests terminés
     Trajectory Astar(const PositionTrajectoire& start, const PositionTrajectoire& goal);
 
