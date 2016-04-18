@@ -13,11 +13,6 @@
 #include <vector>
 
 
-#define PIN_STARTUP_SIGNAL	A11 // Pin de l'interrupteur de démarrage du match
-#define PIN_DEL_ONBOARD		13	// Pin de la DEL intégrée à la Teensy
-
-
-
 void setup()
 {
 	Serial.begin(9600);
@@ -33,6 +28,7 @@ void loop()
 	SensorMgr & sensorMgr = SensorMgr::Instance();
 	IntervalTimer motionControlThread;
 	IntervalTimer sensorThread;
+	IntervalTimer battControlerThread;
 
 	CUnit test;
 
@@ -41,20 +37,25 @@ void loop()
 	motionControlThread.priority(64);
 	motionControlThread.begin(motionControlInterrupt, 500);
 
-	/*
-	Side side = robot.checkSide();
-	robot.init(side);
+	sensorThread.priority(128);
+	sensorThread.begin(sensorInterrupt, 25000);
+
+	//*
+	//Side side = robot.checkSide();
 	//*/
 
-	sensorThread.priority(128);
-	sensorThread.begin(sensorInterrupt, 30000);
+	battControlerThread.priority(80);
+	battControlerThread.begin(battControlerInterrupt, 50000);
 
+	//robot.waitForBegining();
 	/*
-	robot.waitForBegining();
 	robot.winMatch(90000);
 	delay(2000);
 	robot.deployUmbrella();
 	//*/
+
+
+	//test.serialInterface();
 
 	while (true)
 	{
@@ -90,35 +91,33 @@ void motionControlInterrupt()
 void sensorInterrupt()
 {
 	static SensorMgr & sensorMgr = SensorMgr::Instance();
+	static MotionControlSystem & motionControlSystem = MotionControlSystem::Instance();
+	static Position robotPosition;
+	static Position robotPositionUncertainty;
 	static Table & table = Table::Instance();
+	static RelativeObstacleMap relativeObstacleMap;
+
+	sensorMgr.updateFront();
+	sensorMgr.updateBack();
+	sensorMgr.updateSides();
+	
+	sensorMgr.getRelativeObstacleMapNoReset(relativeObstacleMap);
+	motionControlSystem.getPosition(robotPosition);
+	motionControlSystem.getPositionUncertainty(robotPositionUncertainty);
+	if (table.updateObstacleMap(relativeObstacleMap, robotPosition, robotPositionUncertainty))
+	{
+		motionControlSystem.setPosition(robotPosition);
+		motionControlSystem.setPositionUncertainty(robotPositionUncertainty);
+	}
+}
+
+
+/* Mise à jour des DELs indiquant l'état de la batterie */
+void battControlerInterrupt()
+{
 	static BattControler battControler;
-
-
-	/* Mise à jour des DELs indiquant l'état de la batterie */
 	battControler.control();
-
-	/* Les capteurs de couleur du sol ne sont pour l'instant plus utilisés
-	// Mise à jour des capteurs du sol
-	sensorMgr.updateFloor();
-	*/
-
-	static uint8_t compteur = 0;
-	if (compteur == 0)
-	{
-		sensorMgr.updateFront();
-		compteur++;
-	}
-	else if (compteur == 1)
-	{
-		sensorMgr.updateBack();
-		compteur++;
-	}
-	else if (compteur == 2)
-	{
-		sensorMgr.updateSides();
-		compteur = 0;
-	}
-} 
+}
 
 
 /* Ce bout de code permet de compiler avec std::vector */

@@ -1,6 +1,3 @@
-#include "MotionControlSystem.h"
-#include "SensorMgr.h"
-
 #ifndef _CUNIT_h
 #define _CUNIT_h
 
@@ -9,6 +6,9 @@
 #else
 	#include "WProgram.h"
 #endif
+
+#include "MotionControlSystem.h"
+#include "SensorMgr.h"
 
 #define INPUT_BUFFER_LENGH	64
 
@@ -29,8 +29,9 @@ public:
 	*/
 	void serialInterface()
 	{
-		float kp = 1, ki = 0, kd = 0;
-		int speed = 350, bendRadius = INFINITE_RADIUS, length = 200;
+		float kp = 2, ki = 0.01, kd = 50;
+		int speed = 350, bendRadius = INFINITE_RADIUS;
+		float length = 200;
 
 		Trajectory trajectory;
 		UnitMove unitMove;
@@ -53,7 +54,18 @@ public:
 				read(inputBuffer);
 				if (!strcmp(inputBuffer, "a"))
 				{
-					motionControlSystem.testAsservVitesse(speed, 1000, kp, ki, kd);
+					motionControlSystem.testAsservVitesseEtPosition(speed, (int)length, kp, ki, kd);
+				}
+				if (!strcmp(inputBuffer, "f"))
+				{
+					Serial.println(motionControlSystem.isMoving());
+					Serial.println(motionControlSystem.isBlocked());
+				}
+				if (!strcmp(inputBuffer, "c"))
+				{
+					int32_t left, right;
+					motionControlSystem.getTicks(left, right);
+					Serial.printf("G: %d\tD: %d\n", left, right);
 				}
 				else if (!strcmp(inputBuffer, "speed"))
 				{
@@ -91,7 +103,7 @@ public:
 					Serial.printf("Ki= %g\n", ki);
 					Serial.printf("Kd= %g\n", kd);
 					Serial.printf("Speed= %d\n", speed);
-					Serial.printf("Length= %d\n", length);
+					Serial.printf("Length= %f\n", length);
 					Serial.printf("BendR= %d\n", bendRadius);
 				}
 				else if (!strcmp(inputBuffer, "b"))
@@ -112,22 +124,32 @@ public:
 				{
 					Serial.println("Length ?");
 					read(inputBuffer);
-					length = atoi(inputBuffer);
-					Serial.printf("Length= %d\n", length);
+					length = atof(inputBuffer);
+					Serial.printf("Length= %f\n", length);
 				}
 				else if (!strcmp(inputBuffer, "z"))
 				{
 					Serial.println("Go !");
 					trajectory[0].setBendRadiusMm(bendRadius);
-					trajectory[0].setLengthMm(length);
+					if (bendRadius == 0)
+					{
+						trajectory[0].setLengthRadians(length);
+					}
+					else
+					{
+						trajectory[0].setLengthMm( (int)length );
+					}
 					trajectory[0].setSpeedMm_S(speed);
-					motionControlSystem.setRotationTunings(kp, ki, kd);
+					//motionControlSystem.setRotationTunings(kp, ki, kd);
 					motionControlSystem.setTrajectory(trajectory);
 				}
 				else if (!strcmp(inputBuffer, "xy"))
 				{
 					motionControlSystem.getPosition(ici);
 					Serial.printf("x: %g | y: %g | o: %g\n", ici.x, ici.y, ici.orientation);
+					motionControlSystem.getPositionUncertainty(ici);
+					Serial.printf("dx: %g | dy: %g | do: %g\n", ici.x, ici.y, ici.orientation);
+					Serial.println();
 				}
 				else if (!strcmp(inputBuffer, "rp"))
 				{
@@ -135,6 +157,31 @@ public:
 					ici.y = 0;
 					ici.orientation = 0;
 					motionControlSystem.setPosition(ici);
+				}
+				else if (!strcmp(inputBuffer, "traj"))
+				{
+					Trajectory testTrajectory;
+					UnitMove unitTranslation;
+					UnitMove unitRotation;
+					
+					unitTranslation.setBendRadiusMm(-400);
+					unitTranslation.setLengthMm(400);
+					unitTranslation.setSpeedMm_S(speed);
+					unitTranslation.stopAfterMove = true;
+
+					unitRotation.setBendRadiusMm(0);
+					unitRotation.setLengthRadians( -M_PI / 2);
+					unitRotation.setSpeedMm_S(speed);
+					unitRotation.stopAfterMove = true;
+
+					for (int i = 0; i < 4; i++)
+					{
+						testTrajectory.push_back(unitTranslation);
+						testTrajectory.push_back(unitRotation);
+					}
+
+					motionControlSystem.setTrajectory(testTrajectory);
+
 				}
 				else if (!strcmp(inputBuffer, "deploy"))
 				{
@@ -151,6 +198,7 @@ public:
 			}
 		}
 	}
+
 
 
 	/*

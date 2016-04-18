@@ -38,8 +38,8 @@ averageLeftSpeed(), averageRightSpeed()
 	toleranceRotation = 50;
 
 	translationPID.setTunings(6.5, 0, 250);
-	rotationPID.setTunings(15, 0, 0);
-	leftSpeedPID.setTunings(2, 0.01, 50);
+	rotationPID.setTunings(10, 0, 1900);
+	leftSpeedPID.setTunings(2, 0.01, 100);
 	rightSpeedPID.setTunings(2, 0.01, 50);
 	resetPosition();
 	stop();
@@ -147,7 +147,29 @@ void MotionControlSystem::desengageMove(bool forward, bool asymetric)
 
 inline void MotionControlSystem::nextMove()
 {
+	if (currentMove < currentTrajectory.size())
+	{
+		if (currentTrajectory[currentMove].stopAfterMove)
+		{
+			movingSpeed = 0;
+			previousMovingSpeed = 0;
+		}
+
+		if (currentTrajectory[currentMove].getBendRadiusTicks() == 0)
+		{
+			positionUncertainty.orientation += ERROR_AFTER_ROTATION;
+		}
+		else
+		{
+			positionUncertainty.orientation += ERROR_AFTER_TRANSLATION;
+			float increment = positionUncertainty.orientation * currentTrajectory[currentMove].getLengthMm();
+			positionUncertainty.x += increment;
+			positionUncertainty.y += increment;
+		}
+	}
+
 	currentMove++;
+	
 	if (currentMove < currentTrajectory.size())
 	{
 		if (currentTrajectory[currentMove].getBendRadiusTicks() == 0)
@@ -176,8 +198,8 @@ void MotionControlSystem::control()
 	int32_t rightTicks = -(rightEncoder.read());
 	int32_t leftTicks = leftEncoder.read();
 
-	currentLeftSpeed = (leftTicks - previousLeftTicks) * 2000; // (nb-de-tick-passés)*(freq_asserv) (ticks/sec)
-	currentRightSpeed = (rightTicks - previousRightTicks) * 2000;
+	currentLeftSpeed = (leftTicks - previousLeftTicks) * FREQ_ASSERV; // (nb-de-tick-passés)*(freq_asserv) (ticks/sec)
+	currentRightSpeed = (rightTicks - previousRightTicks) * FREQ_ASSERV;
 
 	previousLeftTicks = leftTicks;
 	previousRightTicks = rightTicks;
@@ -356,22 +378,28 @@ void MotionControlSystem::manageStop()
 				if (currentMove >= currentTrajectory.size())
 				{// Si la trajectoire est terminée
 					blocked = false;
+					stop();
 				}
 				else if (
-							(currentMove == currentTrajectory.size() - 1) && 
-							(
-								(currentTrajectory[currentMove].getBendRadiusTicks() != 0 && ABS(currentDistance - translationSetpoint) <= toleranceTranslation) || 
-								(currentTrajectory[currentMove].getBendRadiusTicks() == 0 && ABS(currentAngle - rotationSetpoint) <= toleranceRotation)
-							)
+							(currentTrajectory[currentMove].getBendRadiusTicks() != 0 && ABS(currentDistance - translationSetpoint) <= toleranceTranslation) || 
+							(currentTrajectory[currentMove].getBendRadiusTicks() == 0 && ABS(currentAngle - rotationSetpoint) <= toleranceRotation)
 						)
-				{// Si on est suffisament proche de la fin de trajectoire
+				{// Si on est suffisament proche de la fin du mouvement élémentaire
 					blocked = false;
+					if (currentMove == currentTrajectory.size() - 1)
+					{// Il s'agit du dernier mouvement élémentaire de la trajectoire
+						stop();
+					}
+					else
+					{
+						nextMove();
+					}
 				}
 				else
 				{// Sinon : il d'agit d'un blocage physique
 					blocked = true;
+					stop();
 				}
-				stop();
 			}
 		}
 	}
@@ -383,7 +411,8 @@ void MotionControlSystem::manageStop()
 	}
 }
 
-void MotionControlSystem::updatePosition() {
+void MotionControlSystem::updatePosition() 
+{
 	static volatile int32_t lastDistance = 0;
 	static volatile int32_t lastAngle = 0;
 
@@ -400,7 +429,9 @@ void MotionControlSystem::updatePosition() {
 }
 
 
-void MotionControlSystem::stop() {
+void MotionControlSystem::stop() 
+{
+
 	translationSetpoint = currentDistance;
 	rotationSetpoint = currentAngle;
 	leftSpeedSetpoint = 0;
@@ -587,6 +618,16 @@ void MotionControlSystem::setDelayToStop(uint32_t delayToStop)
 	this->delayToStop = delayToStop;
 }
 
+void MotionControlSystem::setPositionUncertainty(const Position & positionUncertainty)
+{
+	this->positionUncertainty = positionUncertainty;
+}
+
+void MotionControlSystem::getPositionUncertainty(Position & positionUncertainty)
+{
+	positionUncertainty = this->positionUncertainty;
+}
+
 void MotionControlSystem::getPWM(int16_t & left, int16_t & right)
 {
 	left = leftPWM;
@@ -597,6 +638,12 @@ void MotionControlSystem::getCurrentSpeed(int32_t & left, int32_t & right)
 {
 	left = currentLeftSpeed;
 	right = currentRightSpeed;
+}
+
+void MotionControlSystem::getTicks(int32_t & leftTicks, int32_t & rightTicks)
+{
+	leftTicks = leftEncoder.read();
+	rightTicks = -(rightEncoder.read());
 }
 
 
@@ -611,7 +658,8 @@ bool MotionControlSystem::isBlocked() const {
 void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float kp, float ki, float kd)
 {
 	setLeftSpeedTunings(kp, ki, kd);
-	setRightSpeedTunings(kp, ki, kd);
+	setRightSpeedTunings(2, 0.01, 50); // DEBUG
+	//setRightSpeedTunings(kp, ki, kd);
 	enablePositionControl(false);
 	enableLeftSpeedControl(true);
 	enableRightSpeedControl(true);
@@ -619,7 +667,7 @@ void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float 
 	resetTracking();
 
 	uint32_t beginTime = millis();
-	leftSpeedSetpoint = speed/2;
+	leftSpeedSetpoint = speed;
 	rightSpeedSetpoint = speed;
 	moving = true;
 
@@ -630,6 +678,35 @@ void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float 
 	while(moving)
 	{}
 	enablePositionControl(true);
+	stop();
+	printTracking();
+}
+
+void MotionControlSystem::testAsservVitesseEtPosition(int speed, int length, float kp, float ki, float kd)
+{
+	setLeftSpeedTunings(kp, ki, kd);
+	setRightSpeedTunings(2, 0.01, 50); // DEBUG
+	//setRightSpeedTunings(kp, ki, kd);
+	enablePositionControl(true);
+	enableLeftSpeedControl(true);
+	enableRightSpeedControl(true);
+	enablePwmControl(true);
+	resetTracking();
+
+	Trajectory trajectory;
+	UnitMove unitMove;
+
+	unitMove.setBendRadiusMm(INFINITE_RADIUS);
+	unitMove.setLengthMm(length);
+	unitMove.setSpeedMm_S(speed);
+	unitMove.stopAfterMove = true;
+
+	trajectory.push_back(unitMove);
+
+	setTrajectory(trajectory);
+	while (moving)
+	{
+	}
 	stop();
 	printTracking();
 }

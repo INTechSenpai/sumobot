@@ -61,7 +61,7 @@ Encodeur droit
 
 	Arrière droit
 		GPIO0	12
-		GPIO1	13
+		GPIO1	UNROUTED
 
 ### Divers ###
 
@@ -69,3 +69,4 @@ Sonde tension batterie	A10
 Jumper			A11
 DEL batterie faible	29
 DEL status		30
+DEL on board	13

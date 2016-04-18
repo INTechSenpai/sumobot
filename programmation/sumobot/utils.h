@@ -25,6 +25,7 @@ extern "C" {
 
 int modulo(int nombre, int modulo);
 void blink(uint8_t, unsigned int, unsigned int);
+void blinkDelOnBoard(unsigned int, unsigned int);
 
 #ifdef __cplusplus
 }
