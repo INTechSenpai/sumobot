@@ -1,43 +1,15 @@
 #include "pathfinding.h"
+#define ESTSURORDI
 
-Pathfinding::Pathfinding() : distanceParEtape(50.0), rotationAllowed(true) {
+Pathfinding::Pathfinding() : distanceParEtape(20.0), coeffOrientation(1000), rotationAllowed(true) {
 
     rayonsDeCourbures.push_back(50.0);
     rayonsDeCourbures.push_back(150.0);
     rayonsDeCourbures.push_back(500.0);
 }
 
-//A tester : distance basée également sur écart d'orientation
-float Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
-    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*1000);
-}
 
-
-bool Pathfinding::PosEgales(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
-    return (
-            (p1.orientation == p2.orientation) &&
-            (p1.x == p2.x) &&
-            (p1.y == p2.y)
-           );
-}
-
-bool Pathfinding::PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
-    float precisionXY = 20.0;
-    float precisionOrientation = 0.3;
-    return (
-            (p1.orientation < p2.orientation + precisionOrientation) &&
-            (p2.orientation - precisionOrientation < p1.orientation) &&
-
-            (p1.x < p2.x + precisionXY) &&
-            (p2.x - precisionXY < p1.x) &&
-
-            (p1.y < p2.y + precisionXY) &&
-            (p2.y - precisionXY < p1.y)
-           );
-}
-
-
-Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& start, const Position& goal, float intermediateOrientation) {
+Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& start, const Position& goal) {
 
     //transforme Position en PositionTrajectoire
     PositionTrajectoire Astart;
@@ -63,6 +35,18 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.toBeSpecified.begin(), map.toBeSpecified.end());
 
 
+    //Détermine si on est sur un obstacle
+    int numeroObstacle = estSurUnObstacle(start.x, start.y);
+    if (numeroObstacle != -1) {
+        if (numeroObstacle < map.fixedInvisible.size() + map.fixedVisible.size()) {
+            //si l'obstacle est fixed, rajouter une trajectoire pour s'éloigner
+
+        }
+        else {
+            //si pas fixed, on l'enleve de nos obstacles
+            obstaclesSurLaMap.erase(obstaclesSurLaMap.begin()+numeroObstacle);
+        }
+    }
 
 
     //Détermine si il faut passer par un obstacle
@@ -86,7 +70,7 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
 
         //création de la PositionTrajectoire de l'obstacle
         PositionTrajectoire obstaclePosition;
-        obstaclePosition.orientation = intermediateOrientation;
+        obstaclePosition.orientation = obstaclePositionT.orientation;
         obstaclePosition.x = obstaclePositionT.x;
         obstaclePosition.y = obstaclePositionT.y;
 
@@ -299,6 +283,7 @@ void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const Pos
     checkCandidat(tmp, start, goal);
 
     if (rotationAllowed) {
+        /*
         //cas où on tourne de distanceParEtape/R3 dans le sens trigonométrique.
 
         tmp.orientation = start.orientation + 0.2;
@@ -307,14 +292,14 @@ void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const Pos
         tmp.trajectoire = TournerSurPlaceTrigo;
 
 
-        checkCandidat(tmp, start, goal);
+        checkCandidat(tmp, start, goal);*/
 
         //cas où on tourne sur place dans le sens horaire.
 
         tmp.orientation = start.orientation - 0.2;
         tmp.x = start.x;
         tmp.y = start.y;
-        tmp.trajectoire = TournerSurPlaceTrigo;
+        tmp.trajectoire = TournerSurPlaceAntiTrigo;
 
 
         checkCandidat(tmp, start, goal);
@@ -326,7 +311,7 @@ void Pathfinding::checkCandidat(const PositionTrajectoire& candidat, const Posit
 
     //on vérifie la présence d'Obstacle
 
-    if (!estSurUnObstacle(candidat.x,candidat.y)) {
+    if (estSurUnObstacle(candidat.x,candidat.y) == -1) {
         //on vérifie la présence dans la liste fermée.
         if (chercheDansClosedSet(candidat)==-1) {
             // Création du noeud
@@ -361,11 +346,16 @@ void Pathfinding::checkCandidat(const PositionTrajectoire& candidat, const Posit
 
             }
     }
+
+    else {
+        std::cout << "le noeud (" << candidat.x << ", " << candidat.y;
+        std::cout << ")" << "est sur un obstacle " <<std::endl;
+    }
 }
 
 
 
-PositionTrajectoire Pathfinding::MettreAjourClosedSet() {
+Pathfinding::PositionTrajectoire Pathfinding::MettreAjourClosedSet() {
     // Recherche du minimum des coûts dans OpenSet
     // ici le vector est trié donc on prend le premier élément
 
@@ -386,7 +376,7 @@ PositionTrajectoire Pathfinding::MettreAjourClosedSet() {
     return (min_noeud.position);
 }
 
-bool Pathfinding::estSurUnObstacle(float x, float y) {
+int Pathfinding::estSurUnObstacle(float x, float y) {
 
     for (int i=0;i<obstaclesSurLaMap.size();i++) {
 
@@ -399,20 +389,30 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
         if (obstaclesSurLaMap[i].getShape()==0) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            if (pow(x-positionObstacle.x,2)+pow(y-positionObstacle.y,2) < pow(obstaclesSurLaMap[i].getRadius(),2)) {
-                return true;
+            if (positionObstacle.orientation == 0){
+                if (pow(x-positionObstacle.x,2)+pow(y-positionObstacle.y,2) < pow(obstaclesSurLaMap[i].getRadius(),2)) {
+                    return i;
+                }
+            }
+            else {
+                //a faire
             }
         }
 
-        //si l'obstacle est un RECTANGLE xRadius = largeur, yRadius = hauteur
+        //si l'obstacle est un RECTANGLE
         else if (obstaclesSurLaMap[i].getShape()==1) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            if ( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()/2) &&
-                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()/2) &&
-                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()/2) &&
-                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()/2) ) {
-                return true;
+            if (positionObstacle.orientation == 0) {
+                if ( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
+                         (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
+                         (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
+                         (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) ) {
+                    return i;
+                }
+                else {
+                    //a faire
+                }
             }
         }
 
@@ -420,11 +420,18 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
         else if (obstaclesSurLaMap[i].getShape()==2) {
             Position positionObstacle;
             obstaclesSurLaMap[i].getCenter(positionObstacle);
-            if (!( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()/2) &&
-                     (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()/2) &&
-                     (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()/2) &&
-                     (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()/2) )) {
-                return true;
+            if (positionObstacle.orientation == 0){
+                if (!( (x < positionObstacle.x + obstaclesSurLaMap[i].getXRadius()) &&
+                       (x > positionObstacle.x - obstaclesSurLaMap[i].getXRadius()) &&
+                       (y < positionObstacle.y + obstaclesSurLaMap[i].getYRadius()) &&
+                       (y > positionObstacle.y - obstaclesSurLaMap[i].getYRadius()) )) {
+
+                    return i;
+                }
+            }
+
+            else {
+                //a faire
             }
 
         }
@@ -434,7 +441,7 @@ bool Pathfinding::estSurUnObstacle(float x, float y) {
             //std::cerr << "problèmes dans l'obstaclemap : getShape renvoie un nombre > 2";
         }
     }
-    return false;
+    return -1;
 }
 
 void Pathfinding::PlacerDansOpenSet(const noeud& nouveauNoeud) {
@@ -492,130 +499,188 @@ int Pathfinding::chercheDansClosedSet(const PositionTrajectoire& positionAtest) 
     }
 }
 
+
+//stopAfterMove :
 Trajectory Pathfinding::positionsToTrajectory(const std::vector<PositionTrajectoire>& chemin_solution) {
 
     Trajectory trajectoire;
+    float pasPourTourner = 0.2;
 
     for (int i=0;i<chemin_solution.size();i++) {
         UnitMove unitmove;
+        unitmove.stopAfterMove = true;
+
+
         switch (chemin_solution[i].trajectoire) {
 
-        case Depart:
-            break;
-        case Avancer1g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[0]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Depart:
+                continue;
+                break;
+            case Avancer1g:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[0]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer1d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[0]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer1d:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[0]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer1g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[0]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer1g:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[0]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer1d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[0]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer1d:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[0]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer2g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[1]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer2g:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[1]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer2d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[1]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer2d:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[1]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer2g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[1]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer2g:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[1]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer2d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[1]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer2d:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[1]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer3g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[2]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer3g:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[2]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Avancer3d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[2]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Avancer3d:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[2]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer3g:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(rayonsDeCourbures[2]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer3g:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(rayonsDeCourbures[2]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case Reculer3d:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(-1*rayonsDeCourbures[2]);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case Reculer3d:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(-1*rayonsDeCourbures[2]);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case AvancerToutDroit:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(distanceParEtape);
-            unitmove.setBendRadiusMm(INFINITE_RADIUS);
-            unitmove.setSpeedMm_S(450);
-            break;
+            case AvancerToutDroit:
+                unitmove.setLengthMm(distanceParEtape);
+                unitmove.setBendRadiusMm(INFINITE_RADIUS);
+                unitmove.setSpeedMm_S(450);
+                break;
 
-        case ReculerToutDroit:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-1*distanceParEtape);
-            unitmove.setBendRadiusMm(INFINITE_RADIUS);
-            unitmove.setSpeedMm_S(450);
-            break;
+            case ReculerToutDroit:
+                unitmove.setLengthMm(-1*distanceParEtape);
+                unitmove.setBendRadiusMm(INFINITE_RADIUS);
+                unitmove.setSpeedMm_S(450);
+                break;
 
-        case TournerSurPlaceTrigo:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(0.2);
-            unitmove.setBendRadiusMm(0);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case TournerSurPlaceTrigo:
+                unitmove.setLengthRadians(pasPourTourner);
+                unitmove.setBendRadiusMm(0);
+                unitmove.setSpeedMm_S(400);
+                break;
 
-        case TournerSurPlaceAntiTrigo:
-            unitmove.stopAfterMove = false;
-            unitmove.setLengthMm(-0.2);
-            unitmove.setBendRadiusMm(0);
-            unitmove.setSpeedMm_S(400);
-            break;
+            case TournerSurPlaceAntiTrigo:
+                unitmove.setLengthRadians(-1*pasPourTourner);
+                unitmove.setBendRadiusMm(0);
+                unitmove.setSpeedMm_S(400);
+                break;
+
         }
 
-        trajectoire.push_back(unitmove);
+
+        trajectoire.insert(trajectoire.begin(), unitmove);
+    }
+
+    //concaténation
+    int i = 0;
+    while (i<trajectoire.size()-1) {
+        if ((trajectoire[i].getLengthMm()*trajectoire[i+1].getLengthMm() > 0)&&
+               (trajectoire[i].getBendRadiusMm() == trajectoire[i+1].getBendRadiusMm())) {
+           if (trajectoire[i].getBendRadiusMm() == 0) {
+               trajectoire[i].setLengthRadians(trajectoire[i].getLengthRadians() + trajectoire[i+1].getLengthRadians());
+           }
+           else {
+               trajectoire[i].setLengthMm(trajectoire[i].getLengthMm() + trajectoire[i+1].getLengthMm());
+           }
+           trajectoire.erase(trajectoire.begin()+i+1);
+        }
+
+        else {
+            i++;
+        }
+    }
+
+    //décider de la variable stopAfterMove
+    for (int i=0;i<trajectoire.size();i++) {
+        float R1,R2;
+        R1 = trajectoire[i].getBendRadiusMm();
+        if (i!= trajectoire.size()-1) {
+            R2 = trajectoire[i+1].getBendRadiusMm();
+            if ((R2==0)||(R1==0)) {
+                trajectoire[i].stopAfterMove = true;
+            }
+            else {
+                trajectoire[i].stopAfterMove = ((R1-R2 > SEUIL_ROTATION)||(R1-R2 < -1*SEUIL_ROTATION));
+            }
+        }
+        else {
+            trajectoire[i].stopAfterMove = true;
+        }
     }
     return trajectoire;
+}
+
+float Pathfinding::distance(float x1, float y1, float o1, float x2, float y2, float o2){
+    return ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (o1-o2)*(o1-o2)*coeffOrientation);
+}
+
+
+bool Pathfinding::PosEgales(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
+    return (
+            (p1.orientation == p2.orientation) &&
+            (p1.x == p2.x) &&
+            (p1.y == p2.y)
+           );
+}
+
+bool Pathfinding::PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
+    float precisionXY = 20.0;
+    float precisionOrientation = 0.3;
+    return (
+            (p1.orientation < p2.orientation + precisionOrientation) &&
+            (p2.orientation - precisionOrientation < p1.orientation) &&
+
+            (p1.x < p2.x + precisionXY) &&
+            (p2.x - precisionXY < p1.x) &&
+
+            (p1.y < p2.y + precisionXY) &&
+            (p2.y - precisionXY < p1.y)
+           );
 }
