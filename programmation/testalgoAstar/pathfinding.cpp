@@ -1,7 +1,7 @@
 #include "pathfinding.h"
 #define ESTSURORDI
 
-Pathfinding::Pathfinding() : distanceParEtape(20.0), coeffOrientation(1000), rotationAllowed(true) {
+Pathfinding::Pathfinding() : distanceParEtape(50.0), coeffOrientation(1000), rotationAllowed(true) {
 
     rayonsDeCourbures.push_back(50.0);
     rayonsDeCourbures.push_back(150.0);
@@ -34,6 +34,22 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.oponentRobot.begin(), map.oponentRobot.end());
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.toBeSpecified.begin(), map.toBeSpecified.end());
 
+    // On agrandit les obstacles pour prendre en compte la taille du robot
+    for (int i=0;i<obstaclesSurLaMap.size();i++) {
+        if (obstaclesSurLaMap[i].getShape()==CIRCLE) {
+            obstaclesSurLaMap[i].setRadius(obstaclesSurLaMap[i].getRadius()+100);
+        }
+        else if(obstaclesSurLaMap[i].getShape()==RECTANGLE) {
+            obstaclesSurLaMap[i].setXradius(obstaclesSurLaMap[i].getXradius()+100);
+            obstaclesSurLaMap[i].setYradius(obstaclesSurLaMap[i].getYradius()+100);
+        }
+        else {
+            obstaclesSurLaMap[i].setXradius(obstaclesSurLaMap[i].getXradius()+100);
+            obstaclesSurLaMap[i].setYradius(obstaclesSurLaMap[i].getYradius()+100);
+
+        }
+    }
+
 
     //Détermine si on est sur un obstacle
     int numeroObstacle = estSurUnObstacle(start.x, start.y);
@@ -55,7 +71,7 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
 
     //si oui, on trouve l'obstacle à pousser
         Obstacle obstacleApousser = obstaclesSurLaMap[0];
-        int i = 1;
+        i = 1;
         while ((i<obstaclesSurLaMap.size())&&(!obstacleApousser.isPushed())) {
 
             if (obstaclesSurLaMap[i].isPushed()) {
@@ -345,11 +361,6 @@ void Pathfinding::checkCandidat(const PositionTrajectoire& candidat, const Posit
                }
 
             }
-    }
-
-    else {
-        std::cout << "le noeud (" << candidat.x << ", " << candidat.y;
-        std::cout << ")" << "est sur un obstacle " <<std::endl;
     }
 }
 
