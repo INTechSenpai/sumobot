@@ -103,3 +103,66 @@ void Robot::waitForBegining()
 	}
 	blinkDelOnBoard(0, 1000);
 }
+
+void Robot::winMatch(uint32_t duration)
+{
+	uint32_t beginTime = millis();
+	while (millis() - beginTime < duration)
+	{
+		Serial.println("Je gagne le match !!");
+		delay(100);
+	}
+	Serial.println("Match fini !");
+}
+
+void Robot::deployUmbrella()
+{
+	uint8_t pinCommandeParasol = 28;
+
+	pinMode(pinCommandeParasol, OUTPUT);
+	digitalWrite(pinCommandeParasol, HIGH);
+	delay(1000);
+	digitalWrite(pinCommandeParasol, LOW);
+}
+
+bool Robot::goToPoint(const Position & destination)
+{
+	Position notrePosition;
+	Trajectory trajectoire;
+
+	uint32_t beginTime = 0;
+	
+	while (true)
+	{
+		beginTime = millis();
+		motionControlSystem.getPosition(notrePosition);
+		if (areWeArrived(notrePosition, destination))
+		{
+			break;
+		}
+		else
+		{
+			obstacleMap = table.getObstacleMap();
+			trajectoire = pathfinding.computePath(obstacleMap, notrePosition, destination, 0);
+			if (trajectoire.size() == 0)
+				return false;
+			else
+				motionControlSystem.setTrajectory(trajectoire);
+		}
+
+		while (millis() - beginTime < 100);
+	}
+	return true;
+}
+
+bool Robot::areWeArrived(const Position & notrePosition, const Position & destination)
+{
+	return 
+		(ABS(notrePosition.x - destination.x) < XY_TOLERANCE) && 
+		(ABS(notrePosition.y - destination.y) < XY_TOLERANCE) && 
+		(ABS(modulo(notrePosition.orientation*1000, 6283) - modulo(destination.orientation*1000, 6283)) < ANGLE_TOLERANCE*1000);
+}
+
+void Robot::driveAlongEdgeOfTable(Side side)
+{
+}

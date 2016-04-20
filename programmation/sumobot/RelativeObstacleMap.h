@@ -10,6 +10,8 @@
 #define IR_INFINITY		630
 #define TOF_INFINITY	255
 
+#define NB_CAPTEURS		8
+
 /* 
 	Représente d'état des capteurs du robot 
 	Une valeur à 0 = non significatif (erreur de lecture, capteur non branché ou bien valeur déjà lue)

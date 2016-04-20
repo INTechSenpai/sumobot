@@ -10,7 +10,7 @@
 #include "Motor.h"
 #include "Path.h"
 #include "Obstacle.h"
-#include <vector>
+#include "pathfinding.h"
 
 
 void setup()
@@ -55,7 +55,7 @@ void loop()
 	//*/
 
 
-	//test.serialInterface();
+	test.serialInterface();
 
 	while (true)
 	{

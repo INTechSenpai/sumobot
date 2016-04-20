@@ -9,6 +9,7 @@
 
 #include "MotionControlSystem.h"
 #include "SensorMgr.h"
+#include "pathfinding.h"
 
 #define INPUT_BUFFER_LENGH	64
 
@@ -33,9 +34,14 @@ public:
 		int speed = 350, bendRadius = INFINITE_RADIUS;
 		float length = 200;
 
+		Pathfinding pathfinding;
+
 		Trajectory trajectory;
 		UnitMove unitMove;
 		Position ici;
+		Table table;
+		ObstacleMap obstacleMap;
+		table.initObstacleMap(GREEN);
 
 		ici.x = 0;
 		ici.y = 0;
@@ -193,6 +199,53 @@ public:
 					Serial.println("Reset !");
 					motionControlSystem.resetMove();
 				}
+				else if (!strcmp(inputBuffer, "path"))
+				{
+					Serial.println("X ?");
+					read(inputBuffer);
+					int x = atoi(inputBuffer);
+					Serial.print("X= ");
+					Serial.println(x);
+
+					Serial.println("Y ?");
+					read(inputBuffer);
+					int y = atoi(inputBuffer);
+					Serial.print("Y= ");
+					Serial.println(y);
+
+					Serial.println("O ?");
+					read(inputBuffer);
+					float o = atoi(inputBuffer);
+					Serial.print("O= ");
+					Serial.println(o);
+
+					Position destination;
+					destination.x = x;
+					destination.y = y;
+					destination.orientation = o;
+
+					Position ici;
+					ici.x = 1350;
+					ici.y = 1150;
+					ici.orientation = M_PI;
+					Serial.printf("x=%g  y=%g  o=%g\n", ici.x, ici.y, ici.orientation);
+					
+					obstacleMap = table.getObstacleMap();
+
+					Serial.printf("fixed invisible: %d\n", obstacleMap.fixedInvisible.size());
+					Serial.printf("fixed visible: %d\n", obstacleMap.fixedVisible.size());
+					Serial.printf("movable invisible: %d\n", obstacleMap.movableInvisible.size());
+					Serial.printf("movable visible: %d\n", obstacleMap.movableVisible.size());
+					Serial.printf("oponent robot: %d\n", obstacleMap.oponentRobot.size());
+					Serial.printf("To be specified: %d\n", obstacleMap.toBeSpecified.size());
+
+					Trajectory trajectory = pathfinding.computePath(obstacleMap, ici, destination, 0);
+
+					Serial.printf("Trajectory : %d", trajectory.size());
+
+					motionControlSystem.setTrajectory(trajectory);
+
+				}
 
 				Serial.println("");
 			}
@@ -290,6 +343,7 @@ public:
 		Serial.println();
 		delay(100);
 	}
+
 
 
 private:
