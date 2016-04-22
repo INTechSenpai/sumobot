@@ -143,7 +143,7 @@ bool Robot::goToPoint(const Position & destination)
 		else
 		{
 			obstacleMap = table.getObstacleMap();
-			trajectoire = pathfinding.computePath(obstacleMap, notrePosition, destination, 0);
+			trajectoire = pathfinding.computePath(obstacleMap, notrePosition, destination);
 			if (trajectoire.size() == 0)
 				return false;
 			else
@@ -165,4 +165,138 @@ bool Robot::areWeArrived(const Position & notrePosition, const Position & destin
 
 void Robot::driveAlongEdgeOfTable(Side side)
 {
+	// Détermine la fréquence d'asservissement
+	const uint32_t delaiAsservissement = 100; // Période d'asservissement, en ms
+	uint32_t beginTime; // Permet le réglage de la période dans la boucle d'asservissement
+
+	RelativeObstacleMap allValues; // Pour récupérer les valeurs des capteurs
+	volatile int32_t sensorValue;	// Distance au bord de table mesurée, en mm
+	volatile int32_t aimValue;		// Distance voulue, en mm
+	volatile int32_t output;		// Indique à quel point il faudra tourner.
+	int32_t frontDistance;			// Distance au bord faisant face au robot, indiquant quand il faudra s'arrêter
+
+	PID sensorPID(&sensorValue, &output, &aimValue); // PID pour asservissement sur la distance au bord de table;
+
+	Trajectory trajectoireAsservie;
+	UnitMove courbeAsservie;
+	courbeAsservie.setLengthMm(100); // Longueur suffisante pour que le mouvement ne se termine pas entre deux asservissements de trajectoire
+	courbeAsservie.setBendRadiusMm(INFINITE_RADIUS); // Valeur initiale, qui sera modifiée par le PID
+	courbeAsservie.setSpeedMm_S(350); // Vitesse du mouvement, la vitesse la plus fiable et testée a été choisie
+	courbeAsservie.stopAfterMove = false; // Inutile de s'arrêter entre les mouvements
+	trajectoireAsservie.push_back(courbeAsservie);
+
+	/* La distance au bord doit être de 15cm, le capteur doit donc lire 115mm */
+	aimValue = 115;
+
+	/* Réglage des constantes d'asservissement */
+	sensorPID.setTunings(1, 0, 0);
+
+	// Boucle d'asservissement
+	do
+	{
+		beginTime = millis();
+
+		sensorMgr.getRelativeObstacleMapNoReset(allValues);
+		if (side == GREEN)
+		{
+			sensorValue = allValues.droit;
+		}
+		else
+		{
+			sensorValue = allValues.gauche;
+		}
+		sensorPID.compute(); // Met à jour la valeur de 'output'
+		
+		if (side == PURPLE)
+		{
+			output = -output;
+		}
+
+		if (output == 0)
+		{
+			trajectoireAsservie.at(0).setBendRadiusMm(INFINITE_RADIUS);
+		}
+		else
+		{
+			trajectoireAsservie.at(0).setBendRadiusMm(2000 / output);
+		}
+		motionControlSystem.setTrajectory(trajectoireAsservie);
+
+		frontDistance = calculateFrontDistance(allValues.avantGauche, allValues.avant, allValues.avantDroit);
+
+		while (millis() - beginTime < delaiAsservissement);
+	} while (frontDistance > 237);
+
+	// Mouvement final (permettant l'arrêt)
+	trajectoireAsservie.at(0).setBendRadiusMm(INFINITE_RADIUS);
+	trajectoireAsservie.at(0).setLengthMm(40);
+	trajectoireAsservie.at(0).stopAfterMove = true;
+	motionControlSystem.setTrajectory(trajectoireAsservie);
+	while (motionControlSystem.isMoving());
+	
+	// Une fois le robot arrêté, on règle précisément la position à l'aide des capteurs
+	sensorMgr.getRelativeObstacleMapNoReset(allValues);
+	frontDistance = calculateFrontDistance(allValues.avantGauche, allValues.avant, allValues.avantDroit);
+	Position newPosition;
+	if (side == GREEN)
+	{
+		newPosition.x = 1500 - allValues.droit - 35;
+	}
+	else
+	{
+		newPosition.x = -1500 + allValues.gauche + 35;
+	}
+	newPosition.y = 2000 - frontDistance;
+	newPosition.orientation = M_PI_2;
+	motionControlSystem.setPosition(newPosition);
+	
+	// On règle également l'incertitude sur la position
+	Position newUncertainty;
+	newUncertainty.x = 0;
+	newUncertainty.y = 0;
+	newUncertainty.orientation = 0;
+	motionControlSystem.setPositionUncertainty(newUncertainty);
+}
+
+int32_t Robot::calculateFrontDistance(uint32_t gauche, uint32_t centre, uint32_t droite)
+{
+	// Offset pour avoir la distance par rapport au centre du robot
+	gauche += 37;
+	droite += 37;
+	centre += 42;
+
+	if (gauche == TOF_INFINITY && centre == IR_INFINITY && droite == TOF_INFINITY)
+	{// Pas d'obstacle avant l'horizon
+		return IR_INFINITY;
+	}
+	else if (gauche == TOF_INFINITY && droite == TOF_INFINITY)
+	{// Obstacle lointain
+		return centre;
+	}
+	else if (gauche == TOF_INFINITY)
+	{// Cas à la con n°1
+		if (centre == IR_INFINITY)
+		{
+			return droite;
+		}
+		else
+		{
+			return (centre + droite) / 2;
+		}
+	}
+	else if (droite == TOF_INFINITY)
+	{// Cas à la con n°2
+		if (centre == IR_INFINITY)
+		{
+			return gauche;
+		}
+		else
+		{
+			return (centre + gauche) / 2;
+		}
+	}
+	else
+	{// Obstacle proche vu par tous les capteurs
+		return (gauche + droite) / 2; // Le capteur central manque de précision à cette distance
+	}
 }

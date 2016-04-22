@@ -97,6 +97,10 @@ public:
 	*/
 	void driveAlongEdgeOfTable(Side side);
 
+	/*
+		Calcule la distance moyenne donnée par trois capteurs frontaux (en prennant en compte les différences de précisions des différents capteurs) 
+	*/
+	int32_t calculateFrontDistance(uint32_t gauche, uint32_t centre, uint32_t droite);
 
 	/*
 		Script qui ferme les deux portes du bord de la table.

@@ -11,6 +11,7 @@
 #include "SensorMgr.h"
 #include "pathfinding.h"
 
+
 #define INPUT_BUFFER_LENGH	64
 
 class CUnit
@@ -215,7 +216,7 @@ public:
 
 					Serial.println("O ?");
 					read(inputBuffer);
-					float o = atoi(inputBuffer);
+					float o = atof(inputBuffer);
 					Serial.print("O= ");
 					Serial.println(o);
 
@@ -239,7 +240,7 @@ public:
 					Serial.printf("oponent robot: %d\n", obstacleMap.oponentRobot.size());
 					Serial.printf("To be specified: %d\n", obstacleMap.toBeSpecified.size());
 
-					Trajectory trajectory = pathfinding.computePath(obstacleMap, ici, destination, 0);
+					Trajectory trajectory = pathfinding.computePath(obstacleMap, ici, destination);
 
 					Serial.printf("Trajectory : %d", trajectory.size());
 
