@@ -70,3 +70,4 @@ Jumper			A11
 DEL batterie faible	29
 DEL status		30
 DEL on board	13
+Commande parasol	28

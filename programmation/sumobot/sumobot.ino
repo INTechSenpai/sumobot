@@ -10,7 +10,7 @@
 #include "Motor.h"
 #include "Path.h"
 #include "Obstacle.h"
-#include <vector>
+#include "pathfinding.h"
 
 
 void setup()
@@ -41,13 +41,15 @@ void loop()
 	sensorThread.begin(sensorInterrupt, 25000);
 
 	//*
-	//Side side = robot.checkSide();
+	Side side = robot.checkSide();
 	//*/
 
 	battControlerThread.priority(80);
 	battControlerThread.begin(battControlerInterrupt, 50000);
 
-	//robot.waitForBegining();
+	robot.waitForBegining();
+	robot.driveAlongEdgeOfTable(side, 0.5, 0, 5);
+	robot.scriptCloseDoors(side);
 	/*
 	robot.winMatch(90000);
 	delay(2000);
@@ -55,11 +57,15 @@ void loop()
 	//*/
 
 
-	//test.serialInterface();
-
+	test.serialInterface();
+	RelativeObstacleMap obstacleMap;
 	while (true)
 	{
-		test.sensors(false, true, false, false);
+		sensorMgr.getRelativeObstacleMapNoReset(obstacleMap);
+		float angle = robot.calculateFrontAngle(obstacleMap.avantGauche, obstacleMap.avantDroit);
+		Serial.printf("g: %g | d: %g | a: %g\n", (double)(obstacleMap.avantGauche), (double)(obstacleMap.avantDroit), angle);
+		delay(100);
+		//test.sensors(false, true, false, false);
 	}
 }
 
@@ -130,6 +136,12 @@ namespace std {
 	void __throw_length_error(char const*e)
 	{
 		Serial.print("Length Error :");
+		Serial.println(e);
+	}
+
+	void __throw_out_of_range(char const*e)
+	{
+		Serial.print("Out of range :");
 		Serial.println(e);
 	}
 }

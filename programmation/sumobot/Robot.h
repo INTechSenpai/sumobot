@@ -20,6 +20,7 @@
 #include "Position.h"
 #include "MotionControlSystem.h"
 #include "SensorMgr.h"
+#include "pathfinding.h"
 #include "Table.h"
 #include "utils.h"
 
@@ -27,6 +28,9 @@
 #define PIN_DEL_ONBOARD		13	// Pin de la DEL intégrée à la Teensy
 #define PIN_DEL_RED			29	// Pin de la DEL verte (du contrôleur de tension)
 #define PIN_DEL_GREEN		30	// Pin de la DEL rouge (du contrôleur de tension)
+
+#define XY_TOLERANCE		10		// Unité : mm     | Si l'erreur de positionnement est inférieure à cette tolérance, on considère être arrivé à la position souhaitée
+#define ANGLE_TOLERANCE		0.02	// Unité : radian | Idem, mais pour l'orientation du robot
 
 class Robot : public Singleton<Robot>
 {
@@ -72,8 +76,14 @@ public:
 	/*
 		Permet de se rendre à la position indiquée.
 		Cette méthode actualise la 'obstacleMap' et rappelle le path finding en boucle jusqu'à arriver à destination.
+		Renvoie vrai si le robot est arrivé à detination, faux sinon.
 	*/
-	void goToPoint(Position destination);
+	bool goToPoint(const Position & destination);
+
+	/*
+		Détermine si le robot est à la position destination ou non, en acceptant une certaine tolérance.
+	*/
+	bool areWeArrived(const Position & notrePosition, const Position & destination);
 
 
 	/*
@@ -85,8 +95,17 @@ public:
 		Arguents
 		side : le côté de la table (vert ou violet)
 	*/
-	void driveAlongEdgeOfTable(Side side);
+	void driveAlongEdgeOfTable(Side side, float kp, float ki, float kd);
 
+	/*
+		Calcule la distance moyenne donnée par trois capteurs frontaux (en prennant en compte les différences de précisions des différents capteurs) 
+	*/
+	int32_t calculateFrontDistance(uint32_t gauche, uint32_t centre, uint32_t droite);
+
+	/*
+		Calcule l'angle du robot par rapport au bord de table lui faisant face (utilise les capteurs ToF uniquement)
+	*/
+	float calculateFrontAngle(uint32_t gauche, uint32_t droite);
 
 	/*
 		Script qui ferme les deux portes du bord de la table.
@@ -112,7 +131,7 @@ private:
 	Table & table;
 	SensorMgr & sensorMgr; // Utilisé uniquement dans checkSide()
 	MotionControlSystem & motionControlSystem;
-	// PathFinding & pathFinding; // pas encore implémenté
+	Pathfinding pathfinding;
 
 };
 

@@ -9,6 +9,8 @@
 
 #include "MotionControlSystem.h"
 #include "SensorMgr.h"
+#include "pathfinding.h"
+
 
 #define INPUT_BUFFER_LENGH	64
 
@@ -17,7 +19,8 @@ class CUnit
 public:
 	CUnit() : 
 		motionControlSystem(MotionControlSystem::Instance()),
-		sensorMgr(SensorMgr::Instance())
+		sensorMgr(SensorMgr::Instance()),
+		robot(Robot::Instance())
 	{
 	};
 
@@ -33,9 +36,14 @@ public:
 		int speed = 350, bendRadius = INFINITE_RADIUS;
 		float length = 200;
 
+		Pathfinding pathfinding;
+
 		Trajectory trajectory;
 		UnitMove unitMove;
 		Position ici;
+		Table table;
+		ObstacleMap obstacleMap;
+		table.initObstacleMap(GREEN);
 
 		ici.x = 0;
 		ici.y = 0;
@@ -193,6 +201,100 @@ public:
 					Serial.println("Reset !");
 					motionControlSystem.resetMove();
 				}
+				else if (!strcmp(inputBuffer, "path"))
+				{
+					Serial.println("X ?");
+					read(inputBuffer);
+					int x = atoi(inputBuffer);
+					Serial.print("X= ");
+					Serial.println(x);
+
+					Serial.println("Y ?");
+					read(inputBuffer);
+					int y = atoi(inputBuffer);
+					Serial.print("Y= ");
+					Serial.println(y);
+
+					Serial.println("O ?");
+					read(inputBuffer);
+					float o = atof(inputBuffer);
+					Serial.print("O= ");
+					Serial.println(o);
+
+					Position destination;
+					destination.x = x;
+					destination.y = y;
+					destination.orientation = o;
+
+					Position ici;
+					ici.x = 1350;
+					ici.y = 1150;
+					ici.orientation = M_PI;
+					Serial.printf("x=%g  y=%g  o=%g\n", ici.x, ici.y, ici.orientation);
+					
+					obstacleMap = table.getObstacleMap();
+
+					Serial.printf("fixed invisible: %d\n", obstacleMap.fixedInvisible.size());
+					Serial.printf("fixed visible: %d\n", obstacleMap.fixedVisible.size());
+					Serial.printf("movable invisible: %d\n", obstacleMap.movableInvisible.size());
+					Serial.printf("movable visible: %d\n", obstacleMap.movableVisible.size());
+					Serial.printf("oponent robot: %d\n", obstacleMap.oponentRobot.size());
+					Serial.printf("To be specified: %d\n", obstacleMap.toBeSpecified.size());
+
+					Trajectory trajectory = pathfinding.computePath(obstacleMap, ici, destination);
+
+					Serial.printf("Trajectory : %d", trajectory.size());
+
+					motionControlSystem.setTrajectory(trajectory);
+
+				}
+				else if (!strcmp(inputBuffer, "slide"))
+				{
+					int color;
+					do 
+					{
+						Serial.println("Side? (0:Vert | 1:Violet)\n");
+						read(inputBuffer);
+						color = atoi(inputBuffer);
+					} while (color != 0 && color != 1);
+					Side side;
+					if (color == 0)
+					{
+						side = GREEN;
+						Serial.println("VERT");
+					}
+					else
+					{
+						side = PURPLE;
+						Serial.println("VIOLET");
+					}
+
+					Serial.println("kp ?");
+					read(inputBuffer);
+					float kp = atof(inputBuffer);
+					Serial.printf("kp= %g\n", kp);
+
+					Serial.println("ki ?");
+					read(inputBuffer);
+					float ki = atof(inputBuffer);
+					Serial.printf("ki= %g\n", ki);
+
+					Serial.println("kd ?");
+					read(inputBuffer);
+					float kd = atof(inputBuffer);
+					Serial.printf("kd= %g\n", kd);
+
+					robot.driveAlongEdgeOfTable(side, kp, ki, kd);
+					motionControlSystem.getPosition(ici);
+					Serial.printf("x: %g | y: %g | o: %g\n", ici.x, ici.y, ici.orientation);
+				}
+				else if (!strcmp(inputBuffer, "cd"))
+				{
+					Serial.println("Test script close door");
+					robot.driveAlongEdgeOfTable(PURPLE, 0.5, 0, 5);
+					robot.scriptCloseDoors(PURPLE);
+					Serial.println("Done");
+				}
 
 				Serial.println("");
 			}
@@ -292,9 +394,11 @@ public:
 	}
 
 
+
 private:
 	MotionControlSystem & motionControlSystem;
 	SensorMgr & sensorMgr;
+	Robot & robot;
 
 	char inputBuffer[INPUT_BUFFER_LENGH];
 

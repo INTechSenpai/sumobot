@@ -277,5 +277,139 @@ void Table::initObstacleMap(Side side)
 
 bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, Position & positionUncertainty)
 {
+	DetectionPoint tabDetection[NB_CAPTEURS];
+	fillDetectionPoints(tabDetection, notrePosition, relativeObstacleMap);
+
+
+
 	return false;
+}
+
+void Table::fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition, const RelativeObstacleMap & relativeObstacleMap)
+{
+	if (NB_CAPTEURS != 8)
+		return; // On sait jamais, ça évitera des SegFault ^^
+
+	static Position point;
+	static double theta;
+	static int norme;
+
+	/*
+	##### Placement des points de détection #####
+	*/
+	// Capteur AVANT (n°0)
+	theta = notrePosition.orientation;
+	norme = relativeObstacleMap.avant + 42;
+	point.x = norme*cos(theta);
+	point.y = -norme*sin(theta);
+	point.x += notrePosition.x;
+	point.y += notrePosition.y;
+	tabDetection[0].x = point.x;
+	tabDetection[0].y = point.y;
+	tabDetection[0].isAnObstacle = !(relativeObstacleMap.avant == IR_INFINITY);
+	tabDetection[0].isReliable = false;
+
+	// Capteur ARRIERE (n°1)
+	theta = notrePosition.orientation + PI;
+	norme = relativeObstacleMap.arriere + 42;
+	point.x = norme*cos(theta);
+	point.y = -norme*sin(theta);
+	point.x += notrePosition.x;
+	point.y += notrePosition.y;
+	tabDetection[1].x = point.x;
+	tabDetection[1].y = point.y;
+	tabDetection[1].isAnObstacle = !(relativeObstacleMap.arriere == IR_INFINITY);
+	tabDetection[1].isReliable = false;
+
+	// Capteur GAUCHE (n°2)
+	theta = notrePosition.orientation + M_PI_2;
+	norme = relativeObstacleMap.gauche + 35;
+	point.x = norme*cos(theta);
+	point.y = -norme*sin(theta);
+	point.x += notrePosition.x;
+	point.y += notrePosition.y;
+	tabDetection[2].x = point.x;
+	tabDetection[2].y = point.y;
+	tabDetection[2].isAnObstacle = !(relativeObstacleMap.gauche == TOF_INFINITY);
+	tabDetection[2].isReliable = true;
+
+	// Capteur DROIT (n°3)
+	theta = notrePosition.orientation - M_PI_2;
+	norme = relativeObstacleMap.droit + 35;
+	point.x = norme*cos(theta);
+	point.y = -norme*sin(theta);
+	point.x += notrePosition.x;
+	point.y += notrePosition.y;
+	tabDetection[3].x = point.x;
+	tabDetection[3].y = point.y;
+	tabDetection[3].isAnObstacle = !(relativeObstacleMap.droit == TOF_INFINITY);
+	tabDetection[3].isReliable = true;
+
+	// Capteur AVANT GAUCHE (n°4)
+	theta = 0.1745329251994; // angle de 10°
+	norme = relativeObstacleMap.avantGauche;
+	point.x = norme*cos(theta);
+	point.y = -norme*sin(theta);
+	point.x += 37;
+	point.y += 25;
+	theta = notrePosition.orientation;
+	point.x = point.x * cos(theta) + point.y * sin(theta);
+	point.y = -point.x * sin(theta) + point.y * cos(theta);
+	point.x += notrePosition.x;
+	point.y += notrePosition.y;
+	tabDetection[4].x = point.x;
+	tabDetection[4].y = point.y;
+	tabDetection[4].isAnObstacle = !(relativeObstacleMap.avantGauche == TOF_INFINITY);
+	tabDetection[4].isReliable = true;
+
+	// Capteur AVANT DROIT (n°5)
+	theta = -0.1745329251994; // angle de -10°
+	norme = relativeObstacleMap.avantDroit;
+	point.x = norme*cos(theta);
+	point.y = -norme*sin(theta);
+	point.x += 37;
+	point.y -= 25;
+	theta = notrePosition.orientation;
+	point.x = point.x * cos(theta) + point.y * sin(theta);
+	point.y = -point.x * sin(theta) + point.y * cos(theta);
+	point.x += notrePosition.x;
+	point.y += notrePosition.y;
+	tabDetection[5].x = point.x;
+	tabDetection[5].y = point.y;
+	tabDetection[5].isAnObstacle = !(relativeObstacleMap.avantDroit == TOF_INFINITY);
+	tabDetection[5].isReliable = true;
+
+	// Capteur ARRIERE GAUCHE (n°6)
+	theta = 2.96705972839036; // angle de PI - 10°
+	norme = relativeObstacleMap.arriereGauche;
+	point.x = norme*cos(theta);
+	point.y = -norme*sin(theta);
+	point.x -= 37;
+	point.y += 25;
+	theta = notrePosition.orientation;
+	point.x = point.x * cos(theta) + point.y * sin(theta);
+	point.y = -point.x * sin(theta) + point.y * cos(theta);
+	point.x += notrePosition.x;
+	point.y += notrePosition.y;
+	tabDetection[6].x = point.x;
+	tabDetection[6].y = point.y;
+	tabDetection[6].isAnObstacle = !(relativeObstacleMap.arriereGauche == TOF_INFINITY);
+	tabDetection[6].isReliable = true;
+
+	// Capteur ARRIERE DROIT (n°7)
+	theta = 3.31612557878922; // angle de PI + 10°
+	norme = relativeObstacleMap.arriereDroit;
+	point.x = norme*cos(theta);
+	point.y = -norme*sin(theta);
+	point.x -= 37;
+	point.y -= 25;
+	theta = notrePosition.orientation;
+	point.x = point.x * cos(theta) + point.y * sin(theta);
+	point.y = -point.x * sin(theta) + point.y * cos(theta);
+	point.x += notrePosition.x;
+	point.y += notrePosition.y;
+	tabDetection[7].x = point.x;
+	tabDetection[7].y = point.y;
+	tabDetection[7].isAnObstacle = !(relativeObstacleMap.avantDroit == TOF_INFINITY);
+	tabDetection[7].isReliable = true;
 }

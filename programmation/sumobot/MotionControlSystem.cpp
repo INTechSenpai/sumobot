@@ -32,10 +32,10 @@ averageLeftSpeed(), averageRightSpeed()
 	maxAcceleration = 13000;
 
 	delayToStop = 100;
-	minSpeed = 600;
-	speedTolerance = 2000;
-	toleranceTranslation = 50;
-	toleranceRotation = 50;
+	minSpeed = 500;
+	speedTolerance = 5000;
+	toleranceTranslation = 150;
+	toleranceRotation = 150;
 
 	translationPID.setTunings(6.5, 0, 250);
 	rotationPID.setTunings(10, 0, 1900);
@@ -363,6 +363,14 @@ bool MotionControlSystem::isPhysicallyBlocked()
 void MotionControlSystem::manageStop()
 {
 	static uint32_t time = 0;
+	static uint32_t previousMove = 0;
+
+	// Au changement de UnitMove, on réinitialise le timer
+	if (currentMove != previousMove)
+	{
+		previousMove = currentMove;
+		time = 0;
+	}
 
 	if ( isPhysicallyBlocked() && moving)
 	{

@@ -142,10 +142,12 @@
     <ClInclude Include="InfraredSensor.h" />
     <ClInclude Include="interrupt_config.h" />
     <ClInclude Include="interrupt_pins.h" />
+    <ClInclude Include="math.h" />
     <ClInclude Include="MotionControlSystem.h" />
     <ClInclude Include="Motor.h" />
     <ClInclude Include="Obstacle.h" />
     <ClInclude Include="Path.h" />
+    <ClInclude Include="pathfinding.h" />
     <ClInclude Include="PID.h" />
     <ClInclude Include="Position.h" />
     <ClInclude Include="ProximitySensor.h" />
@@ -165,6 +167,7 @@
     <ClCompile Include="Encoder.cpp" />
     <ClCompile Include="MotionControlSystem.cpp" />
     <ClCompile Include="Obstacle.cpp" />
+    <ClCompile Include="pathfinding.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Table.cpp" />
     <ClCompile Include="utils.c" />

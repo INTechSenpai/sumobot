@@ -39,12 +39,14 @@ VIOLETTE		|					 ║						 |
 #include "Obstacle.h"
 #include "RelativeObstacleMap.h"
 #include "utils.h"
+#include "math.h"
 
 
 #define KNOWN_SAND_PRIORITY		90
 #define DETECTED_SAND_PRIORITY	16
 #define DOORS_PRIORITY			128
 #define SHELL_PRIORITY			80
+
 
 class Table : public Singleton<Table>
 {
@@ -75,6 +77,26 @@ public:
 
 private:
 	ObstacleMap obstacleMap;
+
+	/*
+		Représente un point de la table pour lequel on dispose d'un information en provenance des capteurs.
+		Peut être un point de détection d'obstacle, ou bien une droite de non détection jusqu'à l'horizon.
+	*/
+	struct DetectionPoint
+	{
+		float x;	// Position absolue sur la table
+		float y;
+		bool isAnObstacle;	// Indique si il s'agit d'une détection ou bien d'un horizon
+		bool isReliable;	// Vrai uniquement pour les résultats des capteurs ToF (la non-détection correspondra toujours à une absence d'obstacle)
+	};
+
+	/*
+		Place les points de détection en fonction des données des capteurs
+		Rempli le tableau de 'DetectionPoint'
+	*/
+	void fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition, const RelativeObstacleMap & relativeObstacleMap);
+	
+
 };
 
 #endif
