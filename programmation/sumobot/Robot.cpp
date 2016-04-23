@@ -91,15 +91,20 @@ void Robot::init(Side side)
 
 void Robot::waitForBegining()
 {
+	int value = 0;
 	pinMode(PIN_DEL_ONBOARD, OUTPUT);
 
-	while (analogRead(PIN_JUMPER) < 80)
+	while (value < 80)
 	{// Tant que le jumper n'est pas inséré
+		delay(50);
 		blinkDelOnBoard(250, 250);
+		value = analogRead(PIN_JUMPER);
 	}
-	while (analogRead(PIN_JUMPER) > 20)
+	while (value > 20)
 	{
+		delay(50);
 		blinkDelOnBoard(1000, 1000);
+		value = analogRead(PIN_JUMPER);
 	}
 	blinkDelOnBoard(0, 1000);
 }
@@ -163,7 +168,7 @@ bool Robot::areWeArrived(const Position & notrePosition, const Position & destin
 		(ABS(modulo(notrePosition.orientation*1000, 6283) - modulo(destination.orientation*1000, 6283)) < ANGLE_TOLERANCE*1000);
 }
 
-void Robot::driveAlongEdgeOfTable(Side side)
+void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 {
 	// Détermine la fréquence d'asservissement
 	const uint32_t delaiAsservissement = 100; // Période d'asservissement, en ms
@@ -172,7 +177,7 @@ void Robot::driveAlongEdgeOfTable(Side side)
 	RelativeObstacleMap allValues; // Pour récupérer les valeurs des capteurs
 	volatile int32_t sensorValue;	// Distance au bord de table mesurée, en mm
 	volatile int32_t aimValue;		// Distance voulue, en mm
-	volatile int32_t output;		// Indique à quel point il faudra tourner.
+	volatile int32_t output = 0;	// Indique à quel point il faudra tourner.
 	int32_t frontDistance;			// Distance au bord faisant face au robot, indiquant quand il faudra s'arrêter
 
 	PID sensorPID(&sensorValue, &output, &aimValue); // PID pour asservissement sur la distance au bord de table;
@@ -189,7 +194,10 @@ void Robot::driveAlongEdgeOfTable(Side side)
 	aimValue = 115;
 
 	/* Réglage des constantes d'asservissement */
-	sensorPID.setTunings(1, 0, 0);
+	//sensorPID.setTunings(4, 0, 0);
+	sensorPID.setTunings(kp, ki, kd); // DEBUG
+
+	sensorPID.setOutputLimits(-100, 100); // Permet d'interdire les rayons de courbure trop faibles (qui cassent tout ^^)
 
 	// Boucle d'asservissement
 	do
@@ -218,7 +226,7 @@ void Robot::driveAlongEdgeOfTable(Side side)
 		}
 		else
 		{
-			trajectoireAsservie.at(0).setBendRadiusMm(2000 / output);
+			trajectoireAsservie.at(0).setBendRadiusMm(20000 / output);
 		}
 		motionControlSystem.setTrajectory(trajectoireAsservie);
 
@@ -260,43 +268,54 @@ void Robot::driveAlongEdgeOfTable(Side side)
 
 int32_t Robot::calculateFrontDistance(uint32_t gauche, uint32_t centre, uint32_t droite)
 {
+	// Gestion (imparfaite) du cas d'erreur
+	if (gauche == 0)
+		gauche = TOF_INFINITY;
+	if (droite == 0)
+		droite = TOF_INFINITY;
+	if (centre == 0)
+		centre = IR_INFINITY;
+
 	// Offset pour avoir la distance par rapport au centre du robot
-	gauche += 37;
-	droite += 37;
-	centre += 42;
+	const int ir_offset = 42;
+	const int tof_offset = 37;
+
 
 	if (gauche == TOF_INFINITY && centre == IR_INFINITY && droite == TOF_INFINITY)
 	{// Pas d'obstacle avant l'horizon
-		return IR_INFINITY;
+		return IR_INFINITY + ir_offset;
 	}
 	else if (gauche == TOF_INFINITY && droite == TOF_INFINITY)
 	{// Obstacle lointain
-		return centre;
+		if (centre + ir_offset > TOF_INFINITY + tof_offset)
+			return centre + ir_offset;
+		else
+			return TOF_INFINITY + tof_offset;
 	}
 	else if (gauche == TOF_INFINITY)
 	{// Cas à la con n°1
 		if (centre == IR_INFINITY)
 		{
-			return droite;
+			return droite + tof_offset;
 		}
 		else
 		{
-			return (centre + droite) / 2;
+			return (centre + ir_offset + droite + tof_offset) / 2;
 		}
 	}
 	else if (droite == TOF_INFINITY)
 	{// Cas à la con n°2
 		if (centre == IR_INFINITY)
 		{
-			return gauche;
+			return gauche + tof_offset;
 		}
 		else
 		{
-			return (centre + gauche) / 2;
+			return (centre + ir_offset + gauche + tof_offset) / 2;
 		}
 	}
 	else
 	{// Obstacle proche vu par tous les capteurs
-		return (gauche + droite) / 2; // Le capteur central manque de précision à cette distance
+		return ((gauche + droite) / 2) + tof_offset; // Le capteur central manque de précision à cette distance
 	}
 }

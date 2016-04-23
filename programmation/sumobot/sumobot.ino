@@ -40,8 +40,8 @@ void loop()
 	sensorThread.priority(128);
 	sensorThread.begin(sensorInterrupt, 25000);
 
-	//*
-	//Side side = robot.checkSide();
+	/*
+	Side side = robot.checkSide();
 	//*/
 
 	battControlerThread.priority(80);
@@ -130,6 +130,12 @@ namespace std {
 	void __throw_length_error(char const*e)
 	{
 		Serial.print("Length Error :");
+		Serial.println(e);
+	}
+
+	void __throw_out_of_range(char const*e)
+	{
+		Serial.print("Out of range :");
 		Serial.println(e);
 	}
 }

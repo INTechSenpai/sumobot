@@ -19,7 +19,8 @@ class CUnit
 public:
 	CUnit() : 
 		motionControlSystem(MotionControlSystem::Instance()),
-		sensorMgr(SensorMgr::Instance())
+		sensorMgr(SensorMgr::Instance()),
+		robot(Robot::Instance())
 	{
 	};
 
@@ -247,6 +248,46 @@ public:
 					motionControlSystem.setTrajectory(trajectory);
 
 				}
+				else if (!strcmp(inputBuffer, "slide"))
+				{
+					int color;
+					do 
+					{
+						Serial.println("Side? (0:Vert | 1:Violet)\n");
+						read(inputBuffer);
+						color = atoi(inputBuffer);
+					} while (color != 0 && color != 1);
+					Side side;
+					if (color == 0)
+					{
+						side = GREEN;
+						Serial.println("VERT");
+					}
+					else
+					{
+						side = PURPLE;
+						Serial.println("VIOLET");
+					}
+
+					Serial.println("kp ?");
+					read(inputBuffer);
+					float kp = atof(inputBuffer);
+					Serial.printf("kp= %g\n", kp);
+
+					Serial.println("ki ?");
+					read(inputBuffer);
+					float ki = atof(inputBuffer);
+					Serial.printf("ki= %g\n", ki);
+
+					Serial.println("kd ?");
+					read(inputBuffer);
+					float kd = atof(inputBuffer);
+					Serial.printf("kd= %g\n", kd);
+
+					robot.driveAlongEdgeOfTable(side, kp, ki, kd);
+					
+
+				}
 
 				Serial.println("");
 			}
@@ -350,6 +391,7 @@ public:
 private:
 	MotionControlSystem & motionControlSystem;
 	SensorMgr & sensorMgr;
+	Robot & robot;
 
 	char inputBuffer[INPUT_BUFFER_LENGH];
 
