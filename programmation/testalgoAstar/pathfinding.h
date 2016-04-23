@@ -40,35 +40,10 @@ private:
 public:
     Pathfinding();
     Trajectory computePath(const ObstacleMap& map, const Position& start, const Position& goal);
-    //a passser en private les tests terminés
+
+private:
+
     Trajectory Astar(const PositionTrajectoire& start, const PositionTrajectoire& goal);
-
-private:
-
-    //Contient les noeuds en liste fermée
-    std::vector<noeud> ClosedSet;
-    //Contient les noeuds en liste ouverte
-    std::vector<noeud> OpenSet;
-
-    //Contient tous les obstacles dans un seul vecteur
-    std::vector<Obstacle> obstaclesSurLaMap;
-
-    //Contient tous les rayons à tester
-
-    //la distance parcourue pour une boucle de l'algorithme
-    const float distanceParEtape;
-
-    const float coeffOrientation;
-
-    //contient les différents rayons de courbures possibles
-    std::vector<float> rayonsDeCourbures;
-
-    //rotations autorisées ou non pour A*
-    bool rotationAllowed;
-
-
-
-private:
 
     float distance(float x1, float y1, float o1, float x2, float y2, float o2);
 
@@ -94,9 +69,36 @@ private:
     bool PosEgales(const PositionTrajectoire &p1, const PositionTrajectoire &p2);
 
     //critère d'arret
-    bool PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2);
+    bool PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2, float precisionXY, float precisionOrientation);
 
     Trajectory positionsToTrajectory(const std::vector<PositionTrajectoire>& chemin_solution);
+
+private:
+
+    //Contient les noeuds en liste fermée
+    std::vector<noeud> ClosedSet;
+    //Contient les noeuds en liste ouverte
+    std::vector<noeud> OpenSet;
+
+    //Contient tous les obstacles dans un seul vecteur
+    std::vector<Obstacle> obstaclesSurLaMap;
+
+    //la distance parcourue pour une boucle de l'algorithme
+    const float distanceParEtape;
+
+    //coefficient définissant l'importance de l'écart d'orientation
+    //par rapport à l'écart de distance euclidienne.
+    const float coeffOrientation;
+
+    //contient les différents rayons de courbures possibles
+    std::vector<float> rayonsDeCourbures;
+
+    //rotations autorisées si true
+    bool rotationAllowed;
+
+    //trajectoires courbes interdites si true
+    bool isUsingSimpleTrajectory;
+
 
 };
 
