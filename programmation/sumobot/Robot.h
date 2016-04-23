@@ -103,6 +103,11 @@ public:
 	int32_t calculateFrontDistance(uint32_t gauche, uint32_t centre, uint32_t droite);
 
 	/*
+		Calcule l'angle du robot par rapport au bord de table lui faisant face (utilise les capteurs ToF uniquement)
+	*/
+	float calculateFrontAngle(uint32_t gauche, uint32_t droite);
+
+	/*
 		Script qui ferme les deux portes du bord de la table.
 	*/
 	void scriptCloseDoors(Side side);

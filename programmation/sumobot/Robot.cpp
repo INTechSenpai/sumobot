@@ -171,7 +171,7 @@ bool Robot::areWeArrived(const Position & notrePosition, const Position & destin
 void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 {
 	// Détermine la fréquence d'asservissement
-	const uint32_t delaiAsservissement = 100; // Période d'asservissement, en ms
+	const uint32_t delaiAsservissement = 25; // Période d'asservissement, en ms
 	uint32_t beginTime; // Permet le réglage de la période dans la boucle d'asservissement
 
 	RelativeObstacleMap allValues; // Pour récupérer les valeurs des capteurs
@@ -194,7 +194,7 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 	aimValue = 115;
 
 	/* Réglage des constantes d'asservissement */
-	//sensorPID.setTunings(4, 0, 0);
+	//sensorPID.setTunings(0.5, 0, 5);
 	sensorPID.setTunings(kp, ki, kd); // DEBUG
 
 	sensorPID.setOutputLimits(-100, 100); // Permet d'interdire les rayons de courbure trop faibles (qui cassent tout ^^)
@@ -233,29 +233,33 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 		frontDistance = calculateFrontDistance(allValues.avantGauche, allValues.avant, allValues.avantDroit);
 
 		while (millis() - beginTime < delaiAsservissement);
-	} while (frontDistance > 237);
-
+	} while (frontDistance > 300);
+	
 	// Mouvement final (permettant l'arrêt)
 	trajectoireAsservie.at(0).setBendRadiusMm(INFINITE_RADIUS);
-	trajectoireAsservie.at(0).setLengthMm(40);
+	trajectoireAsservie.at(0).setLengthMm(30);
 	trajectoireAsservie.at(0).stopAfterMove = true;
 	motionControlSystem.setTrajectory(trajectoireAsservie);
 	while (motionControlSystem.isMoving());
 	
+	delay(200);
+
 	// Une fois le robot arrêté, on règle précisément la position à l'aide des capteurs
 	sensorMgr.getRelativeObstacleMapNoReset(allValues);
 	frontDistance = calculateFrontDistance(allValues.avantGauche, allValues.avant, allValues.avantDroit);
+	float frontAngle = calculateFrontAngle(allValues.avantGauche, allValues.avantDroit);
+	float cosFrontAngle = cos(frontAngle);
 	Position newPosition;
 	if (side == GREEN)
 	{
-		newPosition.x = 1500 - allValues.droit - 35;
+		newPosition.x = 1500 - (((float)allValues.droit + 35) * cosFrontAngle);
 	}
 	else
 	{
-		newPosition.x = -1500 + allValues.gauche + 35;
+		newPosition.x = -1500 + (((float)allValues.gauche + 35) * cosFrontAngle);
 	}
-	newPosition.y = 2000 - frontDistance;
-	newPosition.orientation = M_PI_2;
+	newPosition.y = 2000 - (frontDistance * cosFrontAngle);
+	newPosition.orientation = M_PI_2 + frontAngle;
 	motionControlSystem.setPosition(newPosition);
 	
 	// On règle également l'incertitude sur la position
@@ -318,4 +322,101 @@ int32_t Robot::calculateFrontDistance(uint32_t gauche, uint32_t centre, uint32_t
 	{// Obstacle proche vu par tous les capteurs
 		return ((gauche + droite) / 2) + tof_offset; // Le capteur central manque de précision à cette distance
 	}
+}
+
+float Robot::calculateFrontAngle(uint32_t gauche, uint32_t droite)
+{
+	return atan(((double)gauche - (double)droite) / 50);
+}
+
+void Robot::scriptCloseDoors(Side side)
+{
+	Position ici, noUncertainty(0, 0, 0);
+	motionControlSystem.getPosition(ici);
+
+	// Fermeture de la première porte
+	Trajectory closeFirstDoor;
+
+	// Etape 1 : aller jusqu'à la première porte
+	UnitMove goToDoor;
+	if (side == GREEN)
+		goToDoor.setBendRadiusMm(120);
+	else
+		goToDoor.setBendRadiusMm(-120);
+	goToDoor.setLengthMm(200);
+	goToDoor.setSpeedMm_S(350);
+	goToDoor.stopAfterMove = false;
+	closeFirstDoor.push_back(goToDoor);
+
+	// Etape 2 : fermer la première porte
+	UnitMove pushDoor;
+	if (side == GREEN)
+		pushDoor.setBendRadiusMm(-100);
+	else
+		pushDoor.setBendRadiusMm(100);
+	pushDoor.setLengthMm(250);
+	pushDoor.setSpeedMm_S(350);
+	pushDoor.stopAfterMove = false;
+	closeFirstDoor.push_back(pushDoor);
+
+	// Fermeture de la première porte
+	motionControlSystem.setTrajectory(closeFirstDoor);
+	while (motionControlSystem.isMoving());
+	
+	// Réglage de la position (on vient de se recaler contre la porte)
+	if (side == GREEN)
+		ici.x = 1200;
+	else
+		ici.x = -1200;
+	ici.y = 1937;
+	ici.orientation = M_PI_2;
+	motionControlSystem.setPosition(ici);
+	motionControlSystem.setPositionUncertainty(noUncertainty);
+
+
+	// Etape 3 : se désengager de la première porte
+	Trajectory closeSecondDoor;
+	UnitMove disengage;
+	if (side == GREEN)
+		disengage.setBendRadiusMm(-120);
+	else
+		disengage.setBendRadiusMm(120);
+	disengage.setLengthMm(-145);
+	disengage.setSpeedMm_S(300);
+	disengage.stopAfterMove = true;
+	closeSecondDoor.push_back(disengage);
+
+	// Etape 4 : aller jusqu'à la seconde porte
+	if (side == GREEN)
+		goToDoor.setBendRadiusMm(-700);
+	else
+		goToDoor.setBendRadiusMm(700);
+	goToDoor.setLengthMm(300);
+	goToDoor.setSpeedMm_S(350);
+	goToDoor.stopAfterMove = false;
+	closeSecondDoor.push_back(goToDoor);
+
+	// Etape 5 : pousser la seconde porte
+	if (side == GREEN)
+		pushDoor.setBendRadiusMm(-100);
+	else
+		pushDoor.setBendRadiusMm(100);
+	pushDoor.setLengthMm(250);
+	pushDoor.setSpeedMm_S(350);
+	pushDoor.stopAfterMove = false;
+	closeSecondDoor.push_back(pushDoor);
+
+	// Fermeture de la seconde porte
+	motionControlSystem.setTrajectory(closeSecondDoor);
+	while (motionControlSystem.isMoving());
+
+	// Réglage de la position (on vient de se recaler contre la porte)
+	if (side == GREEN)
+		ici.x = 900;
+	else
+		ici.x = -900;
+	ici.y = 1937;
+	ici.orientation = M_PI_2;
+	motionControlSystem.setPosition(ici);
+	motionControlSystem.setPositionUncertainty(noUncertainty);
 }
