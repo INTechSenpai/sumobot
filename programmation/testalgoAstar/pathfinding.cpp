@@ -1,7 +1,8 @@
 #include "pathfinding.h"
 #define ESTSURORDI
 
-Pathfinding::Pathfinding() : distanceParEtape(20.0), coeffOrientation(1000), rotationAllowed(true) {
+Pathfinding::Pathfinding() : distanceParEtape(50.0), coeffOrientation(1000),
+                             rotationAllowed(true), isUsingSimpleTrajectory(false) {
 
     rayonsDeCourbures.push_back(50.0);
     rayonsDeCourbures.push_back(150.0);
@@ -33,6 +34,21 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.movableVisible.begin(), map.movableVisible.end());
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.oponentRobot.begin(), map.oponentRobot.end());
     obstaclesSurLaMap.insert(obstaclesSurLaMap.end(), map.toBeSpecified.begin(), map.toBeSpecified.end());
+
+    // On agrandit les obstacles pour prendre en compte la taille du robot
+    for (int i=0;i<obstaclesSurLaMap.size();i++) {
+        if (obstaclesSurLaMap[i].getShape()==CIRCLE) {
+            obstaclesSurLaMap[i].setRadius(obstaclesSurLaMap[i].getRadius()+100);
+        }
+        else if(obstaclesSurLaMap[i].getShape()==RECTANGLE) {
+            obstaclesSurLaMap[i].setXRadius(obstaclesSurLaMap[i].getXRadius()+100);
+            obstaclesSurLaMap[i].setYRadius(obstaclesSurLaMap[i].getYRadius()+100);
+        }
+        else {
+            obstaclesSurLaMap[i].setXRadius(obstaclesSurLaMap[i].getXRadius()+100);
+            obstaclesSurLaMap[i].setYRadius(obstaclesSurLaMap[i].getYRadius()+100);
+        }
+    }
 
 
     //Détermine si on est sur un obstacle
@@ -77,6 +93,7 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
 
 
         //puis appel de l'algorithme A* deux fois et concaténation du résultat
+        rotationAllowed = true;
         Trajectory startToObject = Astar(Astart, obstaclePosition);
 
         //deuxième appel en évitant les rotations trop importantes
@@ -124,9 +141,12 @@ Trajectory Pathfinding::Astar(const PositionTrajectoire& start, const PositionTr
 
     OpenSet.push_back(noeuddepart);
     n_courant = MettreAjourClosedSet();
-    while (!(PosSuffisammentProches(n_courant, goal))&&(passageDansBoucle<1000)) {
+    while (!(PosSuffisammentProches(n_courant, goal, 20.0, 0.2))&&(passageDansBoucle<1000)) {
         MettreAjourOpenSet(n_courant, goal);
         n_courant = MettreAjourClosedSet();
+        if ((!isUsingSimpleTrajectory)&&(PosSuffisammentProches(n_courant, goal, 100.0, 0.4))) {
+            isUsingSimpleTrajectory = true;
+        }
         passageDansBoucle++;
     }
 
@@ -165,7 +185,11 @@ Trajectory Pathfinding::Astar(const PositionTrajectoire& start, const PositionTr
         std::cout << " type de trajectoire : " << chemin_solution[i].trajectoire;
         std::cout << std::endl;
     }
+    std::cout << "taille d'openset : " << sizeof(noeud) << std::endl;
 #endif
+    //plus besoin d'openset et de closedset
+    OpenSet.clear();
+    ClosedSet.clear();
 
     trajectoire = positionsToTrajectory(chemin_solution);
     return (trajectoire);
@@ -190,13 +214,19 @@ void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const Pos
 
     PositionTrajectoire tmp;
     float alpha, beta, distanceStartTmp;
+    float distanceParcourue = distanceParEtape;
+
+    if (isUsingSimpleTrajectory){
+        distanceParcourue = 20.0;
+    }
 
     for (int i=0;i<rayonsDeCourbures[i];i++) {
 
+       // if (!isUsingSimpleTrajectory) {
 
         //cas où on avance de distanceParEtape suivant un rayon de courbure vers la gauche.
 
-        alpha = distanceParEtape/(2*rayonsDeCourbures[i]);
+        alpha = distanceParcourue/(2*rayonsDeCourbures[i]);
         beta = alpha + start.orientation;
         distanceStartTmp = 2*rayonsDeCourbures[i]*cos(M_PI/2 - alpha);
 
@@ -212,9 +242,9 @@ void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const Pos
 
         checkCandidat(tmp, start, goal);
 
-        //cas où on avance de distanceParEtape suivant un rayon de courbure vers la droite.
+        //cas où on avance de distanceParcourue suivant un rayon de courbure vers la droite.
 
-        alpha = distanceParEtape/(2*rayonsDeCourbures[i]);
+        alpha = distanceParcourue/(2*rayonsDeCourbures[i]);
         beta = start.orientation - alpha;
         distanceStartTmp = 2*rayonsDeCourbures[i]*cos(M_PI/2 - alpha);
 
@@ -227,11 +257,11 @@ void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const Pos
 
         checkCandidat(tmp, start, goal);
 
-        //cas où on recule de distanceParEtape suivant un rayon de courbure par la gauche.
+        //cas où on recule de distanceParcourue suivant un rayon de courbure par la gauche.
 
         float startOrientationRetourne;
 
-        alpha = distanceParEtape/(2*rayonsDeCourbures[i]);
+        alpha = distanceParcourue/(2*rayonsDeCourbures[i]);
         startOrientationRetourne = start.orientation + M_PI;
         beta = startOrientationRetourne - alpha;
         distanceStartTmp = 2*rayonsDeCourbures[i]*cos(M_PI/2 - alpha);
@@ -246,9 +276,9 @@ void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const Pos
 
         checkCandidat(tmp, start, goal);
 
-        //cas où on recule de distanceParEtape suivant un rayon de courbure par la droite.
+        //cas où on recule de distanceParcourue suivant un rayon de courbure par la droite.
 
-        alpha = distanceParEtape/(2*rayonsDeCourbures[i]);
+        alpha = distanceParcourue/(2*rayonsDeCourbures[i]);
         startOrientationRetourne = start.orientation + M_PI;
         beta = startOrientationRetourne + alpha;
         distanceStartTmp = 2*rayonsDeCourbures[i]*cos(M_PI/2 - alpha);
@@ -262,21 +292,21 @@ void Pathfinding::MettreAjourOpenSet(const PositionTrajectoire& start, const Pos
         tmp.trajectoire = static_cast<Trajectoire>(4*i+4);
 
         checkCandidat(tmp, start, goal);
+      //  }
     }
-
     //cas ou on avance en ligne droite de distanceParEtape
 
-    tmp.x = start.x + distanceParEtape*cos(start.orientation);
-    tmp.y = start.y + distanceParEtape*sin(start.orientation);
+    tmp.x = start.x + distanceParcourue*cos(start.orientation);
+    tmp.y = start.y + distanceParcourue*sin(start.orientation);
     tmp.orientation = start.orientation;
     tmp.trajectoire = AvancerToutDroit;
 
     checkCandidat(tmp, start, goal);
 
-    //cas ou on recule en ligne droite de distanceParEtape
+    //cas ou on recule en ligne droite de distanceParcourue
 
-    tmp.x = start.x - distanceParEtape*cos(start.orientation);
-    tmp.y = start.y - distanceParEtape*sin(start.orientation);
+    tmp.x = start.x - distanceParcourue*cos(start.orientation);
+    tmp.y = start.y - distanceParcourue*sin(start.orientation);
     tmp.orientation = start.orientation;
     tmp.trajectoire = ReculerToutDroit;
 
@@ -345,11 +375,6 @@ void Pathfinding::checkCandidat(const PositionTrajectoire& candidat, const Posit
                }
 
             }
-    }
-
-    else {
-        std::cout << "le noeud (" << candidat.x << ", " << candidat.y;
-        std::cout << ")" << "est sur un obstacle " <<std::endl;
     }
 }
 
@@ -670,9 +695,7 @@ bool Pathfinding::PosEgales(const PositionTrajectoire& p1, const PositionTraject
            );
 }
 
-bool Pathfinding::PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2) {
-    float precisionXY = 20.0;
-    float precisionOrientation = 0.3;
+bool Pathfinding::PosSuffisammentProches(const PositionTrajectoire& p1, const PositionTrajectoire& p2, float precisionXY, float precisionOrientation) {
     return (
             (p1.orientation < p2.orientation + precisionOrientation) &&
             (p2.orientation - precisionOrientation < p1.orientation) &&
