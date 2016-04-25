@@ -40,31 +40,23 @@ void loop()
 	sensorThread.priority(128);
 	sensorThread.begin(sensorInterrupt, 25000);
 
-	//*
 	Side side = robot.checkSide();
-	//*/
 
 	battControlerThread.priority(80);
 	battControlerThread.begin(battControlerInterrupt, 50000);
 
-	robot.waitForBegining();
+	//robot.waitForBegining();
 	robot.driveAlongEdgeOfTable(side, 0.5, 0, 5);
 	robot.scriptCloseDoors(side);
-	/*
-	robot.winMatch(90000);
-	delay(2000);
-	robot.deployUmbrella();
-	//*/
+	//robot.winMatch(90000);
+	//delay(2000);
+	//robot.deployUmbrella();
 
 
-	test.serialInterface();
-	RelativeObstacleMap obstacleMap;
+	//test.serialInterface();
 	while (true)
 	{
-		sensorMgr.getRelativeObstacleMapNoReset(obstacleMap);
-		float angle = robot.calculateFrontAngle(obstacleMap.avantGauche, obstacleMap.avantDroit);
-		Serial.printf("g: %g | d: %g | a: %g\n", (double)(obstacleMap.avantGauche), (double)(obstacleMap.avantDroit), angle);
-		delay(100);
+		test.obstacleDetection();
 		//test.sensors(false, true, false, false);
 	}
 }

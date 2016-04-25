@@ -20,7 +20,8 @@ public:
 	CUnit() : 
 		motionControlSystem(MotionControlSystem::Instance()),
 		sensorMgr(SensorMgr::Instance()),
-		robot(Robot::Instance())
+		robot(Robot::Instance()),
+		table(Table::Instance())
 	{
 	};
 
@@ -393,12 +394,67 @@ public:
 		delay(100);
 	}
 
+	void obstacleDetection()
+	{
+		RelativeObstacleMap relativeObstacleMap;
+		sensorMgr.getRelativeObstacleMapNoReset(relativeObstacleMap);
+		table.initObstacleMap(PURPLE);
+		Table::DetectionPoint detectionPoint[NB_CAPTEURS];
+		Position ici;
+		ici.x = -1350;
+		ici.y = 1400;
+		ici.orientation = M_PI_4;
+		Position incertitude;
+		incertitude.x = 20;
+		incertitude.y = 20;
+		incertitude.orientation = 0.2;
+		
+		table.fillDetectionPoints(detectionPoint, ici, relativeObstacleMap);
+		table.interpreteDetectionPoints(detectionPoint, incertitude);
+
+		for (int i = 0; i < NB_CAPTEURS; i++)
+		{
+			if (detectionPoint[i].isAnObstacle)
+			{
+				Serial.printf("(%d) x: %g | y: %g | %d\n", i, detectionPoint[i].x, detectionPoint[i].y, detectionPoint[i].isReliable);
+				switch (detectionPoint[i].associatedObstacleType)
+				{
+				case MOVABLE_VISIBLE:
+					Serial.println("MOVABLE_VISIBLE");
+					break;
+				case MOVABLE_INVISIBLE:
+					Serial.println("MOVABLE_INVISIBLE");
+					break;
+				case FIXED_VISIBLE:
+					Serial.println("FIXED_VISIBLE");
+					break;
+				case FIXED_INVISIBLE:
+					Serial.println("FIXED_INVISIBLE");
+					break;
+				case TO_BE_SPECIFIED:
+					Serial.println("TO_BE_SPECIFIED");
+					break;
+				case OPONENT_ROBOT:
+					Serial.println("OPONENT_ROBOT");
+					break;
+				case NONE:
+					Serial.println("NONE");
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		Serial.println();
+		delay(100);
+	}
 
 
 private:
 	MotionControlSystem & motionControlSystem;
 	SensorMgr & sensorMgr;
 	Robot & robot;
+	Table & table;
 
 	char inputBuffer[INPUT_BUFFER_LENGH];
 

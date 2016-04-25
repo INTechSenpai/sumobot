@@ -71,11 +71,11 @@ public:
 		relativeObstacleMap : données lues par les capteurs (distances lues en mm).
 		notrePosition : position du robot calculée par le bas niveau.
 		positionUncertainty : incertitude sur la position
-		retour : cette fonction retourne 'true' si les paramètre 'notrePosition' et/ou 'positionUncertainty' a/ont été(s) modifié(s), 'false' sinon.
+		retour : cette fonction retourne 'true' si le paramètre 'notrePosition' a été modifié, 'false' sinon.
 	*/
-	bool updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, Position & positionUncertainty);
+	bool updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, const Position & positionUncertainty);
 
-private:
+//private:
 	ObstacleMap obstacleMap;
 
 	/*
@@ -88,15 +88,60 @@ private:
 		float y;
 		bool isAnObstacle;	// Indique si il s'agit d'une détection ou bien d'un horizon
 		bool isReliable;	// Vrai uniquement pour les résultats des capteurs ToF (la non-détection correspondra toujours à une absence d'obstacle)
+
+		/* Pour associer ce point à un obstacle */
+		ObstacleType associatedObstacleType; // Type de l'obstacle associé
+		size_t associatedObstacle; // Indice de l'obstacle associé dans le tableau correspondant au type
 	};
 
 	/*
 		Place les points de détection en fonction des données des capteurs
 		Rempli le tableau de 'DetectionPoint'
+		Les champs 'x' 'y' 'isAnObstacle' 'isReliable' sont renseignés
 	*/
 	void fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition, const RelativeObstacleMap & relativeObstacleMap);
 	
+	/*
+		Interprète chaque point de détection en fonction de notre incertitude de positionnement et de 'obstacleMap'
+		Renseigne les champs 'associatedObstacleType' et 'associatedObstacle'
+		Si un bord de table permet un recalage, cette méthode met à jour la position et l'incertitude en conséquence.
+		Elle renvoie vrai si et seulement si elle a modifié la position ou l'incetitude.
+	*/
+	void interpreteDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition, const Position & notreIncertitude);
 
+	/*
+		Indique si le point de détection donné correspond à cet obstacle, en fonction de l'incertitude de notre position
+		Valeur retournée :
+		Vrai : on vient probablement de détecter cet obstacle à cet endroit
+		Faux : aucun lien entre les deux, cherche encore !
+	*/
+	bool isThisPointThisObstacle(const DetectionPoint & detectionPoint, const Obstacle & obstacle, const Position & uncertainty);
+
+	/*
+		Déplace le robot, ainsi que tous les points de détection afin que ces derniers soient cohérents avec les obstacles FIXES VISIBLES
+		Renvoie Vrai si et seulement si le robot a été effectivement déplacé
+	*/
+	bool moveRobotToMatchFixedObstacles(DetectionPoint tabDetection[NB_CAPTEURS], Position & position);
+
+	/*
+		Déplace les obstacles 'MovableVisible', 'ToBe'Determined' et 'OponentRobot' qui ont étés "vus" afin qu'il correspondent à la détection des capteurs
+	*/
+	void moveObstaclesToMatchDetection(DetectionPoint tabDetection[NB_CAPTEURS]);
+
+	/*
+		Supprime les obstacles se trouvant dans la ligne de vue d'un capteur voyant "à l'infini"
+	*/
+	void deleteUndetectedObstacles(DetectionPoint tabDetection[NB_CAPTEURS]);
+
+	/*
+		Ajoute des obstacles 'ToBeDeterminated' pour chaque 
+	*/
+	void addObstaclesToBeDeterminated(DetectionPoint tabDetection[NB_CAPTEURS]);
+
+	/*
+		Interprète les obstacles 'ToBeDeterminated' étant en vue. En les transformant éventuellement en 'OponentRobot' ou 'MovableVisible'
+	*/
+	void interpreteObstaclesInSight(DetectionPoint tabDetection[NB_CAPTEURS]);
 };
 
 #endif

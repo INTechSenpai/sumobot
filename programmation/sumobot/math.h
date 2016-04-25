@@ -46,7 +46,6 @@ extern double atan2(double __y, double __x) ;
 extern double log(double __x) ;
 extern double log10(double __x) ;
 extern double pow(double __x, double __y) ;
-extern double square(double __x) ;
 extern double fdim (double __x, double __y) ;
 extern double fma (double __x, double __y, double __z) ;
 extern double fmax (double __x, double __y) ;

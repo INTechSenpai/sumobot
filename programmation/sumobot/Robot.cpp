@@ -13,15 +13,25 @@ Side Robot::checkSide()
 	RelativeObstacleMap relativeObstacleMap;
 	uint32_t leftCounter = 0, rightCounter = 0;
 
+	pinMode(PIN_DEL_GREEN, OUTPUT);
+	pinMode(PIN_DEL_RED, OUTPUT);
+	bool allume = true;
+
 	// Attente de la disponibilité des capteurs (et de la présence d'un bord de table)
 	do
 	{
+		digitalWrite(PIN_DEL_GREEN, allume);
+		digitalWrite(PIN_DEL_RED, !allume);
+		allume = !allume;
+
 		sensorMgr.getRelativeObstacleMapNoReset(relativeObstacleMap);
-		delay(30);
+		delay(100);
 	} while (
 		(relativeObstacleMap.gauche == 255 || relativeObstacleMap.gauche == 0) && 
 		(relativeObstacleMap.droit == 255 || relativeObstacleMap.droit == 0));
 
+	digitalWrite(PIN_DEL_GREEN, LOW);
+	digitalWrite(PIN_DEL_RED, LOW);
 
 	for (int i = 0; i < 50; i++)
 	{
@@ -57,13 +67,12 @@ Side Robot::checkSide()
 		pinDEL = PIN_DEL_RED;
 	}
 
-	pinMode(pinDEL, OUTPUT);
 	for (int i = 0; i < 3; i++)
 	{
 		digitalWrite(pinDEL, HIGH);
-		delay(500);
+		delay(300);
 		digitalWrite(pinDEL, LOW);
-		delay(500);
+		delay(300);
 	}
 
 	return side;
@@ -186,7 +195,7 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 	UnitMove courbeAsservie;
 	courbeAsservie.setLengthMm(100); // Longueur suffisante pour que le mouvement ne se termine pas entre deux asservissements de trajectoire
 	courbeAsservie.setBendRadiusMm(INFINITE_RADIUS); // Valeur initiale, qui sera modifiée par le PID
-	courbeAsservie.setSpeedMm_S(350); // Vitesse du mouvement, la vitesse la plus fiable et testée a été choisie
+	courbeAsservie.setSpeedMm_S(250); // Vitesse du mouvement, la vitesse la plus fiable et testée a été choisie
 	courbeAsservie.stopAfterMove = false; // Inutile de s'arrêter entre les mouvements
 	trajectoireAsservie.push_back(courbeAsservie);
 
@@ -340,28 +349,36 @@ void Robot::scriptCloseDoors(Side side)
 	// Etape 1 : aller jusqu'à la première porte
 	UnitMove goToDoor;
 	if (side == GREEN)
-		goToDoor.setBendRadiusMm(120);
+		goToDoor.setBendRadiusMm(150);
 	else
-		goToDoor.setBendRadiusMm(-120);
-	goToDoor.setLengthMm(200);
-	goToDoor.setSpeedMm_S(350);
+		goToDoor.setBendRadiusMm(-150);
+	goToDoor.setLengthMm(120);
+	goToDoor.setSpeedMm_S(300);
 	goToDoor.stopAfterMove = false;
 	closeFirstDoor.push_back(goToDoor);
 
-	// Etape 2 : fermer la première porte
+
+	goToDoor.setBendRadiusMm(INFINITE_RADIUS);
+	goToDoor.setLengthMm(100);
+	goToDoor.setSpeedMm_S(300);
+	goToDoor.stopAfterMove = false;
+	closeFirstDoor.push_back(goToDoor);
+
+	// Etape 2 : pousser la première porte
 	UnitMove pushDoor;
 	if (side == GREEN)
-		pushDoor.setBendRadiusMm(-100);
+		pushDoor.setBendRadiusMm(-90);
 	else
-		pushDoor.setBendRadiusMm(100);
-	pushDoor.setLengthMm(250);
-	pushDoor.setSpeedMm_S(350);
+		pushDoor.setBendRadiusMm(90);
+	pushDoor.setLengthMm(120);
+	pushDoor.setSpeedMm_S(300);
 	pushDoor.stopAfterMove = false;
 	closeFirstDoor.push_back(pushDoor);
 
 	// Fermeture de la première porte
 	motionControlSystem.setTrajectory(closeFirstDoor);
 	while (motionControlSystem.isMoving());
+
 	
 	// Réglage de la position (on vient de se recaler contre la porte)
 	if (side == GREEN)
@@ -374,37 +391,62 @@ void Robot::scriptCloseDoors(Side side)
 	motionControlSystem.setPositionUncertainty(noUncertainty);
 
 
-	// Etape 3 : se désengager de la première porte
 	Trajectory closeSecondDoor;
+
+	UnitMove disengage;
+	disengage.setBendRadiusMm(INFINITE_RADIUS);
+	disengage.setLengthMm(-10);
+	disengage.setSpeedMm_S(300);
+	disengage.stopAfterMove = false;
+	closeSecondDoor.push_back(disengage);
+
+	if (side == GREEN)
+		goToDoor.setBendRadiusMm(140);
+	else
+		goToDoor.setBendRadiusMm(-130);
+	goToDoor.setLengthMm(-470);
+	goToDoor.setSpeedMm_S(300);
+	goToDoor.stopAfterMove = false;
+	closeSecondDoor.push_back(goToDoor);
+
+	pushDoor.setBendRadiusMm(INFINITE_RADIUS);
+	pushDoor.setLengthMm(-50);
+	pushDoor.setSpeedMm_S(300);
+	pushDoor.stopAfterMove = false;
+	closeSecondDoor.push_back(pushDoor);
+
+	/*
+	// Etape 3 : se désengager de la première porte
 	UnitMove disengage;
 	if (side == GREEN)
 		disengage.setBendRadiusMm(-120);
 	else
 		disengage.setBendRadiusMm(120);
-	disengage.setLengthMm(-145);
+	disengage.setLengthMm(-130);
 	disengage.setSpeedMm_S(300);
 	disengage.stopAfterMove = true;
 	closeSecondDoor.push_back(disengage);
 
 	// Etape 4 : aller jusqu'à la seconde porte
 	if (side == GREEN)
-		goToDoor.setBendRadiusMm(-700);
+		goToDoor.setBendRadiusMm(-900);
 	else
-		goToDoor.setBendRadiusMm(700);
-	goToDoor.setLengthMm(300);
-	goToDoor.setSpeedMm_S(350);
+		goToDoor.setBendRadiusMm(2000);
+	goToDoor.setLengthMm(350);
+	goToDoor.setSpeedMm_S(300);
 	goToDoor.stopAfterMove = false;
 	closeSecondDoor.push_back(goToDoor);
 
 	// Etape 5 : pousser la seconde porte
 	if (side == GREEN)
-		pushDoor.setBendRadiusMm(-100);
+		pushDoor.setBendRadiusMm(-90);
 	else
-		pushDoor.setBendRadiusMm(100);
-	pushDoor.setLengthMm(250);
-	pushDoor.setSpeedMm_S(350);
+		pushDoor.setBendRadiusMm(90);
+	pushDoor.setLengthMm(120);
+	pushDoor.setSpeedMm_S(300);
 	pushDoor.stopAfterMove = false;
 	closeSecondDoor.push_back(pushDoor);
+	*/
 
 	// Fermeture de la seconde porte
 	motionControlSystem.setTrajectory(closeSecondDoor);
