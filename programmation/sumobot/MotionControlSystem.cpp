@@ -162,7 +162,7 @@ inline void MotionControlSystem::nextMove()
 		else
 		{
 			positionUncertainty.orientation += ERROR_AFTER_TRANSLATION;
-			float increment = positionUncertainty.orientation * currentTrajectory[currentMove].getLengthMm();
+			float increment = positionUncertainty.orientation * ABS(currentTrajectory[currentMove].getLengthMm());
 			positionUncertainty.x += increment;
 			positionUncertainty.y += increment;
 		}

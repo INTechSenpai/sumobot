@@ -284,9 +284,10 @@ bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, P
 	interpreteDetectionPoints(tabDetection, notrePosition, positionUncertainty);
 	positionModified = moveRobotToMatchFixedObstacles(tabDetection, notrePosition);
 	moveObstaclesToMatchDetection(tabDetection);
-	deleteUndetectedObstacles(tabDetection);
-	addObstaclesToBeDeterminated(tabDetection);
+	deleteUndetectedObstacles(tabDetection, notrePosition);
+	addObstaclesToBeDeterminated(tabDetection, notrePosition);
 	interpreteObstaclesInSight(tabDetection);
+	deleteOutdatedObstacles();
 
 	return positionModified;
 }
@@ -455,6 +456,7 @@ void Table::interpreteDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], 
 				{
 					tabDetection[i].associatedObstacleType = TO_BE_SPECIFIED;
 					tabDetection[i].associatedObstacle = indiceObstacle;
+					obstacleMap.toBeSpecified.at(indiceObstacle).justSeen();
 				}
 			}
 
@@ -465,6 +467,7 @@ void Table::interpreteDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], 
 				{
 					tabDetection[i].associatedObstacleType = MOVABLE_VISIBLE;
 					tabDetection[i].associatedObstacle = indiceObstacle;
+					obstacleMap.movableVisible.at(indiceObstacle).justSeen();
 				}
 			}
 
@@ -485,6 +488,7 @@ void Table::interpreteDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], 
 				{
 					tabDetection[i].associatedObstacleType = OPONENT_ROBOT;
 					tabDetection[i].associatedObstacle = indiceObstacle;
+					obstacleMap.oponentRobot.at(indiceObstacle).justSeen();
 				}
 			}
 		}
@@ -533,21 +537,337 @@ bool Table::isThisPointThisObstacle(const DetectionPoint & detectionPoint, const
 
 bool Table::moveRobotToMatchFixedObstacles(DetectionPoint tabDetection[NB_CAPTEURS], Position & position)
 {
-	return false;
+	bool positionModified = false;
+	bool bordDeTableVisible = false;
+
+	/* On déplace le robot en fonction des obstacles fixes vus par les capteurs fiables */
+	for (int i = 0; i < NB_CAPTEURS; i++)
+	{
+		if (tabDetection[i].associatedObstacleType == FIXED_VISIBLE && tabDetection[i].isReliable)
+		{
+			ObstacleShape obstacleShape = obstacleMap.fixedVisible.at(tabDetection[i].associatedObstacle).getShape();
+
+			if (obstacleShape == CIRCLE || obstacleShape == EDGE_OF_TABLE)
+			{
+				bordDeTableVisible = true;
+			}
+
+			float xOffset = 0, yOffset = 0; // Le robot ainsi que tous les points de détection seront déplacés selon cet offset
+			calculateOffsetToMatch(tabDetection[i], xOffset, yOffset);
+
+			if (xOffset != 0 || yOffset != 0)
+			{
+				positionModified = true;
+			}
+
+			position.x += xOffset;
+			position.y += yOffset;
+			for (int j = 0; j < NB_CAPTEURS; j++)
+			{
+				tabDetection[j].x += xOffset;
+				tabDetection[j].y += yOffset;
+			}
+		}
+	}
+
+	/* Si le robot est proche d'un bord de table (<150mm) il doit nécéssairement le voir */
+	if (ABS(position.x) >= 1350 || ABS(position.y - 1000) >= 850)
+	{
+		if (!bordDeTableVisible)
+		{ // Si on ne voit pas le bord de table, on éloigne le robot afin de d(robot, bordDeTable) = 200mm
+			positionModified = true;
+
+			if (position.x >= 1350)
+			{
+				position.x = 1300;
+			}
+			else if (position.x <= -1350)
+			{
+				position.x = -1300;
+			}
+
+			if (position.y >= 1850)
+			{
+				position.y = 1800;
+			}
+			else if (position.y <= 150)
+			{
+				position.y = 200;
+			}
+		}
+	}
+
+	return positionModified;
 }
 
 void Table::moveObstaclesToMatchDetection(DetectionPoint tabDetection[NB_CAPTEURS])
 {
+	for (int i = 0; i < NB_CAPTEURS; i++)
+	{
+		if (tabDetection[i].associatedObstacleType == MOVABLE_VISIBLE && tabDetection[i].isReliable)
+		{
+			float xOffset = 0, yOffset = 0;
+			calculateOffsetToMatch(tabDetection[i], xOffset, yOffset);
+
+			Position centre;
+			obstacleMap.movableVisible.at(tabDetection[i].associatedObstacle).getCenter(centre);
+			centre.x -= xOffset;
+			centre.y -= yOffset;
+			obstacleMap.movableVisible.at(tabDetection[i].associatedObstacle).setCenter(centre);
+		}
+	}
 }
 
-void Table::deleteUndetectedObstacles(DetectionPoint tabDetection[NB_CAPTEURS])
+void Table::deleteUndetectedObstacles(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition)
 {
+	Position obstacleCenter;
+	float squaredObstacleRadius;
+	ObstacleShape shape;
+
+	for (int i = 0; i < NB_CAPTEURS; i++)
+	{// TODO faire confiance aux IR classiques à courte distance
+		if (!tabDetection[i].isAnObstacle && tabDetection[i].isReliable)
+		{
+			for (size_t j = 0; j < obstacleMap.movableVisible.size(); j++)
+			{
+				obstacleMap.movableVisible.at(j).getCenter(obstacleCenter);
+				shape = obstacleMap.movableVisible.at(j).getShape();
+				if (shape == CIRCLE)
+				{
+					squaredObstacleRadius = square(obstacleMap.movableVisible.at(j).getRadius());
+				}
+				else
+				{
+					squaredObstacleRadius = square(obstacleMap.movableVisible.at(j).getXRadius()) + square(obstacleMap.movableVisible.at(j).getYRadius());
+				}
+
+				if (isObstacleInSight(notrePosition, obstacleCenter, squaredObstacleRadius, tabDetection[i].x, tabDetection[i].y))
+				{
+					obstacleMap.movableVisible.at(j).decreaseTTL(TTL_DECREASE_NOT_SEEN);
+				}
+			}
+
+			for (size_t j = 0; j < obstacleMap.toBeSpecified.size(); j++)
+			{
+				obstacleMap.toBeSpecified.at(j).getCenter(obstacleCenter);
+				shape = obstacleMap.toBeSpecified.at(j).getShape();
+				if (shape == CIRCLE)
+				{
+					squaredObstacleRadius = square(obstacleMap.toBeSpecified.at(j).getRadius());
+				}
+				else
+				{
+					squaredObstacleRadius = square(obstacleMap.toBeSpecified.at(j).getXRadius()) + square(obstacleMap.toBeSpecified.at(j).getYRadius());
+				}
+
+				if (isObstacleInSight(notrePosition, obstacleCenter, squaredObstacleRadius, tabDetection[i].x, tabDetection[i].y))
+				{
+					obstacleMap.toBeSpecified.at(j).decreaseTTL(TTL_DECREASE_NOT_SEEN);
+				}
+			}
+
+			for (size_t j = 0; j < obstacleMap.oponentRobot.size(); j++)
+			{
+				obstacleMap.oponentRobot.at(j).getCenter(obstacleCenter);
+				shape = obstacleMap.oponentRobot.at(j).getShape();
+				if (shape == CIRCLE)
+				{
+					squaredObstacleRadius = square(obstacleMap.oponentRobot.at(j).getRadius());
+				}
+				else
+				{
+					squaredObstacleRadius = square(obstacleMap.oponentRobot.at(j).getXRadius()) + square(obstacleMap.oponentRobot.at(j).getYRadius());
+				}
+
+				if (isObstacleInSight(notrePosition, obstacleCenter, squaredObstacleRadius, tabDetection[i].x, tabDetection[i].y))
+				{
+					obstacleMap.oponentRobot.at(j).decreaseTTL(TTL_DECREASE_NOT_SEEN);
+				}
+			}
+		}
+	}
 }
 
-void Table::addObstaclesToBeDeterminated(DetectionPoint tabDetection[NB_CAPTEURS])
+void Table::addObstaclesToBeDeterminated(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition)
 {
+	for (int i = 0; i < NB_CAPTEURS; i++)
+	{
+		if (tabDetection[i].associatedObstacleType == NONE && tabDetection[i].isAnObstacle)
+		{
+			// On se place dans un repère centré sur le robot
+			float xDetection = tabDetection[i].x - notrePosition.x;
+			float yDetection = tabDetection[i].y - notrePosition.y;
+			float distanceToDetectionPoint = sqrt(square(xDetection) + square(yDetection));
+
+			Position centreObstacle;
+			centreObstacle.x = xDetection * (distanceToDetectionPoint + NEW_OBSTACLE_RADIUS) / distanceToDetectionPoint;
+			centreObstacle.y = yDetection * (distanceToDetectionPoint + NEW_OBSTACLE_RADIUS) / distanceToDetectionPoint;
+			centreObstacle.orientation = 0;
+			
+			// On revient dans le repère de la table
+			centreObstacle.x += notrePosition.x;
+			centreObstacle.y += notrePosition.y;
+
+			Obstacle newObstacle(centreObstacle, CIRCLE);
+			newObstacle.setRadius(NEW_OBSTACLE_RADIUS);
+			newObstacle.justSeen();
+			newObstacle.setTTL(TTL_TO_BE_SPECIFIED);
+
+			obstacleMap.toBeSpecified.push_back(newObstacle);
+			tabDetection[i].associatedObstacleType = TO_BE_SPECIFIED;
+			tabDetection[i].associatedObstacle = obstacleMap.toBeSpecified.size() - 1;
+		}
+	}
 }
 
 void Table::interpreteObstaclesInSight(DetectionPoint tabDetection[NB_CAPTEURS])
 {
+
+}
+
+void Table::calculateOffsetToMatch(const DetectionPoint & detectionPoint, float & xOffset, float & yOffset)
+{
+	Obstacle obstacle;
+	switch (detectionPoint.associatedObstacleType)
+	{
+	case FIXED_VISIBLE:
+		obstacle = obstacleMap.fixedVisible.at(detectionPoint.associatedObstacle);
+		break;
+	case FIXED_INVISIBLE:
+		obstacle = obstacleMap.fixedInvisible.at(detectionPoint.associatedObstacle);
+		break;
+	case MOVABLE_VISIBLE:
+		obstacle = obstacleMap.movableVisible.at(detectionPoint.associatedObstacle);
+		break;
+	case MOVABLE_INVISIBLE:
+		obstacle = obstacleMap.movableInvisible.at(detectionPoint.associatedObstacle);
+		break;
+	case TO_BE_SPECIFIED:
+		obstacle = obstacleMap.toBeSpecified.at(detectionPoint.associatedObstacle);
+		break;
+	case OPONENT_ROBOT:
+		obstacle = obstacleMap.oponentRobot.at(detectionPoint.associatedObstacle);
+		break;
+	default:
+		xOffset = 0;
+		yOffset = 0;
+		return;
+		break;
+	}
+
+	Position centre;
+	obstacle.getCenter(centre);
+
+	float dx, dy; // Position du point de détection relativement au centre du rectangle
+	dx = detectionPoint.x - centre.x;
+	dy = detectionPoint.y - centre.y;
+
+	if (obstacle.getShape() == CIRCLE)
+	{
+		float d; // Distance centre <--> point de détection
+		d = sqrt(square(dx) + square(dy));
+
+		xOffset = (obstacle.getRadius()) * dx / d - dx;
+		yOffset = (obstacle.getRadius()) * dy / d - dy;
+	}
+	else
+	{
+		if (centre.orientation == 0)
+		{
+			float dxp, dxm, dyp, dym; // Distances point de détection <--> arrêtes du rectangle
+			dxm = -(obstacle.getXRadius() + dx);
+			dxp = obstacle.getXRadius() - dx;
+			dym = -(obstacle.getYRadius() + dy);
+			dyp = obstacle.getYRadius() - dy;
+
+			if (ABS(dx) > obstacle.getXRadius() && ABS(dy) > obstacle.getYRadius())
+			{
+				if (dx > 0)
+				{
+					xOffset = dxp;
+				}
+				else
+				{
+					xOffset = dxm;
+				}
+
+				if (dy > 0)
+				{
+					yOffset = dyp;
+				}
+				else
+				{
+					yOffset = dym;
+				}
+			}
+			else
+			{
+				if (ABS(dxm) < MIN(MIN(ABS(dxp), ABS(dym)), ABS(dyp)))
+				{// dxm est le min en valeur absolue
+					xOffset = dxm;
+					yOffset = 0;
+				}
+				else if (ABS(dxp) < MIN(MIN(ABS(dxm), ABS(dym)), ABS(dyp)))
+				{// dxp est le min en valeur absolue
+					xOffset = dxp;
+					yOffset = 0;
+				}
+				else if (ABS(dym) < MIN(MIN(ABS(dxp), ABS(dxm)), ABS(dyp)))
+				{// dym est le min en valeur absolue
+					xOffset = 0;
+					yOffset = dym;
+				}
+				else
+				{// dyp est le min en valeur absolue
+					xOffset = 0;
+					yOffset = dyp;
+				}
+			}
+		}
+		else
+		{// Les rectanges inclinés sont traités comme des cercles (le cercle circonscrit au rectangle)
+
+			float radius; // Rayon du cercle circonscrit au rectangle
+			float d; // Distance centre <--> point de détection
+			
+			radius = sqrt(square(obstacle.getXRadius()) + square(obstacle.getYRadius()));
+			d = sqrt(square(dx) + square(dy));
+
+			xOffset = radius * dx / d - dx;
+			yOffset = radius * dy / d - dy;
+		}
+	}
+}
+
+bool Table::isObstacleInSight(const Position & robotCenter, const Position & obstacleCenter, float squaredObstacleRadius, float xHorizon, float yHorizon)
+{
+	float horizonLength = sqrt(square(xHorizon - robotCenter.x) + square(yHorizon - robotCenter.y));
+	float squaredDistanceToObstacle = square(obstacleCenter.x - robotCenter.x) + square(obstacleCenter.y - robotCenter.y);
+	
+	float distanceToProjection = ((obstacleCenter.x - robotCenter.x) * (xHorizon - robotCenter.x) + (obstacleCenter.y - robotCenter.y) * (yHorizon - robotCenter.y)) / horizonLength;
+
+	float squaredDistanceToLineOfSight = squaredDistanceToObstacle - square(distanceToProjection);
+
+	return squaredDistanceToLineOfSight <= squaredObstacleRadius && (distanceToProjection <= horizonLength && distanceToProjection >= 0);
+}
+
+void Table::deleteOutdatedObstacles()
+{
+	for (size_t i = 0; i < obstacleMap.movableVisible.size(); i++)
+	{
+		if (obstacleMap.movableVisible.at(i).getTTL() <= millis() - obstacleMap.movableVisible.at(i).getLastTimeSeen())
+			obstacleMap.movableVisible.erase(obstacleMap.movableVisible.begin() + i);
+	}
+
+	for (size_t i = 0; i < obstacleMap.oponentRobot.size(); i++)
+	{
+		if (obstacleMap.oponentRobot.at(i).getTTL() <= millis() - obstacleMap.oponentRobot.at(i).getLastTimeSeen())
+			obstacleMap.oponentRobot.erase(obstacleMap.oponentRobot.begin() + i);
+	}
+
+	for (size_t i = 0; i < obstacleMap.toBeSpecified.size(); i++)
+	{
+		if (obstacleMap.toBeSpecified.at(i).getTTL() <= millis() - obstacleMap.toBeSpecified.at(i).getLastTimeSeen())
+			obstacleMap.toBeSpecified.erase(obstacleMap.toBeSpecified.begin() + i);
+	}
 }

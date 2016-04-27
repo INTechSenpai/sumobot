@@ -40,14 +40,15 @@ void loop()
 	sensorThread.priority(128);
 	sensorThread.begin(sensorInterrupt, 25000);
 
-	Side side = robot.checkSide();
+	//Side side = robot.checkSide();
+	robot.init(PURPLE);
 
 	battControlerThread.priority(80);
 	battControlerThread.begin(battControlerInterrupt, 50000);
 
 	//robot.waitForBegining();
-	robot.driveAlongEdgeOfTable(side, 0.5, 0, 5);
-	robot.scriptCloseDoors(side);
+	//robot.driveAlongEdgeOfTable(side, 0.5, 0, 5);
+	//robot.scriptCloseDoors(side);
 	//robot.winMatch(90000);
 	//delay(2000);
 	//robot.deployUmbrella();
@@ -56,7 +57,8 @@ void loop()
 	//test.serialInterface();
 	while (true)
 	{
-		test.obstacleDetection();
+		//test.obstacleCreationDeletion();
+		//test.obstacleDetection();
 		//test.sensors(false, true, false, false);
 	}
 }
@@ -115,6 +117,14 @@ void battControlerInterrupt()
 {
 	static BattControler battControler;
 	battControler.control();
+
+	// DEBUG
+	/*
+	static MotionControlSystem & motionControlSystem = MotionControlSystem::Instance();
+	static Position ici;
+	motionControlSystem.getPositionUncertainty(ici);
+	Serial.printf("x: %g | y: %g | o: %g\n", ici.x, ici.y, ici.orientation);
+	*/
 }
 
 

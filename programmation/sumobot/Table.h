@@ -47,6 +47,16 @@ VIOLETTE		|					 ║						 |
 #define DOORS_PRIORITY			128
 #define SHELL_PRIORITY			80
 
+/* Valeurs de 'Time To Live' en ms */
+#define TTL_OPONENT_ROBOT		10000
+#define TTL_SAND				10000
+#define TTL_TO_BE_SPECIFIED		10000
+#define TTL_DECREASE_NOT_SEEN	250
+
+/* Valeurs des rayons des obstacles à créer, en mm */
+#define NEW_OBSTACLE_RADIUS		38
+#define OPONENT_RADIUS			100
+
 
 class Table : public Singleton<Table>
 {
@@ -130,18 +140,34 @@ public:
 
 	/*
 		Supprime les obstacles se trouvant dans la ligne de vue d'un capteur voyant "à l'infini"
+		Considère tous les obstacles comme circulaires (les carrés et rectangles sont associés à leur cercle circonscrit)
 	*/
-	void deleteUndetectedObstacles(DetectionPoint tabDetection[NB_CAPTEURS]);
+	void deleteUndetectedObstacles(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition);
 
 	/*
 		Ajoute des obstacles 'ToBeDeterminated' pour chaque 
 	*/
-	void addObstaclesToBeDeterminated(DetectionPoint tabDetection[NB_CAPTEURS]);
+	void addObstaclesToBeDeterminated(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition);
 
 	/*
 		Interprète les obstacles 'ToBeDeterminated' étant en vue. En les transformant éventuellement en 'OponentRobot' ou 'MovableVisible'
 	*/
 	void interpreteObstaclesInSight(DetectionPoint tabDetection[NB_CAPTEURS]);
+
+	/*
+		Calcule les offsets (x,y) à appliquer à un point de détection afin qu'il soit cohérent avec l'obstacle associé
+	*/
+	void calculateOffsetToMatch(const DetectionPoint & detectionPoint, float & xOffset, float & yOffset);
+
+	/*
+		Indique si l'obstacle (circulaire) centré en 'obstacleCenter' et de rayon au carré 'squaredObstacleRadius' devrait être en vue du capteur dont on donne les coordonnées du point horizon.
+	*/
+	bool isObstacleInSight(const Position & robotCenter, const Position & obstacleCenter, float squaredObstacleRadius, float xHorizon, float yHorizon);
+
+	/*
+		Supprime tous les obstacles étant arrivés en fin de vie
+	*/
+	void deleteOutdatedObstacles();
 };
 
 #endif

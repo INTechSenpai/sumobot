@@ -90,8 +90,8 @@ void Robot::init(Side side)
 	positionInitiale.y = 1150;
 	positionInitiale.orientation = PI / 2;
 
-	incertitudeInitiale.x = 5;
-	incertitudeInitiale.y = 5;
+	incertitudeInitiale.x = 50;
+	incertitudeInitiale.y = 50;
 	incertitudeInitiale.orientation = 0;
 
 	motionControlSystem.setPosition(positionInitiale);
@@ -273,8 +273,8 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 	
 	// On règle également l'incertitude sur la position
 	Position newUncertainty;
-	newUncertainty.x = 0;
-	newUncertainty.y = 0;
+	newUncertainty.x = 10;
+	newUncertainty.y = 10;
 	newUncertainty.orientation = 0;
 	motionControlSystem.setPositionUncertainty(newUncertainty);
 }
@@ -340,7 +340,7 @@ float Robot::calculateFrontAngle(uint32_t gauche, uint32_t droite)
 
 void Robot::scriptCloseDoors(Side side)
 {
-	Position ici, noUncertainty(0, 0, 0);
+	Position ici, noUncertainty(10, 10, 0);
 	motionControlSystem.getPosition(ici);
 
 	// Fermeture de la première porte
@@ -458,7 +458,7 @@ void Robot::scriptCloseDoors(Side side)
 	else
 		ici.x = -900;
 	ici.y = 1937;
-	ici.orientation = M_PI_2;
+	ici.orientation = -M_PI_2;
 	motionControlSystem.setPosition(ici);
 	motionControlSystem.setPositionUncertainty(noUncertainty);
 }

@@ -22,6 +22,8 @@ enum ObstacleShape
 class Obstacle
 {
 public:
+	Obstacle() {}; // Constructeur par défaut (à éviter) 
+
 	Obstacle(Position & center, ObstacleShape circleOrRectangle)
 	{
 		this->center = center;
@@ -76,6 +78,24 @@ public:
 	void justSeen() // 'setter' de l'attibut lastTimeSeen
 	{
 		lastTimeSeen = millis();
+	}
+
+	void decreaseTTL(uint32_t value) // Permet de diminuer le TimeToLive d'un certain nombre de ms
+	{
+		if (timeToLive > value)
+			timeToLive -= value;
+		else
+			timeToLive = 0;
+	}
+
+	uint32_t getTTL()
+	{
+		return timeToLive;
+	}
+
+	void setTTL(uint32_t ttl)
+	{
+		timeToLive = ttl;
 	}
 
 	uint32_t getLastTimeSeen()

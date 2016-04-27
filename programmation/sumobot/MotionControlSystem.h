@@ -28,7 +28,7 @@
 
 #define FREQ_ASSERV			2000	// Fréquence d'asservissement (en Hz)
 #define AVERAGE_SPEED_SIZE	50		// Nombre de valeurs à utiliser dans le calcul de la moyenne glissante permettant de lisser la mesure de vitesse
-#define TRACKER_SIZE		2	 	// Nombre d'états consécutifs du système à stocker pour le débug
+#define TRACKER_SIZE		1	 	// Nombre d'états consécutifs du système à stocker pour le débug
 
 #define ERROR_AFTER_ROTATION	0.02	// Incrément de l'erreur sur l'orientation après une rotation pure, en radians
 #define ERROR_AFTER_TRANSLATION	0.002	// Incrément de l'erreur sur l'orientation après une trajectoire courbe, en radians

@@ -410,7 +410,7 @@ public:
 		incertitude.orientation = 0.2;
 		
 		table.fillDetectionPoints(detectionPoint, ici, relativeObstacleMap);
-		table.interpreteDetectionPoints(detectionPoint, incertitude);
+		table.interpreteDetectionPoints(detectionPoint, ici, incertitude);
 
 		for (int i = 0; i < NB_CAPTEURS; i++)
 		{
@@ -449,6 +449,29 @@ public:
 		delay(100);
 	}
 
+	void obstacleCreationDeletion()
+	{
+		Position ici;
+		ici.x = -920;
+		ici.y = 1400;
+		ici.orientation = M_PI_4;
+		motionControlSystem.setPosition(ici);
+		ObstacleMap obstacleMap;
+		obstacleMap = table.getObstacleMap();
+
+		Position centreObstacle;
+		Serial.println("Begin");
+		for (int i = 0; i < obstacleMap.toBeSpecified.size(); i++)
+		{
+			obstacleMap.toBeSpecified.at(i).getCenter(centreObstacle);
+			Serial.printf("#O# x:%g  y:%g  o:%g  r:%g  ttl:%d  lts:%d\n", 
+				centreObstacle.x, centreObstacle.y, centreObstacle.orientation, 
+				obstacleMap.toBeSpecified.at(i).getRadius(),
+				obstacleMap.toBeSpecified.at(i).getTTL(),
+				obstacleMap.toBeSpecified.at(i).getLastTimeSeen());
+		}
+		delay(100);
+	}
 
 private:
 	MotionControlSystem & motionControlSystem;
