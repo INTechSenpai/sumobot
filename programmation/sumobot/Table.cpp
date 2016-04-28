@@ -2,6 +2,7 @@
 
 Table::Table()
 {
+	enableUpdate = false;
 }
 
 ObstacleMap Table::getObstacleMap() const
@@ -277,19 +278,46 @@ void Table::initObstacleMap(Side side)
 
 bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, const Position & positionUncertainty)
 {
+	static uint32_t t1, t2;
+	t1 = micros();
+
 	bool positionModified = false;
 
-	DetectionPoint tabDetection[NB_CAPTEURS];
-	fillDetectionPoints(tabDetection, notrePosition, relativeObstacleMap);
-	interpreteDetectionPoints(tabDetection, notrePosition, positionUncertainty);
-	positionModified = moveRobotToMatchFixedObstacles(tabDetection, notrePosition);
-	moveObstaclesToMatchDetection(tabDetection);
-	deleteUndetectedObstacles(tabDetection, notrePosition);
-	addObstaclesToBeDeterminated(tabDetection, notrePosition);
-	interpreteObstaclesInSight(tabDetection);
-	deleteOutdatedObstacles();
+	if (enableUpdate)
+	{
+		DetectionPoint tabDetection[NB_CAPTEURS];
+		fillDetectionPoints(tabDetection, notrePosition, relativeObstacleMap);
+		interpreteDetectionPoints(tabDetection, notrePosition, positionUncertainty);
+		positionModified = moveRobotToMatchFixedObstacles(tabDetection, notrePosition);
+		moveObstaclesToMatchDetection(tabDetection);
+		deleteUndetectedObstacles(tabDetection, notrePosition);
+		addObstaclesToBeDeterminated(tabDetection, notrePosition);
+		interpreteObstaclesInSight(tabDetection);
+		deleteOutdatedObstacles();
+	}
+	t2 = micros();
+
+	/*
+	Serial.printf("tbs:%d t=%d\n",
+		obstacleMap.toBeSpecified.size(),
+		t2 - t1);
+	//*/
 
 	return positionModified;
+}
+
+void Table::enableUpdateObstacleMap(bool enable)
+{
+	enableUpdate = enable;
+	if (!enable)
+	{
+		obstacleMap.toBeSpecified.clear();
+	}
+}
+
+size_t Table::getToBeSpecifiedLength()
+{
+	return obstacleMap.toBeSpecified.size();
 }
 
 void Table::fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition, const RelativeObstacleMap & relativeObstacleMap)
@@ -300,6 +328,7 @@ void Table::fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const 
 	static Position point;
 	static double theta;
 	static int norme;
+	static float xRotated, yRotated;
 
 	/*
 	##### Placement des points de détection #####
@@ -360,10 +389,10 @@ void Table::fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const 
 	point.x += 37;
 	point.y += 25;
 	theta = notrePosition.orientation;
-	point.x = point.x * cos(theta) - point.y * sin(theta);
-	point.y = point.x * sin(theta) + point.y * cos(theta);
-	point.x += notrePosition.x;
-	point.y += notrePosition.y;
+	xRotated = point.x * cos(theta) - point.y * sin(theta);
+	yRotated = point.x * sin(theta) + point.y * cos(theta);
+	point.x = xRotated + notrePosition.x;
+	point.y = yRotated + notrePosition.y;
 	tabDetection[4].x = point.x;
 	tabDetection[4].y = point.y;
 	tabDetection[4].isAnObstacle = !(relativeObstacleMap.avantGauche == TOF_INFINITY || relativeObstacleMap.avantGauche == 0);
@@ -377,10 +406,10 @@ void Table::fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const 
 	point.x += 37;
 	point.y -= 25;
 	theta = notrePosition.orientation;
-	point.x = point.x * cos(theta) - point.y * sin(theta);
-	point.y = point.x * sin(theta) + point.y * cos(theta);
-	point.x += notrePosition.x;
-	point.y += notrePosition.y;
+	xRotated = point.x * cos(theta) - point.y * sin(theta);
+	yRotated = point.x * sin(theta) + point.y * cos(theta);
+	point.x = xRotated + notrePosition.x;
+	point.y = yRotated + notrePosition.y;
 	tabDetection[5].x = point.x;
 	tabDetection[5].y = point.y;
 	tabDetection[5].isAnObstacle = !(relativeObstacleMap.avantDroit == TOF_INFINITY || relativeObstacleMap.avantDroit == 0);
@@ -394,10 +423,10 @@ void Table::fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const 
 	point.x -= 37;
 	point.y += 25;
 	theta = notrePosition.orientation;
-	point.x = point.x * cos(theta) - point.y * sin(theta);
-	point.y = point.x * sin(theta) + point.y * cos(theta);
-	point.x += notrePosition.x;
-	point.y += notrePosition.y;
+	xRotated = point.x * cos(theta) - point.y * sin(theta);
+	yRotated = point.x * sin(theta) + point.y * cos(theta);
+	point.x = xRotated + notrePosition.x;
+	point.y = yRotated + notrePosition.y;
 	tabDetection[6].x = point.x;
 	tabDetection[6].y = point.y;
 	tabDetection[6].isAnObstacle = !(relativeObstacleMap.arriereGauche == TOF_INFINITY || relativeObstacleMap.arriereGauche == 0);
@@ -411,10 +440,10 @@ void Table::fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const 
 	point.x -= 37;
 	point.y -= 25;
 	theta = notrePosition.orientation;
-	point.x = point.x * cos(theta) - point.y * sin(theta);
-	point.y = point.x * sin(theta) + point.y * cos(theta);
-	point.x += notrePosition.x;
-	point.y += notrePosition.y;
+	xRotated = point.x * cos(theta) - point.y * sin(theta);
+	yRotated = point.x * sin(theta) + point.y * cos(theta);
+	point.x = xRotated + notrePosition.x;
+	point.y = yRotated + notrePosition.y;
 	tabDetection[7].x = point.x;
 	tabDetection[7].y = point.y;
 	tabDetection[7].isAnObstacle = !(relativeObstacleMap.arriereDroit == TOF_INFINITY || relativeObstacleMap.arriereDroit == 0);
@@ -423,6 +452,8 @@ void Table::fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const 
 
 void Table::interpreteDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition, const Position & notreIncertitude)
 {
+	Position incertitudeAugmentee(notreIncertitude.x + NEW_OBSTACLE_RADIUS * 2, notreIncertitude.y + NEW_OBSTACLE_RADIUS * 2, notreIncertitude.orientation);
+
 	for (int i = 0; i < NB_CAPTEURS; i++)
 	{
 		tabDetection[i].associatedObstacleType = NONE;
@@ -474,7 +505,7 @@ void Table::interpreteDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], 
 			// Fixed Visible
 			for (size_t indiceObstacle = 0; indiceObstacle < obstacleMap.fixedVisible.size(); indiceObstacle++)
 			{
-				if (isThisPointThisObstacle(tabDetection[i], obstacleMap.fixedVisible.at(indiceObstacle), notreIncertitude))
+				if (isThisPointThisObstacle(tabDetection[i], obstacleMap.fixedVisible.at(indiceObstacle), incertitudeAugmentee))
 				{
 					tabDetection[i].associatedObstacleType = FIXED_VISIBLE;
 					tabDetection[i].associatedObstacle = indiceObstacle;
@@ -574,25 +605,35 @@ bool Table::moveRobotToMatchFixedObstacles(DetectionPoint tabDetection[NB_CAPTEU
 	if (ABS(position.x) >= 1350 || ABS(position.y - 1000) >= 850)
 	{
 		if (!bordDeTableVisible)
-		{ // Si on ne voit pas le bord de table, on éloigne le robot afin de d(robot, bordDeTable) = 200mm
+		{ // Si on ne voit pas le bord de table, on éloigne le robot afin que d(robot, bordDeTable) = 200mm
 			positionModified = true;
+
+			float xOffset = 0, yOffset = 0;
 
 			if (position.x >= 1350)
 			{
-				position.x = 1300;
+				xOffset = 1300 - position.x;
 			}
 			else if (position.x <= -1350)
 			{
-				position.x = -1300;
+				xOffset = -1300 - position.x;
 			}
 
 			if (position.y >= 1850)
 			{
-				position.y = 1800;
+				yOffset = 1800 - position.y;
 			}
 			else if (position.y <= 150)
 			{
-				position.y = 200;
+				yOffset = 200 - position.y;
+			}
+
+			position.x += xOffset;
+			position.y += yOffset;
+			for (int j = 0; j < NB_CAPTEURS; j++)
+			{
+				tabDetection[j].x += xOffset;
+				tabDetection[j].y += yOffset;
 			}
 		}
 	}
@@ -615,6 +656,18 @@ void Table::moveObstaclesToMatchDetection(DetectionPoint tabDetection[NB_CAPTEUR
 			centre.y -= yOffset;
 			obstacleMap.movableVisible.at(tabDetection[i].associatedObstacle).setCenter(centre);
 		}
+		else if (tabDetection[i].associatedObstacleType == TO_BE_SPECIFIED && tabDetection[i].isReliable)
+		{
+			float xOffset = 0, yOffset = 0;
+			calculateOffsetToMatch(tabDetection[i], xOffset, yOffset);
+
+			Position centre;
+			obstacleMap.toBeSpecified.at(tabDetection[i].associatedObstacle).getCenter(centre);
+			centre.x -= xOffset;
+			centre.y -= yOffset;
+			obstacleMap.toBeSpecified.at(tabDetection[i].associatedObstacle).setCenter(centre);
+		}
+		
 	}
 }
 
@@ -707,6 +760,8 @@ void Table::addObstaclesToBeDeterminated(DetectionPoint tabDetection[NB_CAPTEURS
 			// On revient dans le repère de la table
 			centreObstacle.x += notrePosition.x;
 			centreObstacle.y += notrePosition.y;
+
+			Serial.printf("#NEW#(%d) xd:%g  yd:%g  xO:%g  yO:%g (x:%g  y:%g) t:%d\n", i, xDetection, yDetection, centreObstacle.x, centreObstacle.y, notrePosition.x, notrePosition.y, obstacleMap.toBeSpecified.size());
 
 			Obstacle newObstacle(centreObstacle, CIRCLE);
 			newObstacle.setRadius(NEW_OBSTACLE_RADIUS);

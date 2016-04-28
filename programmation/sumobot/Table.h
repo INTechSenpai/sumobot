@@ -85,6 +85,11 @@ public:
 	*/
 	bool updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, const Position & positionUncertainty);
 
+	void enableUpdateObstacleMap(bool enable);
+
+	//DEBUG
+	size_t getToBeSpecifiedLength();
+
 //private:
 	ObstacleMap obstacleMap;
 
@@ -168,6 +173,11 @@ public:
 		Supprime tous les obstacles étant arrivés en fin de vie
 	*/
 	void deleteOutdatedObstacles();
+
+	/*
+		Permet d'activer/désactiver la mise à jour des obstacles lors de l'appel à updateObstacleMap
+	*/
+	bool enableUpdate;
 };
 
 #endif

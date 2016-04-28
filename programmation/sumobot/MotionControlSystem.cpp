@@ -421,13 +421,16 @@ void MotionControlSystem::manageStop()
 
 void MotionControlSystem::updatePosition() 
 {
-	static volatile int32_t lastDistance = 0;
-	static volatile int32_t lastAngle = 0;
+	static int32_t lastDistance = 0;
+	static int32_t lastAngle = 0;
 
-	float deltaDistanceMm = (currentDistance - lastDistance) * TICK_TO_MM;
+	static float deltaDistanceMm;
+	static float deltaAngleRadian;
+
+	deltaDistanceMm = (currentDistance - lastDistance) * TICK_TO_MM;
 	lastDistance = currentDistance;
 
-	float deltaAngleRadian = (currentAngle - lastAngle) * TICK_TO_RADIAN;
+	deltaAngleRadian = (currentAngle - lastAngle) * TICK_TO_RADIAN;
 	lastAngle = currentAngle;
 
 	currentPosition.orientation += deltaAngleRadian;
@@ -636,7 +639,7 @@ void MotionControlSystem::getPositionUncertainty(Position & positionUncertainty)
 	positionUncertainty = this->positionUncertainty;
 }
 
-void MotionControlSystem::getPWM(int16_t & left, int16_t & right)
+void MotionControlSystem::getPWM(int32_t & left, int32_t & right)
 {
 	left = leftPWM;
 	right = rightPWM;

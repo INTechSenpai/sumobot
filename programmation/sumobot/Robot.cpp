@@ -90,12 +90,14 @@ void Robot::init(Side side)
 	positionInitiale.y = 1150;
 	positionInitiale.orientation = PI / 2;
 
-	incertitudeInitiale.x = 50;
-	incertitudeInitiale.y = 50;
+	incertitudeInitiale.x = 30;
+	incertitudeInitiale.y = 60;
 	incertitudeInitiale.orientation = 0;
 
 	motionControlSystem.setPosition(positionInitiale);
 	motionControlSystem.setPositionUncertainty(incertitudeInitiale);
+
+	table.enableUpdateObstacleMap(true);
 }
 
 void Robot::waitForBegining()
@@ -269,12 +271,13 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 	}
 	newPosition.y = 2000 - (frontDistance * cosFrontAngle);
 	newPosition.orientation = M_PI_2 + frontAngle;
+
 	motionControlSystem.setPosition(newPosition);
 	
 	// On règle également l'incertitude sur la position
 	Position newUncertainty;
-	newUncertainty.x = 10;
-	newUncertainty.y = 10;
+	newUncertainty.x = 50;
+	newUncertainty.y = 50;
 	newUncertainty.orientation = 0;
 	motionControlSystem.setPositionUncertainty(newUncertainty);
 }
@@ -340,7 +343,7 @@ float Robot::calculateFrontAngle(uint32_t gauche, uint32_t droite)
 
 void Robot::scriptCloseDoors(Side side)
 {
-	Position ici, noUncertainty(10, 10, 0);
+	Position ici, noUncertainty(50, 30, 0);
 	motionControlSystem.getPosition(ici);
 
 	// Fermeture de la première porte
@@ -376,6 +379,7 @@ void Robot::scriptCloseDoors(Side side)
 	closeFirstDoor.push_back(pushDoor);
 
 	// Fermeture de la première porte
+	table.enableUpdateObstacleMap(false);
 	motionControlSystem.setTrajectory(closeFirstDoor);
 	while (motionControlSystem.isMoving());
 
@@ -390,6 +394,7 @@ void Robot::scriptCloseDoors(Side side)
 	motionControlSystem.setPosition(ici);
 	motionControlSystem.setPositionUncertainty(noUncertainty);
 
+	table.enableUpdateObstacleMap(true);
 
 	Trajectory closeSecondDoor;
 
@@ -449,6 +454,7 @@ void Robot::scriptCloseDoors(Side side)
 	*/
 
 	// Fermeture de la seconde porte
+	table.enableUpdateObstacleMap(false);
 	motionControlSystem.setTrajectory(closeSecondDoor);
 	while (motionControlSystem.isMoving());
 
@@ -461,4 +467,6 @@ void Robot::scriptCloseDoors(Side side)
 	ici.orientation = -M_PI_2;
 	motionControlSystem.setPosition(ici);
 	motionControlSystem.setPositionUncertainty(noUncertainty);
+	
+	table.enableUpdateObstacleMap(true);
 }

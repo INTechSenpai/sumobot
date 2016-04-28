@@ -48,10 +48,10 @@ private:
 	volatile uint32_t currentMove;
 
 	// Position absolue du robot sur la table (en mm et radians)
-	Position currentPosition;
+	volatile Position currentPosition;
 	
 	// Incertitude absolue sur la position du robot
-	Position positionUncertainty;
+	volatile Position positionUncertainty;
 
 	/*
 	* 		Définition des variables d'état du système (position, vitesse, consigne, ...)
@@ -205,7 +205,7 @@ public:
 	void getPositionUncertainty(Position &);
 
 	/* Getters et setters de débug */
-	void getPWM(int16_t &, int16_t &);
+	void getPWM(int32_t &, int32_t &);
 	void getCurrentSpeed(int32_t &, int32_t &);
 	void getTicks(int32_t &, int32_t &);
 

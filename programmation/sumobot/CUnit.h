@@ -397,56 +397,64 @@ public:
 	void obstacleDetection()
 	{
 		RelativeObstacleMap relativeObstacleMap;
-		sensorMgr.getRelativeObstacleMapNoReset(relativeObstacleMap);
-		table.initObstacleMap(PURPLE);
 		Table::DetectionPoint detectionPoint[NB_CAPTEURS];
 		Position ici;
-		ici.x = -1350;
-		ici.y = 1400;
-		ici.orientation = M_PI_4;
+		ici.x = 1350;
+		ici.y = 1150;
+		ici.orientation = M_PI_2;
 		Position incertitude;
-		incertitude.x = 20;
-		incertitude.y = 20;
+		incertitude.x = 50;
+		incertitude.y = 50;
 		incertitude.orientation = 0.2;
 		
-		table.fillDetectionPoints(detectionPoint, ici, relativeObstacleMap);
-		table.interpreteDetectionPoints(detectionPoint, ici, incertitude);
-
-		for (int i = 0; i < NB_CAPTEURS; i++)
+		while (true)
 		{
-			if (detectionPoint[i].isAnObstacle)
+			sensorMgr.getRelativeObstacleMapNoReset(relativeObstacleMap);
+			table.fillDetectionPoints(detectionPoint, ici, relativeObstacleMap);
+			table.interpreteDetectionPoints(detectionPoint, ici, incertitude);
+			table.moveRobotToMatchFixedObstacles(detectionPoint, ici);
+			table.moveObstaclesToMatchDetection(detectionPoint);
+			table.deleteUndetectedObstacles(detectionPoint, ici);
+			table.addObstaclesToBeDeterminated(detectionPoint, ici);
+			table.deleteOutdatedObstacles();
+			
+
+			for (int i = 0; i < NB_CAPTEURS; i++)
 			{
-				Serial.printf("(%d) x: %g | y: %g | %d\n", i, detectionPoint[i].x, detectionPoint[i].y, detectionPoint[i].isReliable);
-				switch (detectionPoint[i].associatedObstacleType)
+				if (detectionPoint[i].isAnObstacle)
 				{
-				case MOVABLE_VISIBLE:
-					Serial.println("MOVABLE_VISIBLE");
-					break;
-				case MOVABLE_INVISIBLE:
-					Serial.println("MOVABLE_INVISIBLE");
-					break;
-				case FIXED_VISIBLE:
-					Serial.println("FIXED_VISIBLE");
-					break;
-				case FIXED_INVISIBLE:
-					Serial.println("FIXED_INVISIBLE");
-					break;
-				case TO_BE_SPECIFIED:
-					Serial.println("TO_BE_SPECIFIED");
-					break;
-				case OPONENT_ROBOT:
-					Serial.println("OPONENT_ROBOT");
-					break;
-				case NONE:
-					Serial.println("NONE");
-					break;
-				default:
-					break;
+					Serial.printf("(%d) x: %g | y: %g\t[%d]\t", i, detectionPoint[i].x - ici.x, detectionPoint[i].y - ici.y, table.getToBeSpecifiedLength());
+					switch (detectionPoint[i].associatedObstacleType)
+					{
+					case MOVABLE_VISIBLE:
+						Serial.println("MOVABLE_VISIBLE");
+						break;
+					case MOVABLE_INVISIBLE:
+						Serial.println("MOVABLE_INVISIBLE");
+						break;
+					case FIXED_VISIBLE:
+						Serial.println("FIXED_VISIBLE");
+						break;
+					case FIXED_INVISIBLE:
+						Serial.println("FIXED_INVISIBLE");
+						break;
+					case TO_BE_SPECIFIED:
+						Serial.println("TO_BE_SPECIFIED");
+						break;
+					case OPONENT_ROBOT:
+						Serial.println("OPONENT_ROBOT");
+						break;
+					case NONE:
+						Serial.println("NONE");
+						break;
+					default:
+						break;
+					}
 				}
 			}
+			Serial.println();
+			delay(100);
 		}
-		Serial.println();
-		delay(100);
 	}
 
 	void obstacleCreationDeletion()
