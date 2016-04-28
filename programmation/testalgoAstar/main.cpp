@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     goal.orientation = 3.14;
     goal.x = 1000;
-    goal.y = 1000;
+    goal.y = 900;
 
     Trajectory trajectoire = pathfinding.computePath(map, start, goal);
     return 0;

@@ -1,7 +1,7 @@
 #include "pathfinding.h"
 #define ESTSURORDI
 
-Pathfinding::Pathfinding() : distanceParEtape(50.0), coeffOrientation(1000),
+Pathfinding::Pathfinding() : distanceParEtape(100.0), coeffOrientation(1000),
                              rotationAllowed(true), isUsingSimpleTrajectory(false) {
 
     rayonsDeCourbures.push_back(50.0);
@@ -45,8 +45,8 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
             obstaclesSurLaMap[i].setYRadius(obstaclesSurLaMap[i].getYRadius()+100);
         }
         else {
-            obstaclesSurLaMap[i].setXRadius(obstaclesSurLaMap[i].getXRadius()+100);
-            obstaclesSurLaMap[i].setYRadius(obstaclesSurLaMap[i].getYRadius()+100);
+            obstaclesSurLaMap[i].setXRadius(obstaclesSurLaMap[i].getXRadius()-100);
+            obstaclesSurLaMap[i].setYRadius(obstaclesSurLaMap[i].getYRadius()-100);
         }
     }
 
@@ -64,6 +64,13 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
         }
     }
 
+#ifdef ESTSURORDI
+    //Détermine si on est sur un obstacle
+    int goalNumeroObstacle = estSurUnObstacle(goal.x, goal.y);
+    if(goalNumeroObstacle != -1) {
+        std::cout << "le goal est un obstacle non poussable";
+    }
+#endif
 
     //Détermine si il faut passer par un obstacle
 
@@ -185,7 +192,6 @@ Trajectory Pathfinding::Astar(const PositionTrajectoire& start, const PositionTr
         std::cout << " type de trajectoire : " << chemin_solution[i].trajectoire;
         std::cout << std::endl;
     }
-    std::cout << "taille d'openset : " << sizeof(noeud) << std::endl;
 #endif
     //plus besoin d'openset et de closedset
     OpenSet.clear();
