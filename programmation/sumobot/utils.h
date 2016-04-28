@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 int modulo(int nombre, int modulo);
+float square(float x);
 void blink(uint8_t, unsigned int, unsigned int);
 void blinkDelOnBoard(unsigned int, unsigned int);
 

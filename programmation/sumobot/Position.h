@@ -43,6 +43,13 @@ public:
 		this->orientation = orientation;
 	}
 
+	void operator= (volatile const Position & newPosition) volatile
+	{
+		this->x = newPosition.x;
+		this->y = newPosition.y;
+		this->orientation = newPosition.orientation;
+	}
+
 	float x;
 	float y;
 	float orientation;

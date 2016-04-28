@@ -20,7 +20,8 @@ public:
 	CUnit() : 
 		motionControlSystem(MotionControlSystem::Instance()),
 		sensorMgr(SensorMgr::Instance()),
-		robot(Robot::Instance())
+		robot(Robot::Instance()),
+		table(Table::Instance())
 	{
 	};
 
@@ -393,12 +394,98 @@ public:
 		delay(100);
 	}
 
+	void obstacleDetection()
+	{
+		RelativeObstacleMap relativeObstacleMap;
+		Table::DetectionPoint detectionPoint[NB_CAPTEURS];
+		Position ici;
+		ici.x = 1350;
+		ici.y = 1150;
+		ici.orientation = M_PI_2;
+		Position incertitude;
+		incertitude.x = 50;
+		incertitude.y = 50;
+		incertitude.orientation = 0.2;
+		
+		while (true)
+		{
+			sensorMgr.getRelativeObstacleMapNoReset(relativeObstacleMap);
+			table.fillDetectionPoints(detectionPoint, ici, relativeObstacleMap);
+			table.interpreteDetectionPoints(detectionPoint, ici, incertitude);
+			table.moveRobotToMatchFixedObstacles(detectionPoint, ici);
+			table.moveObstaclesToMatchDetection(detectionPoint);
+			table.deleteUndetectedObstacles(detectionPoint, ici);
+			table.addObstaclesToBeDeterminated(detectionPoint, ici);
+			table.deleteOutdatedObstacles();
+			
 
+			for (int i = 0; i < NB_CAPTEURS; i++)
+			{
+				if (detectionPoint[i].isAnObstacle)
+				{
+					Serial.printf("(%d) x: %g | y: %g\t[%d]\t", i, detectionPoint[i].x - ici.x, detectionPoint[i].y - ici.y, table.getToBeSpecifiedLength());
+					switch (detectionPoint[i].associatedObstacleType)
+					{
+					case MOVABLE_VISIBLE:
+						Serial.println("MOVABLE_VISIBLE");
+						break;
+					case MOVABLE_INVISIBLE:
+						Serial.println("MOVABLE_INVISIBLE");
+						break;
+					case FIXED_VISIBLE:
+						Serial.println("FIXED_VISIBLE");
+						break;
+					case FIXED_INVISIBLE:
+						Serial.println("FIXED_INVISIBLE");
+						break;
+					case TO_BE_SPECIFIED:
+						Serial.println("TO_BE_SPECIFIED");
+						break;
+					case OPONENT_ROBOT:
+						Serial.println("OPONENT_ROBOT");
+						break;
+					case NONE:
+						Serial.println("NONE");
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			Serial.println();
+			delay(100);
+		}
+	}
+
+	void obstacleCreationDeletion()
+	{
+		Position ici;
+		ici.x = -920;
+		ici.y = 1400;
+		ici.orientation = M_PI_4;
+		motionControlSystem.setPosition(ici);
+		ObstacleMap obstacleMap;
+		obstacleMap = table.getObstacleMap();
+
+		Position centreObstacle;
+		Serial.println("Begin");
+		for (int i = 0; i < obstacleMap.toBeSpecified.size(); i++)
+		{
+			obstacleMap.toBeSpecified.at(i).getCenter(centreObstacle);
+			Serial.printf("#O# x:%g  y:%g  o:%g  r:%g  ttl:%d  lts:%d\n", 
+				centreObstacle.x, centreObstacle.y, centreObstacle.orientation, 
+				obstacleMap.toBeSpecified.at(i).getRadius(),
+				obstacleMap.toBeSpecified.at(i).getTTL(),
+				obstacleMap.toBeSpecified.at(i).getLastTimeSeen());
+		}
+		delay(100);
+	}
 
 private:
 	MotionControlSystem & motionControlSystem;
 	SensorMgr & sensorMgr;
 	Robot & robot;
+	Table & table;
 
 	char inputBuffer[INPUT_BUFFER_LENGH];
 

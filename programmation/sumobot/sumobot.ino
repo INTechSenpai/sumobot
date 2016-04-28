@@ -12,7 +12,6 @@
 #include "Obstacle.h"
 #include "pathfinding.h"
 
-
 void setup()
 {
 	Serial.begin(9600);
@@ -40,31 +39,25 @@ void loop()
 	sensorThread.priority(128);
 	sensorThread.begin(sensorInterrupt, 25000);
 
-	//*
 	Side side = robot.checkSide();
-	//*/
+	robot.init(side);
 
 	battControlerThread.priority(80);
 	battControlerThread.begin(battControlerInterrupt, 50000);
 
-	robot.waitForBegining();
+	//robot.waitForBegining();
 	robot.driveAlongEdgeOfTable(side, 0.5, 0, 5);
 	robot.scriptCloseDoors(side);
-	/*
-	robot.winMatch(90000);
-	delay(2000);
-	robot.deployUmbrella();
-	//*/
+	//robot.winMatch(90000);
+	//delay(2000);
+	//robot.deployUmbrella();
 
 
-	test.serialInterface();
-	RelativeObstacleMap obstacleMap;
+	//test.serialInterface();
 	while (true)
 	{
-		sensorMgr.getRelativeObstacleMapNoReset(obstacleMap);
-		float angle = robot.calculateFrontAngle(obstacleMap.avantGauche, obstacleMap.avantDroit);
-		Serial.printf("g: %g | d: %g | a: %g\n", (double)(obstacleMap.avantGauche), (double)(obstacleMap.avantDroit), angle);
-		delay(100);
+		//test.obstacleCreationDeletion();
+		//test.obstacleDetection();
 		//test.sensors(false, true, false, false);
 	}
 }
@@ -75,12 +68,17 @@ void loop()
 void motionControlInterrupt()
 {
 	static MotionControlSystem & motionControlSystem = MotionControlSystem::Instance();
-
+	static int compteurUpdatePosition = 1;
 	static int compteurTracker = 1;
 
 	/* Asservissement du robot en vitesse et position */
 	motionControlSystem.control();
-	motionControlSystem.updatePosition();
+	if (compteurUpdatePosition == 10)
+	{
+		motionControlSystem.updatePosition();
+		compteurUpdatePosition = 0;
+	}
+	compteurUpdatePosition++;
 	motionControlSystem.manageStop();
 
 
@@ -106,15 +104,17 @@ void sensorInterrupt()
 	sensorMgr.updateFront();
 	sensorMgr.updateBack();
 	sensorMgr.updateSides();
-	
+
 	sensorMgr.getRelativeObstacleMapNoReset(relativeObstacleMap);
 	motionControlSystem.getPosition(robotPosition);
 	motionControlSystem.getPositionUncertainty(robotPositionUncertainty);
+	//*
 	if (table.updateObstacleMap(relativeObstacleMap, robotPosition, robotPositionUncertainty))
 	{
 		motionControlSystem.setPosition(robotPosition);
 		motionControlSystem.setPositionUncertainty(robotPositionUncertainty);
 	}
+	//*/
 }
 
 
@@ -123,6 +123,14 @@ void battControlerInterrupt()
 {
 	static BattControler battControler;
 	battControler.control();
+
+	// DEBUG
+	/*
+	static MotionControlSystem & motionControlSystem = MotionControlSystem::Instance();
+	static Position ici;
+	motionControlSystem.getPosition(ici);
+	Serial.printf("%g\t%g\t%g\n", ici.x, ici.y, ici.orientation);
+	//*/
 }
 
 

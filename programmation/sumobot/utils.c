@@ -26,6 +26,12 @@ int modulo(int nombre, int modulo)
 	}
 }
 
+// Met x au carré (plus optimisé que pow(x, 2) )
+float square(float x)
+{
+	return x * x;
+}
+
 
 // Fait clignotter la LED de la pin indiquée avec les delais ON/OFF indiqués en ms
 void blink(uint8_t pin, unsigned int periodeON, unsigned int periodeOFF)

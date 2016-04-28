@@ -28,7 +28,7 @@
 
 #define FREQ_ASSERV			2000	// Fréquence d'asservissement (en Hz)
 #define AVERAGE_SPEED_SIZE	50		// Nombre de valeurs à utiliser dans le calcul de la moyenne glissante permettant de lisser la mesure de vitesse
-#define TRACKER_SIZE		2	 	// Nombre d'états consécutifs du système à stocker pour le débug
+#define TRACKER_SIZE		1	 	// Nombre d'états consécutifs du système à stocker pour le débug
 
 #define ERROR_AFTER_ROTATION	0.02	// Incrément de l'erreur sur l'orientation après une rotation pure, en radians
 #define ERROR_AFTER_TRANSLATION	0.002	// Incrément de l'erreur sur l'orientation après une trajectoire courbe, en radians
@@ -48,10 +48,10 @@ private:
 	volatile uint32_t currentMove;
 
 	// Position absolue du robot sur la table (en mm et radians)
-	Position currentPosition;
+	volatile Position currentPosition;
 	
 	// Incertitude absolue sur la position du robot
-	Position positionUncertainty;
+	volatile Position positionUncertainty;
 
 	/*
 	* 		Définition des variables d'état du système (position, vitesse, consigne, ...)
@@ -205,7 +205,7 @@ public:
 	void getPositionUncertainty(Position &);
 
 	/* Getters et setters de débug */
-	void getPWM(int16_t &, int16_t &);
+	void getPWM(int32_t &, int32_t &);
 	void getCurrentSpeed(int32_t &, int32_t &);
 	void getTicks(int32_t &, int32_t &);
 

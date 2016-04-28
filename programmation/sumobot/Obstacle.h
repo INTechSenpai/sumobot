@@ -22,6 +22,8 @@ enum ObstacleShape
 class Obstacle
 {
 public:
+	Obstacle() {}; // Constructeur par défaut (à éviter) 
+
 	Obstacle(Position & center, ObstacleShape circleOrRectangle)
 	{
 		this->center = center;
@@ -76,6 +78,24 @@ public:
 	void justSeen() // 'setter' de l'attibut lastTimeSeen
 	{
 		lastTimeSeen = millis();
+	}
+
+	void decreaseTTL(uint32_t value) // Permet de diminuer le TimeToLive d'un certain nombre de ms
+	{
+		if (timeToLive > value)
+			timeToLive -= value;
+		else
+			timeToLive = 0;
+	}
+
+	uint32_t getTTL()
+	{
+		return timeToLive;
+	}
+
+	void setTTL(uint32_t ttl)
+	{
+		timeToLive = ttl;
 	}
 
 	uint32_t getLastTimeSeen()
@@ -158,7 +178,7 @@ private:
 
 	bool toPush; // Indique si cet obstacle doit être poussé au lieu d'être évité. Un seul obstacle peut être poussé à la fois
 	static bool anObstacleIsPushed;
-	float orientationToPush;	// Désigne l'orientation que le robot doit avoir au moment où il entre en contact avec l'obstacle pour le pousser. La valeur est comprise entre 0 et 2pi
+	float orientationToPush;	// Désigne l'orientation que le robot doit avoir au moment où il entre en contact avec l'obstacle pour le pousser. La valeur est comprise entre 0 et 2pi (+ les valeurs spéciales)
 
 	ObstacleShape type; // Indique si la forme de l'obstacle est un CERCLE, un RECTANGLE, ou bien un EDGE_OF_TABLE (un rectangle dont la zone interdite est l'extérieur)
 	uint8_t priority;	// Correspond à une quantité de points rapportés par l'objet s'il est rapporté par le robot. Par défaut : 0
@@ -184,6 +204,19 @@ public:
 	std::vector<Obstacle> movableVisible;	// Obstacles déplaçables par le robot et détectables
 	std::vector<Obstacle> movableInvisible;	// Obstacles déplaçables par le robot mais invisibles
 	std::vector<Obstacle> toBeSpecified;	// Obstacles ayant été vus par les capteurs mais pas encore interprétés
+};
+
+
+/* Permet de désigner les différents types d'obstacles */
+enum ObstacleType
+{
+	NONE,
+	FIXED_VISIBLE,
+	FIXED_INVISIBLE,
+	MOVABLE_VISIBLE,
+	MOVABLE_INVISIBLE,
+	OPONENT_ROBOT,
+	TO_BE_SPECIFIED
 };
 
 
