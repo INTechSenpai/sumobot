@@ -4,7 +4,6 @@
 Pathfinding::Pathfinding() : distanceParEtape(100.0), coeffOrientation(1000),
                              rotationAllowed(true), isUsingSimpleTrajectory(false) {
 
-    rayonsDeCourbures.push_back(50.0);
     rayonsDeCourbures.push_back(150.0);
     rayonsDeCourbures.push_back(500.0);
 }
@@ -12,15 +11,18 @@ Pathfinding::Pathfinding() : distanceParEtape(100.0), coeffOrientation(1000),
 
 Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& start, const Position& goal) {
 
+    //on autorise les rotations par défaut
+    rotationAllowed = true;
+
     //transforme Position en PositionTrajectoire
     PositionTrajectoire Astart;
-    Astart.orientation = start.orientation;
+    Astart.orientation = fmod(start.orientation, 2*M_PI);
     Astart.x = start.x;
     Astart.y = start.y;
     Astart.trajectoire = Depart;
 
     PositionTrajectoire Agoal;
-    Agoal.orientation = goal.orientation;
+    Agoal.orientation = fmod(goal.orientation, 2*M_PI);
     Agoal.x = goal.x;
     Agoal.y = goal.y;
     Agoal.trajectoire = Depart;
@@ -49,7 +51,6 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
             obstaclesSurLaMap[i].setYRadius(obstaclesSurLaMap[i].getYRadius()-100);
         }
     }
-
 
     //Détermine si on est sur un obstacle
     int numeroObstacle = estSurUnObstacle(start.x, start.y);
@@ -100,7 +101,6 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
 
 
         //puis appel de l'algorithme A* deux fois et concaténation du résultat
-        rotationAllowed = true;
         Trajectory startToObject = Astar(Astart, obstaclePosition);
 
         //deuxième appel en évitant les rotations trop importantes
@@ -116,6 +116,10 @@ Trajectory Pathfinding::computePath(const ObstacleMap& map, const Position& star
             //concaténation
             startToObject.insert(startToObject.end(), objectToGoal.begin(), objectToGoal.end());
             return startToObject;
+        }
+        else {
+            Trajectory trajectory;
+            return trajectory;
         }
 
 
@@ -192,6 +196,7 @@ Trajectory Pathfinding::Astar(const PositionTrajectoire& start, const PositionTr
         std::cout << " type de trajectoire : " << chemin_solution[i].trajectoire;
         std::cout << std::endl;
     }
+    std::cout << "taille d'openset : " << OpenSet.size() << std::endl;
 #endif
     //plus besoin d'openset et de closedset
     OpenSet.clear();
