@@ -114,9 +114,8 @@ void sensorInterrupt()
 		motionControlSystem.setPosition(robotPosition);
 		motionControlSystem.setPositionUncertainty(robotPositionUncertainty);
 	}
-
 	// Evitement
-	bool pause = !table.isTrajectoryAllowed(motionControlSystem.getTrajectory(), motionControlSystem.getCurrentMove(), robotPosition, motionControlSystem.getMoveProgress());
+	bool pause = !table.isTrajectoryAllowed(motionControlSystem.getTrajectory(), motionControlSystem.getCurrentMove());
 	if (pause)
 	{
 		Serial.println("STOP YOU FOOL");

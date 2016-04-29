@@ -292,16 +292,63 @@ bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, P
 		moveObstaclesToMatchDetection(tabDetection);
 		deleteUndetectedObstacles(tabDetection, notrePosition);
 		addObstaclesToBeDeterminated(tabDetection, notrePosition);
-		interpreteObstaclesInSight(tabDetection, notrePosition);
 		deleteOutdatedObstacles();
+		updateMoveAllowed(tabDetection, relativeObstacleMap);
+		/*
+		for (int i = 0; i < NB_CAPTEURS; i++)
+		{
+			if (tabDetection[i].associatedObstacleType == FIXED_VISIBLE)
+			{
+				Serial.printf(" y=%g ", notrePosition.y);
+				Serial.printf("(%d) [x: %g  y: %g] ", i, tabDetection[i].x, tabDetection[i].y);
+				if (tabDetection[i].isAnObstacle)
+				{
+					
+					switch (tabDetection[i].associatedObstacleType)
+					{
+					case FIXED_VISIBLE:
+						Serial.print("FIXED_VISIBLE");
+						break;
+					case FIXED_INVISIBLE:
+						Serial.print("FIXED_INVISIBLE");
+						break;
+					case MOVABLE_VISIBLE:
+						Serial.print("MOVABLE_VISIBLE");
+						break;
+					case MOVABLE_INVISIBLE:
+						Serial.print("MOVABLE_INVISIBLE");
+						break;
+					case OPONENT_ROBOT:
+						Serial.print("OPONENT_ROBOT");
+						break;
+					case TO_BE_SPECIFIED:
+						Serial.print("TO_BE_SPECIFIED");
+						break;
+					case NONE:
+						Serial.print("NONE");
+						break;
+					default:
+						break;
+					}
+					
+				}
+				else
+				{
+					Serial.print("horizon");
+				}
+				Serial.println();
+				Serial.printf("av: %d  ar: %d\n", forwardMoveAllowed, backwardMoveAllowed);
+			}
+		}
+		Serial.println();
+		//*/
+	}
+	else
+	{
+		forwardMoveAllowed = true;
+		backwardMoveAllowed = true;
 	}
 	t2 = micros();
-
-	/*
-	Serial.printf("tbs:%d t=%d\n",
-		obstacleMap.toBeSpecified.size(),
-		t2 - t1);
-	//*/
 
 	return positionModified;
 }
@@ -452,7 +499,7 @@ void Table::fillDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const 
 
 void Table::interpreteDetectionPoints(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition, const Position & notreIncertitude)
 {
-	Position incertitudeAugmentee(notreIncertitude.x + NEW_OBSTACLE_RADIUS * 2, notreIncertitude.y + NEW_OBSTACLE_RADIUS * 2, notreIncertitude.orientation);
+	Position incertitudeAugmentee(notreIncertitude.x + NEW_OBSTACLE_RADIUS, notreIncertitude.y + NEW_OBSTACLE_RADIUS, notreIncertitude.orientation);
 
 	for (int i = 0; i < NB_CAPTEURS; i++)
 	{
@@ -678,7 +725,7 @@ void Table::deleteUndetectedObstacles(DetectionPoint tabDetection[NB_CAPTEURS], 
 	ObstacleShape shape;
 
 	for (int i = 0; i < NB_CAPTEURS; i++)
-	{// TODO faire confiance aux IR classiques à courte distance
+	{
 		if (!tabDetection[i].isAnObstacle && tabDetection[i].isReliable)
 		{
 			for (size_t j = 0; j < obstacleMap.movableVisible.size(); j++)
@@ -775,56 +822,6 @@ void Table::addObstaclesToBeDeterminated(DetectionPoint tabDetection[NB_CAPTEURS
 	}
 }
 
-void Table::interpreteObstaclesInSight(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition)
-{
-	// Si les deux capteurs ToF avant détectent un 'ToBeSpecified'
-	if (tabDetection[4].associatedObstacleType == TO_BE_SPECIFIED && tabDetection[5].associatedObstacleType == TO_BE_SPECIFIED)
-	{
-		if (tabDetection[0].associatedObstacleType == TO_BE_SPECIFIED)
-		{
-			specifyAsOponentRobot(tabDetection[4].associatedObstacle, tabDetection[0].associatedObstacle, tabDetection[5].associatedObstacle, notrePosition);
-			return;
-		}
-		else
-		{
-			specifyAsOponentRobot(tabDetection[4].associatedObstacle, tabDetection[4].associatedObstacle, tabDetection[5].associatedObstacle, notrePosition);
-			return;
-		}
-	}
-
-	// Si les deux capteurs ToF arrière détectent un 'ToBeSpecified'
-	if (tabDetection[6].associatedObstacleType == TO_BE_SPECIFIED && tabDetection[7].associatedObstacleType == TO_BE_SPECIFIED)
-	{
-		if (tabDetection[1].associatedObstacleType == TO_BE_SPECIFIED)
-		{
-			specifyAsOponentRobot(tabDetection[6].associatedObstacle, tabDetection[1].associatedObstacle, tabDetection[7].associatedObstacle, notrePosition);
-			return;
-		}
-		else
-		{
-			specifyAsOponentRobot(tabDetection[6].associatedObstacle, tabDetection[6].associatedObstacle, tabDetection[7].associatedObstacle, notrePosition);
-			return;
-		}
-	}
-
-	if ((!tabDetection[4].isAnObstacle && !tabDetection[5].isAnObstacle) && tabDetection[0].associatedObstacleType == TO_BE_SPECIFIED)
-	{
-		if (square(tabDetection[0].x - notrePosition.x) + square(tabDetection[0].y - notrePosition.y) < square(TOF_INFINITY))
-		{
-			specifyAsMovable(tabDetection[0].associatedObstacle);
-			return;
-		}
-	}
-
-	if ((!tabDetection[6].isAnObstacle && !tabDetection[7].isAnObstacle) && tabDetection[1].associatedObstacleType == TO_BE_SPECIFIED)
-	{
-		if (square(tabDetection[1].x - notrePosition.x) + square(tabDetection[1].y - notrePosition.y) < square(TOF_INFINITY))
-		{
-			specifyAsMovable(tabDetection[1].associatedObstacle);
-			return;
-		}
-	}
-}
 
 void Table::calculateOffsetToMatch(const DetectionPoint & detectionPoint, float & xOffset, float & yOffset)
 {
@@ -973,67 +970,26 @@ void Table::deleteOutdatedObstacles()
 	}
 }
 
-void Table::specifyAsOponentRobot(size_t leftObstacle, size_t frontObstacle, size_t rightObstacle, const Position & notrePosition)
+void Table::updateMoveAllowed(DetectionPoint tabDetection[NB_CAPTEURS], const RelativeObstacleMap & relativeObstacleMap)
 {
-	Position centreObstacle;
-	obstacleMap.toBeSpecified.at(frontObstacle).getCenter(centreObstacle);
-	Position centreRobotAdverse;
-	float distanceRobotObstacle = sqrt(square(centreObstacle.x - notrePosition.x) + square(centreObstacle.y - notrePosition.y));
+	forwardMoveAllowed = true;
+	backwardMoveAllowed = true;
 
-	//On se place dans un repère centré sur notre robot
-	centreRobotAdverse.x = centreObstacle.x - notrePosition.x;
-	centreRobotAdverse.y = centreObstacle.y - notrePosition.y;
-	centreRobotAdverse.orientation = 0;
-
-	float homotetie = (distanceRobotObstacle + OPONENT_RADIUS - obstacleMap.toBeSpecified.at(frontObstacle).getRadius()) / distanceRobotObstacle;
-
-	centreRobotAdverse.x *= homotetie;
-	centreRobotAdverse.y *= homotetie;
-
-	//On revient dans le repère de la table
-	centreRobotAdverse.x += notrePosition.x;
-	centreRobotAdverse.y += notrePosition.y;
-
-	Obstacle robotAdverse(centreRobotAdverse, CIRCLE);
-	robotAdverse.setRadius(OPONENT_RADIUS);
-	robotAdverse.setTTL(TTL_OPONENT_ROBOT);
-	robotAdverse.justSeen();
-
-	// On trie les indices, pour les supprimer dans un ordre qui ne pose pas problème... --"
-	size_t tabIndice[3];
-	tabIndice[0] = leftObstacle;
-	tabIndice[1] = frontObstacle;
-	tabIndice[2] = rightObstacle;
-
-	for (int i = 0; i <= 1; i++)
+	// Capteurs AVANT
+	if ((tabDetection[4].associatedObstacleType == TO_BE_SPECIFIED || tabDetection[5].associatedObstacleType == TO_BE_SPECIFIED) ||
+		(relativeObstacleMap.avantGauche <= CONTACT_OBSTACLE || relativeObstacleMap.avantDroit <= CONTACT_OBSTACLE)
+		)
 	{
-		int indiceMax = i;
-		for (int j = i + 1; j <= 2; j++)
-		{
-			if (tabIndice[j] > tabIndice[indiceMax])
-			{
-				indiceMax = j;
-			}
-		}
-		size_t mem = tabIndice[i];
-		tabIndice[i] = tabIndice[indiceMax];
-		tabIndice[indiceMax] = mem;
+		forwardMoveAllowed = false;
 	}
 
-	obstacleMap.toBeSpecified.erase(obstacleMap.toBeSpecified.begin() + tabIndice[0]);
-	for (int i = 1; i < 3; i++)
+	// Capteurs ARRIERE
+	if ((tabDetection[6].associatedObstacleType == TO_BE_SPECIFIED || tabDetection[7].associatedObstacleType == TO_BE_SPECIFIED) ||
+		(relativeObstacleMap.arriereGauche <= CONTACT_OBSTACLE || relativeObstacleMap.arriereDroit <= CONTACT_OBSTACLE)
+		)
 	{
-		if (tabIndice[i - 1] != tabIndice[i])
-			obstacleMap.toBeSpecified.erase(obstacleMap.toBeSpecified.begin() + tabIndice[i]);
+		backwardMoveAllowed = false;
 	}
-
-	obstacleMap.oponentRobot.push_back(robotAdverse);
-}
-
-void Table::specifyAsMovable(size_t indiceObstacle)
-{
-	obstacleMap.movableVisible.push_back(obstacleMap.toBeSpecified.at(indiceObstacle));
-	obstacleMap.toBeSpecified.erase(obstacleMap.toBeSpecified.begin() + indiceObstacle);
 }
 
 bool Table::isObstacleOnTrajectory(const Obstacle & obstacle, const UnitMove & unitMove, const Position & notrePosition, float moveProgress)
@@ -1059,123 +1015,31 @@ bool Table::isObstacleOnTrajectory(const Obstacle & obstacle, const UnitMove & u
 		moveLength = -300;
 	}
 
-
-
 	if (unitMove.getBendRadiusTicks() == 0)
 	{
 		return false;
 	}
 	else
 	{
-		// On calcule les coordonnées du point C, centre du cercle sur lequel on se déplace.
-		Position centreCourbure;
-		centreCourbure.x = -sin(notrePosition.orientation) * unitMove.getBendRadiusMm();
-		centreCourbure.y = cos(notrePosition.orientation) * unitMove.getBendRadiusMm();
-
-		// Vérification de l'existence de points d'intersection
-		if (square(centreCourbure.x - centreObstacle.x) + square(centreCourbure.y - centreObstacle.y) > square(unitMove.getBendRadiusMm() + rObstacle))
-		{// Pas de point d'intersection
-			return false;
-		}
-
-		// Calcul des coordonnées des points d'intersections des deux cercles (trajectoire et obstacle)
-		float a = 2 * (centreCourbure.x - centreObstacle.x);
-		float sqA = square(a);
-		float b = 2 * (centreCourbure.y - centreObstacle.y);
-		if (b == 0)
-		{// Permet d'éviter les cas spéciaux sans perte de précision
-			b = 1;// (uinté : mm)
-		}
-		float sqB = square(b);
-		float c = square(centreCourbure.x - centreObstacle.x) + square(centreCourbure.y - centreObstacle.y) - square(unitMove.getBendRadiusMm()) + square(rObstacle);
-		float sqC = square(c);
-		float delta = 4 * sqA * sqC - (4 * (sqA + sqB) * (sqC - sqB * square(rObstacle)));
-
-		if (delta < 0 || (a == 0 && b == 0))
-		{
-			return false;
-		}
-
-		// Positions des points d'intersection
-		Position I1, I2;
-
-		I1.x = centreObstacle.x + (2*a*c - sqrt(delta)) / (2 * (sqA + sqB));
-		I2.x = centreObstacle.x + (2*a*c + sqrt(delta)) / (2 * (sqA + sqB));
-
-		I1.y = centreObstacle.y + (c - a * (I1.x - centreObstacle.x)) / b;
-		I2.y = centreObstacle.y + (c - a * (I2.x - centreObstacle.x)) / b;
-
-
-		// Le point R : notre position
-		// Le point F : la fin de notre mouvement unitaire
-		// Les vecteurs CR et CF représentent respectivement les délimitations du début et de la fin de l'arc trajectoire.
-		Position CR;
-		CR.x = notrePosition.x - centreCourbure.x;
-		CR.y = notrePosition.y - centreCourbure.y;
-
-		// Soit alpha l'angle orienté entre CR et CF
-		float alpha = moveLength / unitMove.getBendRadiusMm();
-		float cosAlpha = cos(alpha);
-		float sinAlpha = sin(alpha);
-
-		Position CF;
-		CF.x = CR.x * cosAlpha - CR.y * sinAlpha;
-		CF.y = CR.x * sinAlpha + CR.y * cosAlpha;
-
-		// On fait subir une rotation de +PI/2 à CF et CR afin d'avoir leurs horthogonaux
-		float mem;
-		mem = CR.x;
-		CR.x = -CR.y;
-		CR.y = mem;
-		mem = CF.x;
-		CF.x = -CF.y;
-		CF.y = mem;
-
-		// On transforme les points I1 et I2 en des vecteurs CI1 et CI2
-		I1.x -= centreCourbure.x;
-		I1.y -= centreCourbure.y;
-		I2.x -= centreCourbure.x;
-		I2.y -= centreCourbure.y;
-
-		bool obstacleOnTrajectory;
-		if (moveLength * unitMove.getBendRadiusTicks() < 0)
-		{
-			obstacleOnTrajectory =
-				(CF.x * I1.x + CF.y * I1.y > 0 && CR.x * I1.x + CR.y * I1.y < 0) ||
-				(CF.x * I2.x + CF.y * I2.y > 0 && CR.x * I2.x + CR.y * I2.y < 0);
-		}
-		else
-		{
-			obstacleOnTrajectory =
-				(CF.x * I1.x + CF.y * I1.y < 0 && CR.x * I1.x + CR.y * I1.y > 0) ||
-				(CF.x * I2.x + CF.y * I2.y < 0 && CR.x * I2.x + CR.y * I2.y > 0);
-		}
-
-		return obstacleOnTrajectory;
+		float xHorizon, yHorizon;
+		xHorizon = cos(notrePosition.orientation) * moveLength + notrePosition.x;
+		yHorizon = sin(notrePosition.orientation) * moveLength + notrePosition.y;
+		return isObstacleInSight(notrePosition, centreObstacle, square(rObstacle), xHorizon, yHorizon);
 	}
 }
 
-bool Table::isTrajectoryAllowed(const Trajectory & trajectory, uint32_t currentMove, const Position & notrePosition, float moveProgress)
+bool Table::isTrajectoryAllowed(const Trajectory & trajectory, uint32_t currentMove)
 {
 	if (currentMove < trajectory.size())
 	{
-		for (int i = 0; i < obstacleMap.oponentRobot.size(); i++)
+		if (trajectory.at(currentMove).getLengthTicks() >= 0)
 		{
-			if (isObstacleOnTrajectory(obstacleMap.oponentRobot.at(i), trajectory.at(currentMove), notrePosition, moveProgress))
-			{
-				return false;
-			}
+			return forwardMoveAllowed;
 		}
-
-		for (int i = 0; i < obstacleMap.toBeSpecified.size(); i++)
+		else
 		{
-			if (isObstacleOnTrajectory(obstacleMap.toBeSpecified.at(i), trajectory.at(currentMove), notrePosition, moveProgress))
-			{
-				return false;
-			}
+			return backwardMoveAllowed;
 		}
-
-		return true;
 	}
 	else
 	{

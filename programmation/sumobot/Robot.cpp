@@ -246,7 +246,9 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 		frontDistance = calculateFrontDistance(allValues.avantGauche, allValues.avant, allValues.avantDroit);
 
 		while (millis() - beginTime < delaiAsservissement);
-	} while (frontDistance > 300 || notrePosition.y < 1650);
+	} while (frontDistance > 300 || notrePosition.y < 1560);
+	Serial.println(frontDistance);
+	Serial.println(notrePosition.y);
 	
 	// Mouvement final (permettant l'arrêt)
 	trajectoireAsservie.at(0).setBendRadiusMm(INFINITE_RADIUS);

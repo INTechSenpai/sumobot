@@ -56,11 +56,12 @@ VIOLETTE		|					 ║						 |
 
 /* Valeurs des rayons des obstacles à créer, en mm */
 #define NEW_OBSTACLE_RADIUS		38
-#define OPONENT_RADIUS			100
 
 /* Rayon extérieur du robot, utilisé pour l'évitement, en mm */
 #define ROBOT_EXT_RADIUS		100
 
+/* Distance mesurée par les ToF en cas de contact très imminent */
+#define CONTACT_OBSTACLE		20
 
 class Table : public Singleton<Table>
 {
@@ -95,7 +96,7 @@ public:
 	Renvoie vrai si et seulement si le UnitMove courant de la Trajectory donnée est un mouvement autorisé par notre politique d'évitement.
 	A savoir : interdiction d'entrer en colision avec les obstacles de 'ToBeDeterminated' et 'OponentRobot'
 	*/
-	bool isTrajectoryAllowed(const Trajectory & trajectory, uint32_t currentMove, const Position & notrePosition, float moveProgress);
+	bool isTrajectoryAllowed(const Trajectory & trajectory, uint32_t currentMove);
 
 	//DEBUG
 	size_t getToBeSpecifiedLength();
@@ -165,12 +166,6 @@ public:
 	void addObstaclesToBeDeterminated(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition);
 
 	/*
-		Interprète les obstacles 'ToBeDeterminated' étant en vue. En les transformant éventuellement en 'OponentRobot' ou 'MovableVisible'
-		ATTENTION : après l'appel à cette fonction, les 'detectionPoint' qui pointaient vers un obstacle ne sont potentiellement plus valides
-	*/
-	void interpreteObstaclesInSight(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition);
-
-	/*
 		Calcule les offsets (x,y) à appliquer à un point de détection afin qu'il soit cohérent avec l'obstacle associé
 	*/
 	void calculateOffsetToMatch(const DetectionPoint & detectionPoint, float & xOffset, float & yOffset);
@@ -191,18 +186,15 @@ public:
 	bool enableUpdate;
 
 	/*
-		Transforme les trois obstacles ToBeSpecified dont les indices sont passés en argument en un unique obstacle OponentRobot
-		Les obstacles doivent être circulaires
-		Les trois obstacles sont supprimés. Les indices donnés peuvent pointer vers un même obstacle.
-		Le nouvel obstacle correspond au 'frontObstacle' agrandi et éloigné
+		Indique si les mouvements avant/arrière sont autorisés étant donné les valeurs des capteurs avant
 	*/
-	void specifyAsOponentRobot(size_t leftObstacle, size_t frontObstacle, size_t rightObstacle, const Position & notrePosition);
+	bool forwardMoveAllowed;
+	bool backwardMoveAllowed;
 
 	/*
-		Transforme l'obstacle ToBeSpecified dont l'indice est passé en argument en un MovableVisible (élément de jeu)
-		Ne modifie pas les attributs de l'obstacle.
+		Met à jour les valeurs de 'forwardMoveAllowed' et 'backwardMoveAllowed'
 	*/
-	void specifyAsMovable(size_t indiceObstacle);
+	void updateMoveAllowed(DetectionPoint tabDetection[NB_CAPTEURS], const RelativeObstacleMap & relativeObstacleMap);
 
 	bool isObstacleOnTrajectory(const Obstacle & obstacle, const UnitMove & unitMove, const Position & notrePosition, float moveProgress);
 };

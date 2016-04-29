@@ -491,7 +491,7 @@ float MotionControlSystem::getMoveProgress()
 {
 	if (currentMove < currentTrajectory.size())
 	{
-		return 1 - ABS((currentDistance - translationSetpoint) / currentTrajectory.at(currentMove).getLengthTicks());
+		return 1 - ABS((float)(currentDistance - translationSetpoint) / (float)currentTrajectory.at(currentMove).getLengthTicks());
 	}
 	else
 	{
