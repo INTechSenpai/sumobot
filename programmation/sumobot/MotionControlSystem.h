@@ -101,6 +101,7 @@ private:
 	// Variables d'état du mouvement
 	volatile bool moving;
 	volatile bool blocked;
+	volatile bool paused;
 
 	// Variables d'activation des différents PID
 	volatile bool positionControlled;	//  Asservissement en position
@@ -172,6 +173,7 @@ public:
 
 	/* Gestion des déplacements */
 	void setTrajectory(const Trajectory&);
+	const Trajectory & getTrajectory() const;
 	uint32_t getCurrentMove();
 	void deployMove(); // permet de déployer les pelles du robot (à faire en début de match)
 	void resetMove(); // permet de ranger les pelles du robot (à faire pendant la préparation du match)
@@ -180,6 +182,8 @@ public:
 	bool isBlocked() const;
 	void stop();
 	void setRawPWM(int16_t, int16_t);
+	void setPause(bool); // activer ou non la pause
+	float getMoveProgress(); // renvoie le pourcentage de complétion du mouvement unitaire courant
 
 private:
 	void nextMove();

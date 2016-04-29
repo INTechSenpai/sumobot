@@ -416,6 +416,7 @@ public:
 			table.moveObstaclesToMatchDetection(detectionPoint);
 			table.deleteUndetectedObstacles(detectionPoint, ici);
 			table.addObstaclesToBeDeterminated(detectionPoint, ici);
+			table.interpreteObstaclesInSight(detectionPoint, ici);
 			table.deleteOutdatedObstacles();
 			
 

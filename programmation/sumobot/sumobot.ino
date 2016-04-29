@@ -108,13 +108,20 @@ void sensorInterrupt()
 	sensorMgr.getRelativeObstacleMapNoReset(relativeObstacleMap);
 	motionControlSystem.getPosition(robotPosition);
 	motionControlSystem.getPositionUncertainty(robotPositionUncertainty);
-	//*
+
 	if (table.updateObstacleMap(relativeObstacleMap, robotPosition, robotPositionUncertainty))
 	{
 		motionControlSystem.setPosition(robotPosition);
 		motionControlSystem.setPositionUncertainty(robotPositionUncertainty);
 	}
-	//*/
+
+	// Evitement
+	bool pause = !table.isTrajectoryAllowed(motionControlSystem.getTrajectory(), motionControlSystem.getCurrentMove(), robotPosition, motionControlSystem.getMoveProgress());
+	if (pause)
+	{
+		Serial.println("STOP YOU FOOL");
+	}
+	motionControlSystem.setPause(pause);
 }
 
 

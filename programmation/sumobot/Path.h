@@ -25,9 +25,9 @@
 
 
 /* Le rayon "infini" permet de définir une trajectoire rectiligne
-	(l'unité de cette constante est le Ticks, mais du coup à fortiori ça marchera si c'est des mm ^^)
+	(l'unité de cette constante est le Ticks)
  */
-#define INFINITE_RADIUS 424242424
+#define INFINITE_RADIUS 42424
 
 /* Un mouvement élémentaire est représenté par un rayon de courbure et une longueur
 	Toutes les unités sont en ticks (unité de longueur ou d'angle selon le contexte).
@@ -83,15 +83,15 @@ public:
 	{
 		length = lengthRadians / TICK_TO_RADIAN;
 	}
-	int32_t getLengthMm()
+	int32_t getLengthMm() const
 	{
 		return length * TICK_TO_MM;
 	}
-	int32_t getLengthTicks()
+	int32_t getLengthTicks() const
 	{
 		return length;
 	}
-	float getLengthRadians()
+	float getLengthRadians() const
 	{
 		return length * TICK_TO_RADIAN;
 	}
@@ -113,11 +113,11 @@ public:
 	{
 		bendRadius = bendRadiusTicks;
 	}
-	int32_t getBendRadiusMm()
+	int32_t getBendRadiusMm() const
 	{
 		return bendRadius * TICK_TO_MM;
 	}
-	int32_t getBendRadiusTicks()
+	int32_t getBendRadiusTicks() const
 	{
 		return bendRadius;
 	}
@@ -130,11 +130,11 @@ public:
 	{
 		speed = speedTicks_S;
 	}
-	int32_t getSpeedMm_S()
+	int32_t getSpeedMm_S() const
 	{
 		return speed * TICK_TO_MM;
 	}
-	int32_t getSpeedTicks_S()
+	int32_t getSpeedTicks_S() const
 	{
 		return speed;
 	}

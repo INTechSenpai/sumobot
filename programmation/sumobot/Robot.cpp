@@ -190,12 +190,13 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 	volatile int32_t aimValue;		// Distance voulue, en mm
 	volatile int32_t output = 0;	// Indique à quel point il faudra tourner.
 	int32_t frontDistance;			// Distance au bord faisant face au robot, indiquant quand il faudra s'arrêter
+	Position notrePosition;
 
 	PID sensorPID(&sensorValue, &output, &aimValue); // PID pour asservissement sur la distance au bord de table;
 
 	Trajectory trajectoireAsservie;
 	UnitMove courbeAsservie;
-	courbeAsservie.setLengthMm(100); // Longueur suffisante pour que le mouvement ne se termine pas entre deux asservissements de trajectoire
+	courbeAsservie.setLengthMm(200); // Longueur suffisante pour que le mouvement ne se termine pas entre deux asservissements de trajectoire
 	courbeAsservie.setBendRadiusMm(INFINITE_RADIUS); // Valeur initiale, qui sera modifiée par le PID
 	courbeAsservie.setSpeedMm_S(250); // Vitesse du mouvement, la vitesse la plus fiable et testée a été choisie
 	courbeAsservie.stopAfterMove = false; // Inutile de s'arrêter entre les mouvements
@@ -240,11 +241,12 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 			trajectoireAsservie.at(0).setBendRadiusMm(20000 / output);
 		}
 		motionControlSystem.setTrajectory(trajectoireAsservie);
+		motionControlSystem.getPosition(notrePosition);
 
 		frontDistance = calculateFrontDistance(allValues.avantGauche, allValues.avant, allValues.avantDroit);
 
 		while (millis() - beginTime < delaiAsservissement);
-	} while (frontDistance > 300);
+	} while (frontDistance > 300 || notrePosition.y < 1650);
 	
 	// Mouvement final (permettant l'arrêt)
 	trajectoireAsservie.at(0).setBendRadiusMm(INFINITE_RADIUS);
@@ -352,7 +354,7 @@ void Robot::scriptCloseDoors(Side side)
 	// Etape 1 : aller jusqu'à la première porte
 	UnitMove goToDoor;
 	if (side == GREEN)
-		goToDoor.setBendRadiusMm(150);
+		goToDoor.setBendRadiusMm(130);
 	else
 		goToDoor.setBendRadiusMm(-150);
 	goToDoor.setLengthMm(120);
@@ -373,7 +375,7 @@ void Robot::scriptCloseDoors(Side side)
 		pushDoor.setBendRadiusMm(-90);
 	else
 		pushDoor.setBendRadiusMm(90);
-	pushDoor.setLengthMm(120);
+	pushDoor.setLengthMm(150);
 	pushDoor.setSpeedMm_S(300);
 	pushDoor.stopAfterMove = false;
 	closeFirstDoor.push_back(pushDoor);
@@ -398,6 +400,7 @@ void Robot::scriptCloseDoors(Side side)
 
 	Trajectory closeSecondDoor;
 
+	// Aller de la première à la seconde porte
 	UnitMove disengage;
 	disengage.setBendRadiusMm(INFINITE_RADIUS);
 	disengage.setLengthMm(-10);
@@ -406,7 +409,7 @@ void Robot::scriptCloseDoors(Side side)
 	closeSecondDoor.push_back(disengage);
 
 	if (side == GREEN)
-		goToDoor.setBendRadiusMm(140);
+		goToDoor.setBendRadiusMm(145);
 	else
 		goToDoor.setBendRadiusMm(-130);
 	goToDoor.setLengthMm(-470);
@@ -414,44 +417,13 @@ void Robot::scriptCloseDoors(Side side)
 	goToDoor.stopAfterMove = false;
 	closeSecondDoor.push_back(goToDoor);
 
+	// Pousser la seconde porte
 	pushDoor.setBendRadiusMm(INFINITE_RADIUS);
-	pushDoor.setLengthMm(-50);
+	pushDoor.setLengthMm(-100);
 	pushDoor.setSpeedMm_S(300);
 	pushDoor.stopAfterMove = false;
 	closeSecondDoor.push_back(pushDoor);
 
-	/*
-	// Etape 3 : se désengager de la première porte
-	UnitMove disengage;
-	if (side == GREEN)
-		disengage.setBendRadiusMm(-120);
-	else
-		disengage.setBendRadiusMm(120);
-	disengage.setLengthMm(-130);
-	disengage.setSpeedMm_S(300);
-	disengage.stopAfterMove = true;
-	closeSecondDoor.push_back(disengage);
-
-	// Etape 4 : aller jusqu'à la seconde porte
-	if (side == GREEN)
-		goToDoor.setBendRadiusMm(-900);
-	else
-		goToDoor.setBendRadiusMm(2000);
-	goToDoor.setLengthMm(350);
-	goToDoor.setSpeedMm_S(300);
-	goToDoor.stopAfterMove = false;
-	closeSecondDoor.push_back(goToDoor);
-
-	// Etape 5 : pousser la seconde porte
-	if (side == GREEN)
-		pushDoor.setBendRadiusMm(-90);
-	else
-		pushDoor.setBendRadiusMm(90);
-	pushDoor.setLengthMm(120);
-	pushDoor.setSpeedMm_S(300);
-	pushDoor.stopAfterMove = false;
-	closeSecondDoor.push_back(pushDoor);
-	*/
 
 	// Fermeture de la seconde porte
 	table.enableUpdateObstacleMap(false);

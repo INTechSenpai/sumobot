@@ -23,6 +23,7 @@ averageLeftSpeed(), averageRightSpeed()
 
 	moving = false;
 	blocked = false;
+	paused = false;
 
 	leftSpeedPID.setOutputLimits(-1023, 1023);
 	rightSpeedPID.setOutputLimits(-1023, 1023);
@@ -74,6 +75,11 @@ void MotionControlSystem::setTrajectory(const Trajectory& newTrajectory)
 	blocked = false;
 	nextMove();
 	sei();
+}
+
+const Trajectory & MotionControlSystem::getTrajectory() const
+{
+	return currentTrajectory;
 }
 
 uint32_t MotionControlSystem::getCurrentMove()
@@ -297,6 +303,11 @@ void MotionControlSystem::control()
 				}
 
 
+				/* Gestion du mode "PAUSED" */
+				if (paused)
+				{
+					movingSpeed = 0;
+				}
 
 
 				/* Limitation des variations de movingSpeed (limitation de l'accélération) */
@@ -372,7 +383,7 @@ void MotionControlSystem::manageStop()
 		time = 0;
 	}
 
-	if ( isPhysicallyBlocked() && moving)
+	if ((isPhysicallyBlocked() && moving) && !paused)
 	{
 
 		if (time == 0)
@@ -469,6 +480,23 @@ void MotionControlSystem::setRawPWM(int16_t left, int16_t right)
 {
 	motor.runLeft(left);
 	motor.runRight(right);
+}
+
+void MotionControlSystem::setPause(bool enable)
+{
+	paused = enable;
+}
+
+float MotionControlSystem::getMoveProgress()
+{
+	if (currentMove < currentTrajectory.size())
+	{
+		return 1 - ABS((currentDistance - translationSetpoint) / currentTrajectory.at(currentMove).getLengthTicks());
+	}
+	else
+	{
+		return 1;
+	}
 }
 
 void MotionControlSystem::track()

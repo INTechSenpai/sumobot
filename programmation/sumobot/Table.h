@@ -37,6 +37,7 @@ VIOLETTE		|					 ║						 |
 
 #include "Singleton.h"
 #include "Obstacle.h"
+#include "Path.h"
 #include "RelativeObstacleMap.h"
 #include "utils.h"
 #include "math.h"
@@ -56,6 +57,9 @@ VIOLETTE		|					 ║						 |
 /* Valeurs des rayons des obstacles à créer, en mm */
 #define NEW_OBSTACLE_RADIUS		38
 #define OPONENT_RADIUS			100
+
+/* Rayon extérieur du robot, utilisé pour l'évitement, en mm */
+#define ROBOT_EXT_RADIUS		100
 
 
 class Table : public Singleton<Table>
@@ -86,6 +90,12 @@ public:
 	bool updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, const Position & positionUncertainty);
 
 	void enableUpdateObstacleMap(bool enable);
+
+	/*
+	Renvoie vrai si et seulement si le UnitMove courant de la Trajectory donnée est un mouvement autorisé par notre politique d'évitement.
+	A savoir : interdiction d'entrer en colision avec les obstacles de 'ToBeDeterminated' et 'OponentRobot'
+	*/
+	bool isTrajectoryAllowed(const Trajectory & trajectory, uint32_t currentMove, const Position & notrePosition, float moveProgress);
 
 	//DEBUG
 	size_t getToBeSpecifiedLength();
@@ -156,8 +166,9 @@ public:
 
 	/*
 		Interprète les obstacles 'ToBeDeterminated' étant en vue. En les transformant éventuellement en 'OponentRobot' ou 'MovableVisible'
+		ATTENTION : après l'appel à cette fonction, les 'detectionPoint' qui pointaient vers un obstacle ne sont potentiellement plus valides
 	*/
-	void interpreteObstaclesInSight(DetectionPoint tabDetection[NB_CAPTEURS]);
+	void interpreteObstaclesInSight(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition);
 
 	/*
 		Calcule les offsets (x,y) à appliquer à un point de détection afin qu'il soit cohérent avec l'obstacle associé
@@ -178,6 +189,22 @@ public:
 		Permet d'activer/désactiver la mise à jour des obstacles lors de l'appel à updateObstacleMap
 	*/
 	bool enableUpdate;
+
+	/*
+		Transforme les trois obstacles ToBeSpecified dont les indices sont passés en argument en un unique obstacle OponentRobot
+		Les obstacles doivent être circulaires
+		Les trois obstacles sont supprimés. Les indices donnés peuvent pointer vers un même obstacle.
+		Le nouvel obstacle correspond au 'frontObstacle' agrandi et éloigné
+	*/
+	void specifyAsOponentRobot(size_t leftObstacle, size_t frontObstacle, size_t rightObstacle, const Position & notrePosition);
+
+	/*
+		Transforme l'obstacle ToBeSpecified dont l'indice est passé en argument en un MovableVisible (élément de jeu)
+		Ne modifie pas les attributs de l'obstacle.
+	*/
+	void specifyAsMovable(size_t indiceObstacle);
+
+	bool isObstacleOnTrajectory(const Obstacle & obstacle, const UnitMove & unitMove, const Position & notrePosition, float moveProgress);
 };
 
 #endif
