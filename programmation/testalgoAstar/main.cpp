@@ -13,10 +13,11 @@ int main(int argc, char *argv[])
     start.orientation = 3.14;
     start.x = 1350;
     start.y = 1150;
+    map.movableInvisible[0].pushIt();
 
-    goal.orientation = 3.14;
-    goal.x = 1000;
-    goal.y = 1000;
+    goal.orientation = -3;
+    goal.x = 1200;
+    goal.y = 200;
 
     Trajectory trajectoire = pathfinding.computePath(map, start, goal);
     return 0;
