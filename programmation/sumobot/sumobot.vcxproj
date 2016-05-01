@@ -138,6 +138,7 @@
     <ClInclude Include="ColorSensor.h" />
     <ClInclude Include="CUnit.h" />
     <ClInclude Include="direct_pin_read.h" />
+    <ClInclude Include="dummyPathFinding.h" />
     <ClInclude Include="Encoder.h" />
     <ClInclude Include="InfraredSensor.h" />
     <ClInclude Include="interrupt_config.h" />
@@ -164,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ColorSensor.cpp" />
+    <ClCompile Include="dummyPathFinding.cpp" />
     <ClCompile Include="Encoder.cpp" />
     <ClCompile Include="MotionControlSystem.cpp" />
     <ClCompile Include="Obstacle.cpp" />

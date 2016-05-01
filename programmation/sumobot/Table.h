@@ -52,7 +52,7 @@ VIOLETTE		|					 ║						 |
 #define TTL_OPONENT_ROBOT		10000
 #define TTL_SAND				10000
 #define TTL_TO_BE_SPECIFIED		10000
-#define TTL_DECREASE_NOT_SEEN	250
+#define TTL_DECREASE_NOT_SEEN	10000
 
 /* Valeurs des rayons des obstacles à créer, en mm */
 #define NEW_OBSTACLE_RADIUS		38
@@ -68,8 +68,12 @@ class Table : public Singleton<Table>
 public:
 	Table();
 
-
+	/* Getters de la 'obstacleMap' */
 	ObstacleMap getObstacleMap() const;
+
+	const std::vector<Obstacle> & getMovableVisible() const;
+	const std::vector<Obstacle> & getFixedVisible() const;
+	const std::vector<Obstacle> & getToBeSpecified() const;
 
 	/*
 		Initialise la 'ostacleMap' avec la configuration connue de la table au début du match.
@@ -90,13 +94,16 @@ public:
 	*/
 	bool updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, const Position & positionUncertainty);
 
+	/*
+		Active/désactive l'interprétation des données des capteurs, et donc par conséquent l'évitement
+	*/
 	void enableUpdateObstacleMap(bool enable);
 
 	/*
 	Renvoie vrai si et seulement si le UnitMove courant de la Trajectory donnée est un mouvement autorisé par notre politique d'évitement.
 	A savoir : interdiction d'entrer en colision avec les obstacles de 'ToBeDeterminated' et 'OponentRobot'
 	*/
-	bool isTrajectoryAllowed(const Trajectory & trajectory, uint32_t currentMove);
+	bool isTrajectoryAllowed(int movingDirection);
 
 	//DEBUG
 	size_t getToBeSpecifiedLength();
@@ -152,7 +159,7 @@ public:
 	/*
 		Déplace les obstacles 'MovableVisible', 'ToBe'Determined' et 'OponentRobot' qui ont étés "vus" afin qu'il correspondent à la détection des capteurs
 	*/
-	void moveObstaclesToMatchDetection(DetectionPoint tabDetection[NB_CAPTEURS]);
+	void moveObstaclesToMatchDetection(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition, const Position & incertitude);
 
 	/*
 		Supprime les obstacles se trouvant dans la ligne de vue d'un capteur voyant "à l'infini"
@@ -173,7 +180,7 @@ public:
 	/*
 		Indique si l'obstacle (circulaire) centré en 'obstacleCenter' et de rayon au carré 'squaredObstacleRadius' devrait être en vue du capteur dont on donne les coordonnées du point horizon.
 	*/
-	bool isObstacleInSight(const Position & robotCenter, const Position & obstacleCenter, float squaredObstacleRadius, float xHorizon, float yHorizon);
+	bool isObstacleInSight(const Position & robotCenter, const Position & obstacleCenter, float obstacleRadius, float xHorizon, float yHorizon, float uncertainty = 0);
 
 	/*
 		Supprime tous les obstacles étant arrivés en fin de vie
@@ -196,7 +203,16 @@ public:
 	*/
 	void updateMoveAllowed(DetectionPoint tabDetection[NB_CAPTEURS], const RelativeObstacleMap & relativeObstacleMap);
 
+	/*
+		Indique si l'obstacle se trouve sur notre chemin
+	*/
 	bool isObstacleOnTrajectory(const Obstacle & obstacle, const UnitMove & unitMove, const Position & notrePosition, float moveProgress);
+
+	/*
+		Indique si l'obstacle donné est cohérent avec le detectionPoint
+		Ne considère que les obstacles MOVABLE_VISIBLE (pour les autres catégories, la réponse sera toujours VRAI)
+	*/
+	bool isObstacleCoherentWithSensor(const DetectionPoint & sensor, const Position & robotCenter, const ObstacleType & obstacleType, size_t obstacleID, float incertitude);
 };
 
 #endif

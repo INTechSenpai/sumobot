@@ -26,6 +26,19 @@ int modulo(int nombre, int modulo)
 	}
 }
 
+float fmodulo(float nombre, float modulo)
+{
+	float resultat = fmod(nombre, modulo);
+	if (resultat < 0)
+	{
+		return resultat + modulo;
+	}
+	else
+	{
+		return resultat;
+	}
+}
+
 // Met x au carré (plus optimisé que pow(x, 2) )
 float square(float x)
 {

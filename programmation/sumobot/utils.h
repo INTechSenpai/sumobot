@@ -8,6 +8,7 @@
 #endif
 
 #include <stdbool.h>
+#include "math.h"
 
 #define MIN(x,y) (((x)<(y))?(x):(y))
 #define MAX(x,y) (((x)>(y))?(x):(y))
@@ -24,6 +25,7 @@ extern "C" {
 #endif
 
 int modulo(int nombre, int modulo);
+float fmodulo(float nombre, float modulo);
 float square(float x);
 void blink(uint8_t, unsigned int, unsigned int);
 void blinkDelOnBoard(unsigned int, unsigned int);

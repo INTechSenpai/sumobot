@@ -173,8 +173,7 @@ public:
 
 	/* Gestion des déplacements */
 	void setTrajectory(const Trajectory&);
-	const Trajectory & getTrajectory() const;
-	uint32_t getCurrentMove();
+	int getMovingDirection() const;
 	void deployMove(); // permet de déployer les pelles du robot (à faire en début de match)
 	void resetMove(); // permet de ranger les pelles du robot (à faire pendant la préparation du match)
 	void desengageMove(bool, bool);

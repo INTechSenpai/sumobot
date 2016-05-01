@@ -77,15 +77,33 @@ void MotionControlSystem::setTrajectory(const Trajectory& newTrajectory)
 	sei();
 }
 
-const Trajectory & MotionControlSystem::getTrajectory() const
+int MotionControlSystem::getMovingDirection() const
 {
-	return currentTrajectory;
+	if (currentMove < currentTrajectory.size())
+	{
+		if (currentTrajectory.at(currentMove).getBendRadiusTicks() == 0)
+		{
+			return 0;
+		}
+		else if (currentTrajectory.at(currentMove).getLengthTicks() > 0)
+		{
+			return 1;
+		}
+		else if (currentTrajectory.at(currentMove).getLengthTicks() < 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		return 0;
+	}
 }
 
-uint32_t MotionControlSystem::getCurrentMove()
-{
-	return currentMove;
-}
 
 void MotionControlSystem::deployMove()
 {

@@ -50,7 +50,7 @@ extern double fdim (double __x, double __y) ;
 extern double fma (double __x, double __y, double __z) ;
 extern double fmax (double __x, double __y) ;
 extern double fmin (double __x, double __y) ;
-extern double trunc (double __x) ;
+extern double trunc(double __x);
 
 #ifdef __cplusplus
 }

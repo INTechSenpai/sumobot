@@ -21,6 +21,7 @@
 #include "MotionControlSystem.h"
 #include "SensorMgr.h"
 #include "pathfinding.h"
+#include "dummyPathFinding.h"
 #include "Table.h"
 #include "utils.h"
 
@@ -81,6 +82,11 @@ public:
 	bool goToPoint(const Position & destination);
 
 	/*
+		Idem que goToPoint, mais n'utilise pas le pathfinding, effectue unet rajectoire rectiligne sans considération des obstacles
+	*/
+	void goStraightToPoint(const Position & destination, int32_t speed);
+
+	/*
 		Détermine si le robot est à la position destination ou non, en acceptant une certaine tolérance.
 	*/
 	bool areWeArrived(const Position & notrePosition, const Position & destination);
@@ -112,6 +118,18 @@ public:
 	*/
 	void scriptCloseDoors(Side side);
 
+	/*
+		Script qui pousse le sable dans le bac à sable.
+		Commence à la seconde porte et fini à dans le bac à sable
+	*/
+	void scriptGoToTowelFromDoors(Side side);
+
+	/*
+		Script qui pousse le tas de sable jusque dans le bac à sable
+		Commence sur la serviette, le robot faisant plus ou moins face au tas de sable
+	*/
+	void scriptPushSand(Side side);
+
 
 	/*
 		Script qui part à la recherche de blocs de sable isolés abandonnés.
@@ -132,6 +150,7 @@ private:
 	SensorMgr & sensorMgr; // Utilisé uniquement dans checkSide()
 	MotionControlSystem & motionControlSystem;
 	Pathfinding pathfinding;
+	DummyPathFinding dummyPathFinding;
 
 };
 

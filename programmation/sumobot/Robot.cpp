@@ -171,6 +171,14 @@ bool Robot::goToPoint(const Position & destination)
 	return true;
 }
 
+void Robot::goStraightToPoint(const Position & destination, int32_t speed)
+{
+	Position ici;
+	motionControlSystem.getPosition(ici);
+	Trajectory trajectoire = dummyPathFinding.computePath(ici, destination, speed, false);
+	motionControlSystem.setTrajectory(trajectoire);
+}
+
 bool Robot::areWeArrived(const Position & notrePosition, const Position & destination)
 {
 	return 
@@ -247,8 +255,6 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 
 		while (millis() - beginTime < delaiAsservissement);
 	} while (frontDistance > 300 || notrePosition.y < 1560);
-	Serial.println(frontDistance);
-	Serial.println(notrePosition.y);
 	
 	// Mouvement final (permettant l'arrêt)
 	trajectoireAsservie.at(0).setBendRadiusMm(INFINITE_RADIUS);
@@ -442,5 +448,148 @@ void Robot::scriptCloseDoors(Side side)
 	motionControlSystem.setPosition(ici);
 	motionControlSystem.setPositionUncertainty(noUncertainty);
 	
+	table.enableUpdateObstacleMap(true);
+}
+
+void Robot::scriptGoToTowelFromDoors(Side side)
+{
+	// Aller de la seconde porte à la serviette
+	Trajectory goToTowel;
+	UnitMove unitMove;
+	if (side == GREEN)
+		unitMove.setBendRadiusMm(1050);
+	else
+		unitMove.setBendRadiusMm(-975);
+	unitMove.setLengthMm(1120);
+	unitMove.setSpeedMm_S(300);
+	unitMove.stopAfterMove = false;
+	goToTowel.push_back(unitMove);
+
+
+	// Pousser contre le bord de table pour bien se recaler
+	unitMove.setBendRadiusMm(INFINITE_RADIUS);
+	unitMove.setLengthMm(60);
+	unitMove.setSpeedMm_S(350);
+	unitMove.stopAfterMove = false;
+	goToTowel.push_back(unitMove);
+
+
+	table.enableUpdateObstacleMap(true);
+	motionControlSystem.setTrajectory(goToTowel);
+	while (motionControlSystem.isMoving())
+	{
+		// Lorsque le premier unitMove est suffisamment entamé (= on est proche du bord de table) on désactive l'évitement
+		if (motionControlSystem.getMoveProgress() > 0.6)
+		{
+			table.enableUpdateObstacleMap(false);
+		}
+	}
+
+	Position ici;
+	if (side == GREEN)
+	{
+		ici.x = 1437;
+		ici.orientation = 0;
+	}
+	else
+	{
+		ici.x = -1437;
+		ici.orientation = M_PI;
+	}
+	ici.y = 1100;
+	Position uncertainty(40, 80, 0);
+	motionControlSystem.setPosition(ici);
+	motionControlSystem.setPositionUncertainty(uncertainty);
+
+	table.enableUpdateObstacleMap(true);
+}
+
+void Robot::scriptPushSand(Side side)
+{
+	//DEBUG
+	Position la;
+	if (side == GREEN)
+	{
+		la.x = 1437;
+		la.orientation = 0;
+	}
+	else
+	{
+		la.x = -1437;
+		la.orientation = M_PI;
+	}
+	la.y = 1100;
+	Position uncertain(40, 80, 0);
+	motionControlSystem.setPosition(la);
+	motionControlSystem.setPositionUncertainty(uncertain);
+	//END DEBUG
+
+	table.enableUpdateObstacleMap(true);
+
+	Position ici, uncertainty;
+	motionControlSystem.getPosition(ici);
+	motionControlSystem.getPositionUncertainty(uncertainty);
+
+	std::vector<Obstacle> movableVisible;
+	RelativeObstacleMap allValues;
+	int32_t frontDistance;
+	Position destination;
+	size_t bestObstacle;
+
+	do
+	{
+		// On met à jour notre objectif : l'obstacle 'MovableVisible' représentant le tas de sable devant la serviette
+		movableVisible = table.getMovableVisible();
+		if (movableVisible.size() == 0)
+		{
+			return;
+		}
+		bestObstacle = 0;
+		while (movableVisible.at(bestObstacle).getPriority() != KNOWN_SAND_PRIORITY)
+		{
+			bestObstacle++;
+			if (bestObstacle > movableVisible.size())
+			{
+				return;
+			}
+		}
+
+		movableVisible.at(bestObstacle).getCenter(destination);
+		if (side == GREEN)
+		{
+			destination.x += movableVisible.at(bestObstacle).getXRadius();
+		}
+		else
+		{
+			destination.x -= movableVisible.at(bestObstacle).getXRadius();
+		}
+
+		goStraightToPoint(destination, 300);
+
+		sensorMgr.getRelativeObstacleMapNoReset(allValues);
+		frontDistance = calculateFrontDistance(allValues.arriereGauche, allValues.arriere, allValues.arriereDroit);
+
+		Serial.println(frontDistance);
+		delay(60);
+
+	} while (frontDistance > CONTACT_OBSTACLE + 45);
+
+	table.enableUpdateObstacleMap(false);
+
+	if (side == GREEN)
+	{
+		destination.x = 250;
+		destination.orientation = 0;
+	}
+	else
+	{
+		destination.x = -250;
+		destination.orientation = M_PI;
+	}
+	destination.y = 1100;
+	goStraightToPoint(destination, 200);
+
+	while (motionControlSystem.isMoving());
+
 	table.enableUpdateObstacleMap(true);
 }

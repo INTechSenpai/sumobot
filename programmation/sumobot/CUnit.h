@@ -10,6 +10,7 @@
 #include "MotionControlSystem.h"
 #include "SensorMgr.h"
 #include "pathfinding.h"
+#include "dummyPathFinding.h"
 
 
 #define INPUT_BUFFER_LENGH	64
@@ -413,7 +414,7 @@ public:
 			table.fillDetectionPoints(detectionPoint, ici, relativeObstacleMap);
 			table.interpreteDetectionPoints(detectionPoint, ici, incertitude);
 			table.moveRobotToMatchFixedObstacles(detectionPoint, ici);
-			table.moveObstaclesToMatchDetection(detectionPoint);
+			table.moveObstaclesToMatchDetection(detectionPoint, ici, incertitude);
 			table.deleteUndetectedObstacles(detectionPoint, ici);
 			table.addObstaclesToBeDeterminated(detectionPoint, ici);
 			table.deleteOutdatedObstacles();
@@ -481,11 +482,48 @@ public:
 		delay(100);
 	}
 
+	void obstacleMovable()
+	{
+		Position ici(1000, 1100, 0), uncertainty(50, 80, 0);
+		motionControlSystem.setPosition(ici);
+		motionControlSystem.setPositionUncertainty(uncertainty);
+		ObstacleMap obstacleMap;
+		Position centreObstacle;
+
+		while (true)
+		{
+			obstacleMap = table.getObstacleMap();
+			obstacleMap.movableVisible.at(0).getCenter(centreObstacle);
+			Serial.printf("#O# x:%g  y:%g  o:%g ttl:%u  lts:%u\n",
+				centreObstacle.x, centreObstacle.y, centreObstacle.orientation,
+				obstacleMap.movableVisible.at(0).getTTL(),
+				obstacleMap.movableVisible.at(0).getLastTimeSeen());
+			delay(100);
+		}
+	}
+
+	void dummyPathDingDing()
+	{
+		Position depart, destination;
+		Trajectory trajectoire;
+
+		depart.x = 1437;
+		depart.y = 1105;
+		depart.orientation = -0.01;
+
+		destination.x = 910;
+		destination.y = 1100;
+
+		trajectoire = dummyPathFinding.computePath(depart, destination, 300, false);
+		Serial.printf("R= %d  L= %d\n", trajectoire.at(0).getBendRadiusMm(), trajectoire.at(0).getLengthMm());
+	}
+
 private:
 	MotionControlSystem & motionControlSystem;
 	SensorMgr & sensorMgr;
 	Robot & robot;
 	Table & table;
+	DummyPathFinding dummyPathFinding;
 
 	char inputBuffer[INPUT_BUFFER_LENGH];
 

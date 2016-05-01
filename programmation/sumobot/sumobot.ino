@@ -1,3 +1,4 @@
+#include "dummyPathFinding.h"
 #include "Robot.h"
 #include "Table.h"
 #include "CUnit.h"
@@ -48,14 +49,20 @@ void loop()
 	//robot.waitForBegining();
 	robot.driveAlongEdgeOfTable(side, 0.5, 0, 5);
 	robot.scriptCloseDoors(side);
+	robot.scriptGoToTowelFromDoors(side);
+	robot.scriptPushSand(side);
 	//robot.winMatch(90000);
 	//delay(2000);
 	//robot.deployUmbrella();
+
+	//delay(500);
+	//test.dummyPathDingDing();
 
 
 	//test.serialInterface();
 	while (true)
 	{
+		//test.obstacleMovable();
 		//test.obstacleCreationDeletion();
 		//test.obstacleDetection();
 		//test.sensors(false, true, false, false);
@@ -115,12 +122,7 @@ void sensorInterrupt()
 		motionControlSystem.setPositionUncertainty(robotPositionUncertainty);
 	}
 	// Evitement
-	bool pause = !table.isTrajectoryAllowed(motionControlSystem.getTrajectory(), motionControlSystem.getCurrentMove());
-	if (pause)
-	{
-		Serial.println("STOP YOU FOOL");
-	}
-	motionControlSystem.setPause(pause);
+	motionControlSystem.setPause(!table.isTrajectoryAllowed(motionControlSystem.getMovingDirection()));
 }
 
 

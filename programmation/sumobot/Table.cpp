@@ -10,6 +10,21 @@ ObstacleMap Table::getObstacleMap() const
 	return obstacleMap;
 }
 
+const std::vector<Obstacle>& Table::getMovableVisible() const
+{
+	return obstacleMap.movableVisible;
+}
+
+const std::vector<Obstacle>& Table::getFixedVisible() const
+{
+	return obstacleMap.fixedVisible;
+}
+
+const std::vector<Obstacle>& Table::getToBeSpecified() const
+{
+	return obstacleMap.toBeSpecified;
+}
+
 void Table::initObstacleMap(Side side)
 {
 	obstacleMap.fixedInvisible.clear();
@@ -288,60 +303,49 @@ bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, P
 		DetectionPoint tabDetection[NB_CAPTEURS];
 		fillDetectionPoints(tabDetection, notrePosition, relativeObstacleMap);
 		interpreteDetectionPoints(tabDetection, notrePosition, positionUncertainty);
+		/*
+		for (int i = 0; i < NB_CAPTEURS; i++)
+		{
+			if (tabDetection[i].isAnObstacle)
+			{
+				Serial.printf("(%d) [x: %g  y: %g] ", i, tabDetection[i].x, tabDetection[i].y);
+				switch (tabDetection[i].associatedObstacleType)
+				{
+				case FIXED_VISIBLE:
+					Serial.print("FIXED_VISIBLE");
+					break;
+				case FIXED_INVISIBLE:
+					Serial.print("FIXED_INVISIBLE");
+					break;
+				case MOVABLE_VISIBLE:
+					Serial.print("MOVABLE_VISIBLE");
+					break;
+				case MOVABLE_INVISIBLE:
+					Serial.print("MOVABLE_INVISIBLE");
+					break;
+				case OPONENT_ROBOT:
+					Serial.print("OPONENT_ROBOT");
+					break;
+				case TO_BE_SPECIFIED:
+					Serial.print("TO_BE_SPECIFIED");
+					break;
+				case NONE:
+					Serial.print("NONE");
+					break;
+				default:
+					break;
+				}
+				Serial.println();
+			}
+		}
+		*/
 		positionModified = moveRobotToMatchFixedObstacles(tabDetection, notrePosition);
-		moveObstaclesToMatchDetection(tabDetection);
+		moveObstaclesToMatchDetection(tabDetection, notrePosition, positionUncertainty);
 		deleteUndetectedObstacles(tabDetection, notrePosition);
 		addObstaclesToBeDeterminated(tabDetection, notrePosition);
 		deleteOutdatedObstacles();
 		updateMoveAllowed(tabDetection, relativeObstacleMap);
-		/*
-		for (int i = 0; i < NB_CAPTEURS; i++)
-		{
-			if (tabDetection[i].associatedObstacleType == FIXED_VISIBLE)
-			{
-				Serial.printf(" y=%g ", notrePosition.y);
-				Serial.printf("(%d) [x: %g  y: %g] ", i, tabDetection[i].x, tabDetection[i].y);
-				if (tabDetection[i].isAnObstacle)
-				{
-					
-					switch (tabDetection[i].associatedObstacleType)
-					{
-					case FIXED_VISIBLE:
-						Serial.print("FIXED_VISIBLE");
-						break;
-					case FIXED_INVISIBLE:
-						Serial.print("FIXED_INVISIBLE");
-						break;
-					case MOVABLE_VISIBLE:
-						Serial.print("MOVABLE_VISIBLE");
-						break;
-					case MOVABLE_INVISIBLE:
-						Serial.print("MOVABLE_INVISIBLE");
-						break;
-					case OPONENT_ROBOT:
-						Serial.print("OPONENT_ROBOT");
-						break;
-					case TO_BE_SPECIFIED:
-						Serial.print("TO_BE_SPECIFIED");
-						break;
-					case NONE:
-						Serial.print("NONE");
-						break;
-					default:
-						break;
-					}
-					
-				}
-				else
-				{
-					Serial.print("horizon");
-				}
-				Serial.println();
-				Serial.printf("av: %d  ar: %d\n", forwardMoveAllowed, backwardMoveAllowed);
-			}
-		}
-		Serial.println();
-		//*/
+		
 	}
 	else
 	{
@@ -589,8 +593,25 @@ bool Table::isThisPointThisObstacle(const DetectionPoint & detectionPoint, const
 	{
 		if (centre.orientation == 0)
 		{
-			bool closeToXSide = (ABS(detectionPoint.x - obstacle.getXRadius()) <= uncertainty.x) && (ABS(centre.y - detectionPoint.y) <= obstacle.getYRadius() + uncertainty.y);
-			bool closeToYSide = (ABS(detectionPoint.y - obstacle.getYRadius()) <= uncertainty.y) && (ABS(centre.x - detectionPoint.x) <= obstacle.getXRadius() + uncertainty.x);
+			bool closeToXSide = 
+				(
+					ABS(centre.x + obstacle.getXRadius() - detectionPoint.x) <= uncertainty.x || 
+					ABS(centre.x - obstacle.getXRadius() - detectionPoint.x) <= uncertainty.x
+				) 
+				&&
+				(
+					ABS(centre.y - detectionPoint.y) <= obstacle.getYRadius() + uncertainty.y
+				);
+			
+			bool closeToYSide = 
+				(
+					ABS(centre.y + obstacle.getYRadius() - detectionPoint.y) <= uncertainty.y ||
+					ABS(centre.y - obstacle.getYRadius() - detectionPoint.y) <= uncertainty.y
+				)
+				&&
+				(
+					ABS(centre.x - detectionPoint.x) <= obstacle.getXRadius() + uncertainty.x
+				);
 
 			return closeToXSide || closeToYSide;
 		}
@@ -688,7 +709,7 @@ bool Table::moveRobotToMatchFixedObstacles(DetectionPoint tabDetection[NB_CAPTEU
 	return positionModified;
 }
 
-void Table::moveObstaclesToMatchDetection(DetectionPoint tabDetection[NB_CAPTEURS])
+void Table::moveObstaclesToMatchDetection(DetectionPoint tabDetection[NB_CAPTEURS], const Position & notrePosition, const Position & incertitude)
 {
 	for (int i = 0; i < NB_CAPTEURS; i++)
 	{
@@ -702,6 +723,99 @@ void Table::moveObstaclesToMatchDetection(DetectionPoint tabDetection[NB_CAPTEUR
 			centre.x -= xOffset;
 			centre.y -= yOffset;
 			obstacleMap.movableVisible.at(tabDetection[i].associatedObstacle).setCenter(centre);
+
+			if (i >= 4) // Pour les capteurs ToF frontaux
+			{
+				/* Gestion de la cohérence des NON-Détections */
+				// Indices des capteurs à considérer
+				int tofOppose, capteurFrontal;
+
+				// Capteur AVANT-GAUCHE
+				if (i == 4)
+				{
+					tofOppose = 5;
+					capteurFrontal = 0;
+				}
+				// Capteur AVANT-DROIT
+				else if (i == 5)
+				{
+					tofOppose = 4;
+					capteurFrontal = 0;
+				}
+				// Capteur ARRIERE-GAUCHE
+				else if (i == 6)
+				{
+					tofOppose = 7;
+					capteurFrontal = 1;
+				}
+				// Capteur ARRIERE-GAUCHE
+				else if (i == 7)
+				{
+					tofOppose = 6;
+					capteurFrontal = 1;
+				}
+
+				float orientation = fmodulo(notrePosition.orientation + M_PI_4, 2 * PI);
+				bool correctionX;
+
+				if (orientation < M_PI_2)
+				{
+					correctionX = false;
+				}
+				else if (orientation < M_PI)
+				{
+					correctionX = true;
+				}
+				else if (orientation < M_PI + M_PI_2)
+				{
+					correctionX = false;
+				}
+				else
+				{
+					correctionX = true;
+				}
+
+				float oneDimUncertainty = sqrt(square(incertitude.x) + square(incertitude.y));
+
+				if (!isObstacleCoherentWithSensor(tabDetection[tofOppose], notrePosition, tabDetection[i].associatedObstacleType, tabDetection[i].associatedObstacle, oneDimUncertainty))
+				{// Le capteur ToF opposé ne voit pas l'obstacle en question alors qu'il devrait
+
+					if (isObstacleCoherentWithSensor(tabDetection[capteurFrontal], notrePosition, tabDetection[i].associatedObstacleType, tabDetection[i].associatedObstacle, oneDimUncertainty))
+					{// Le capteur central, en revanche, confirme cet obstacle
+						if (correctionX)
+						{
+							centre.x = (tabDetection[i].x + tabDetection[capteurFrontal].x) / 2;
+						}
+						else
+						{
+							centre.y = (tabDetection[i].y + tabDetection[capteurFrontal].y) / 2;
+						}
+					}
+					else
+					{// Le capteur central ne le voit pas non plus alors qu'il devrait
+						if (correctionX)
+						{
+							centre.x = tabDetection[i].x;
+						}
+						else
+						{
+							centre.y = tabDetection[i].y;
+						}
+					}
+				}
+				else
+				{
+					if (correctionX)
+					{
+						centre.x = tabDetection[capteurFrontal].x;
+					}
+					else
+					{
+						centre.y = tabDetection[capteurFrontal].y;
+					}
+				}
+				obstacleMap.movableVisible.at(tabDetection[i].associatedObstacle).setCenter(centre);
+			}
 		}
 		else if (tabDetection[i].associatedObstacleType == TO_BE_SPECIFIED && tabDetection[i].isReliable)
 		{
@@ -741,7 +855,7 @@ void Table::deleteUndetectedObstacles(DetectionPoint tabDetection[NB_CAPTEURS], 
 					squaredObstacleRadius = square(obstacleMap.movableVisible.at(j).getXRadius()) + square(obstacleMap.movableVisible.at(j).getYRadius());
 				}
 
-				if (isObstacleInSight(notrePosition, obstacleCenter, squaredObstacleRadius, tabDetection[i].x, tabDetection[i].y))
+				if (isObstacleInSight(notrePosition, obstacleCenter, sqrt(squaredObstacleRadius), tabDetection[i].x, tabDetection[i].y))
 				{
 					obstacleMap.movableVisible.at(j).decreaseTTL(TTL_DECREASE_NOT_SEEN);
 				}
@@ -760,7 +874,7 @@ void Table::deleteUndetectedObstacles(DetectionPoint tabDetection[NB_CAPTEURS], 
 					squaredObstacleRadius = square(obstacleMap.toBeSpecified.at(j).getXRadius()) + square(obstacleMap.toBeSpecified.at(j).getYRadius());
 				}
 
-				if (isObstacleInSight(notrePosition, obstacleCenter, squaredObstacleRadius, tabDetection[i].x, tabDetection[i].y))
+				if (isObstacleInSight(notrePosition, obstacleCenter, sqrt(squaredObstacleRadius), tabDetection[i].x, tabDetection[i].y))
 				{
 					obstacleMap.toBeSpecified.at(j).decreaseTTL(TTL_DECREASE_NOT_SEEN);
 				}
@@ -779,7 +893,7 @@ void Table::deleteUndetectedObstacles(DetectionPoint tabDetection[NB_CAPTEURS], 
 					squaredObstacleRadius = square(obstacleMap.oponentRobot.at(j).getXRadius()) + square(obstacleMap.oponentRobot.at(j).getYRadius());
 				}
 
-				if (isObstacleInSight(notrePosition, obstacleCenter, squaredObstacleRadius, tabDetection[i].x, tabDetection[i].y))
+				if (isObstacleInSight(notrePosition, obstacleCenter, sqrt(squaredObstacleRadius), tabDetection[i].x, tabDetection[i].y))
 				{
 					obstacleMap.oponentRobot.at(j).decreaseTTL(TTL_DECREASE_NOT_SEEN);
 				}
@@ -937,7 +1051,7 @@ void Table::calculateOffsetToMatch(const DetectionPoint & detectionPoint, float 
 	}
 }
 
-bool Table::isObstacleInSight(const Position & robotCenter, const Position & obstacleCenter, float squaredObstacleRadius, float xHorizon, float yHorizon)
+bool Table::isObstacleInSight(const Position & robotCenter, const Position & obstacleCenter, float obstacleRadius, float xHorizon, float yHorizon, float uncertainty)
 {
 	float horizonLength = sqrt(square(xHorizon - robotCenter.x) + square(yHorizon - robotCenter.y));
 	float squaredDistanceToObstacle = square(obstacleCenter.x - robotCenter.x) + square(obstacleCenter.y - robotCenter.y);
@@ -946,7 +1060,7 @@ bool Table::isObstacleInSight(const Position & robotCenter, const Position & obs
 
 	float squaredDistanceToLineOfSight = squaredDistanceToObstacle - square(distanceToProjection);
 
-	return squaredDistanceToLineOfSight <= squaredObstacleRadius && (distanceToProjection <= horizonLength && distanceToProjection >= 0);
+	return squaredDistanceToLineOfSight <= square(obstacleRadius + uncertainty) && (distanceToProjection <= horizonLength && distanceToProjection >= 0);
 }
 
 void Table::deleteOutdatedObstacles()
@@ -1024,25 +1138,44 @@ bool Table::isObstacleOnTrajectory(const Obstacle & obstacle, const UnitMove & u
 		float xHorizon, yHorizon;
 		xHorizon = cos(notrePosition.orientation) * moveLength + notrePosition.x;
 		yHorizon = sin(notrePosition.orientation) * moveLength + notrePosition.y;
-		return isObstacleInSight(notrePosition, centreObstacle, square(rObstacle), xHorizon, yHorizon);
+		return isObstacleInSight(notrePosition, centreObstacle, rObstacle, xHorizon, yHorizon);
 	}
 }
 
-bool Table::isTrajectoryAllowed(const Trajectory & trajectory, uint32_t currentMove)
+bool Table::isObstacleCoherentWithSensor(const DetectionPoint & sensor, const Position & robotCenter, const ObstacleType & obstacleType, size_t obstacleID, float incertitude)
 {
-	if (currentMove < trajectory.size())
+	if (obstacleType == MOVABLE_VISIBLE)
 	{
-		if (trajectory.at(currentMove).getLengthTicks() >= 0)
+		// Si on ne détecte aucun obstacle
+		if (!sensor.isAnObstacle)
 		{
-			return forwardMoveAllowed;
+			Position obstacleCenter;
+			obstacleMap.movableVisible.at(obstacleID).getCenter(obstacleCenter);
+			return !(isObstacleInSight(robotCenter, obstacleCenter, obstacleMap.movableVisible.at(obstacleID).getRadius(), sensor.x, sensor.y, incertitude));
 		}
 		else
 		{
-			return backwardMoveAllowed;
+			return true;
 		}
 	}
 	else
 	{
 		return true;
+	}
+}
+
+bool Table::isTrajectoryAllowed(int movingDirection)
+{
+	if (movingDirection == 0)
+	{
+		return true;
+	}
+	else if (movingDirection > 0)
+	{
+		return forwardMoveAllowed;
+	}
+	else
+	{
+		return backwardMoveAllowed;
 	}
 }
