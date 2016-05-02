@@ -99,8 +99,14 @@ public:
 
 	/*
 		Active/désactive l'interprétation des données des capteurs, et donc par conséquent l'évitement
+		Active/désactive également l'évitement de la dernière chance
 	*/
 	void enableUpdateObstacleMap(bool enable);
+
+	/*
+		Active/désactive l'arrêt pour capteurs renvoyant une trop petite valeur (indépendamment de l'interprétation)
+	*/
+	void enableLastChanceAvoiding(bool enable);
 
 	/*
 	Renvoie vrai si et seulement si le UnitMove courant de la Trajectory donnée est un mouvement autorisé par notre politique d'évitement.
@@ -192,6 +198,8 @@ public:
 		Permet d'activer/désactiver la mise à jour des obstacles lors de l'appel à updateObstacleMap
 	*/
 	bool enableUpdate;
+
+	bool lastChanceAvoiding;
 
 	/*
 		Indique si les mouvements avant/arrière sont autorisés étant donné les valeurs des capteurs avant

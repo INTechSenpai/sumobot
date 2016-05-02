@@ -360,10 +360,16 @@ bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, P
 void Table::enableUpdateObstacleMap(bool enable)
 {
 	enableUpdate = enable;
+	lastChanceAvoiding = enable;
 	if (!enable)
 	{
 		obstacleMap.toBeSpecified.clear();
 	}
+}
+
+void Table::enableLastChanceAvoiding(bool enable)
+{
+	lastChanceAvoiding = enable;
 }
 
 size_t Table::getToBeSpecifiedLength()
@@ -1096,7 +1102,7 @@ void Table::updateMoveAllowed(DetectionPoint tabDetection[NB_CAPTEURS], const Re
 
 	// Capteurs AVANT
 	if ((tabDetection[4].associatedObstacleType == TO_BE_SPECIFIED || tabDetection[5].associatedObstacleType == TO_BE_SPECIFIED) ||
-		(relativeObstacleMap.avantGauche <= CONTACT_OBSTACLE || relativeObstacleMap.avantDroit <= CONTACT_OBSTACLE)
+		((relativeObstacleMap.avantGauche <= CONTACT_OBSTACLE || relativeObstacleMap.avantDroit <= CONTACT_OBSTACLE) && lastChanceAvoiding)
 		)
 	{
 		forwardMoveAllowed = false;
@@ -1104,7 +1110,7 @@ void Table::updateMoveAllowed(DetectionPoint tabDetection[NB_CAPTEURS], const Re
 
 	// Capteurs ARRIERE
 	if ((tabDetection[6].associatedObstacleType == TO_BE_SPECIFIED || tabDetection[7].associatedObstacleType == TO_BE_SPECIFIED) ||
-		(relativeObstacleMap.arriereGauche <= CONTACT_OBSTACLE || relativeObstacleMap.arriereDroit <= CONTACT_OBSTACLE)
+		((relativeObstacleMap.arriereGauche <= CONTACT_OBSTACLE || relativeObstacleMap.arriereDroit <= CONTACT_OBSTACLE) && lastChanceAvoiding)
 		)
 	{
 		backwardMoveAllowed = false;

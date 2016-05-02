@@ -456,7 +456,7 @@ void Robot::scriptGoToTowelFromDoors(Side side)
 	Trajectory goToTowel;
 	UnitMove unitMove;
 	if (side == GREEN)
-		unitMove.setBendRadiusMm(1050);
+		unitMove.setBendRadiusMm(975);
 	else
 		unitMove.setBendRadiusMm(-975);
 	unitMove.setLengthMm(1120);
@@ -506,16 +506,15 @@ void Robot::scriptGoToTowelFromDoors(Side side)
 void Robot::scriptPushSand(Side side)
 {
 	table.enableUpdateObstacleMap(true);
-
-	Position ici, uncertainty;
-	motionControlSystem.getPosition(ici);
-	motionControlSystem.getPositionUncertainty(uncertainty);
+	table.enableLastChanceAvoiding(false);
 
 	std::vector<Obstacle> movableVisible;
 	RelativeObstacleMap allValues;
 	int32_t frontDistance;
 	Position destination;
 	size_t bestObstacle;
+
+	uint32_t timeout = 10000, beginTime = millis();
 
 	do
 	{
@@ -550,24 +549,23 @@ void Robot::scriptPushSand(Side side)
 		sensorMgr.getRelativeObstacleMapNoReset(allValues);
 		frontDistance = calculateFrontDistance(allValues.arriereGauche, allValues.arriere, allValues.arriereDroit);
 
-		Serial.println(frontDistance);
-		delay(60);
+		delay(30);
 
-	} while (frontDistance > CONTACT_OBSTACLE + 45);
+	} while (frontDistance > CONTACT_OBSTACLE + 45 && millis() - beginTime < timeout);
 
 	table.enableUpdateObstacleMap(false);
 
 	if (side == GREEN)
 	{
-		destination.x = 250;
+		destination.x = 350;
 		destination.orientation = 0;
 	}
 	else
 	{
-		destination.x = -250;
+		destination.x = -350;
 		destination.orientation = M_PI;
 	}
-	destination.y = 1100;
+	destination.y = 1000;
 	goStraightToPoint(destination, 200);
 
 	while (motionControlSystem.isMoving());
