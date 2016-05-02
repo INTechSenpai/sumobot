@@ -47,7 +47,7 @@ void loop()
 	battControlerThread.begin(battControlerInterrupt, 50000);
 
 	//robot.waitForBegining();
-	robot.driveAlongEdgeOfTable(side, 0.5, 0, 5);
+	robot.driveAlongEdgeOfTable(side);
 	robot.scriptCloseDoors(side);
 	robot.scriptGoToTowelFromDoors(side);
 	robot.scriptPushSand(side);

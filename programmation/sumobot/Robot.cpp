@@ -187,7 +187,7 @@ bool Robot::areWeArrived(const Position & notrePosition, const Position & destin
 		(ABS(modulo(notrePosition.orientation*1000, 6283) - modulo(destination.orientation*1000, 6283)) < ANGLE_TOLERANCE*1000);
 }
 
-void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
+void Robot::driveAlongEdgeOfTable(Side side)
 {
 	// Détermine la fréquence d'asservissement
 	const uint32_t delaiAsservissement = 25; // Période d'asservissement, en ms
@@ -214,8 +214,7 @@ void Robot::driveAlongEdgeOfTable(Side side, float kp, float ki, float kd)
 	aimValue = 115;
 
 	/* Réglage des constantes d'asservissement */
-	//sensorPID.setTunings(0.5, 0, 5);
-	sensorPID.setTunings(kp, ki, kd); // DEBUG
+	sensorPID.setTunings(0.5, 0, 5);
 
 	sensorPID.setOutputLimits(-100, 100); // Permet d'interdire les rayons de courbure trop faibles (qui cassent tout ^^)
 
@@ -506,24 +505,6 @@ void Robot::scriptGoToTowelFromDoors(Side side)
 
 void Robot::scriptPushSand(Side side)
 {
-	//DEBUG
-	Position la;
-	if (side == GREEN)
-	{
-		la.x = 1437;
-		la.orientation = 0;
-	}
-	else
-	{
-		la.x = -1437;
-		la.orientation = M_PI;
-	}
-	la.y = 1100;
-	Position uncertain(40, 80, 0);
-	motionControlSystem.setPosition(la);
-	motionControlSystem.setPositionUncertainty(uncertain);
-	//END DEBUG
-
 	table.enableUpdateObstacleMap(true);
 
 	Position ici, uncertainty;

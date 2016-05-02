@@ -286,14 +286,14 @@ public:
 					float kd = atof(inputBuffer);
 					Serial.printf("kd= %g\n", kd);
 
-					robot.driveAlongEdgeOfTable(side, kp, ki, kd);
+					robot.driveAlongEdgeOfTable(side);
 					motionControlSystem.getPosition(ici);
 					Serial.printf("x: %g | y: %g | o: %g\n", ici.x, ici.y, ici.orientation);
 				}
 				else if (!strcmp(inputBuffer, "cd"))
 				{
 					Serial.println("Test script close door");
-					robot.driveAlongEdgeOfTable(PURPLE, 0.5, 0, 5);
+					robot.driveAlongEdgeOfTable(PURPLE);
 					robot.scriptCloseDoors(PURPLE);
 					Serial.println("Done");
 				}

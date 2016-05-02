@@ -63,6 +63,9 @@ VIOLETTE		|					 ║						 |
 /* Distance mesurée par les ToF en cas de contact très imminent */
 #define CONTACT_OBSTACLE		20
 
+/* Taille maximale du tableau ToBeDeterminated de la ObstacleMap */
+#define MAX_SIZE_OBSTACLE_MAP	50
+
 class Table : public Singleton<Table>
 {
 public:
@@ -105,9 +108,7 @@ public:
 	*/
 	bool isTrajectoryAllowed(int movingDirection);
 
-	//DEBUG
-	size_t getToBeSpecifiedLength();
-
+//DEBUG
 //private:
 	ObstacleMap obstacleMap;
 
@@ -213,6 +214,8 @@ public:
 		Ne considère que les obstacles MOVABLE_VISIBLE (pour les autres catégories, la réponse sera toujours VRAI)
 	*/
 	bool isObstacleCoherentWithSensor(const DetectionPoint & sensor, const Position & robotCenter, const ObstacleType & obstacleType, size_t obstacleID, float incertitude);
+
+	size_t getToBeSpecifiedLength();
 };
 
 #endif

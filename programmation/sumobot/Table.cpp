@@ -929,6 +929,11 @@ void Table::addObstaclesToBeDeterminated(DetectionPoint tabDetection[NB_CAPTEURS
 			newObstacle.justSeen();
 			newObstacle.setTTL(TTL_TO_BE_SPECIFIED);
 
+			if (obstacleMap.toBeSpecified.size() >= MAX_SIZE_OBSTACLE_MAP)
+			{
+				obstacleMap.toBeSpecified.clear();
+			}
+
 			obstacleMap.toBeSpecified.push_back(newObstacle);
 			tabDetection[i].associatedObstacleType = TO_BE_SPECIFIED;
 			tabDetection[i].associatedObstacle = obstacleMap.toBeSpecified.size() - 1;

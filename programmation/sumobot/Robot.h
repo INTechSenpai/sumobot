@@ -101,7 +101,7 @@ public:
 		Arguents
 		side : le côté de la table (vert ou violet)
 	*/
-	void driveAlongEdgeOfTable(Side side, float kp, float ki, float kd);
+	void driveAlongEdgeOfTable(Side side);
 
 	/*
 		Calcule la distance moyenne donnée par trois capteurs frontaux (en prennant en compte les différences de précisions des différents capteurs) 

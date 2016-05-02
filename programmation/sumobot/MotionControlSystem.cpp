@@ -715,7 +715,7 @@ bool MotionControlSystem::isBlocked() const {
 void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float kp, float ki, float kd)
 {
 	setLeftSpeedTunings(kp, ki, kd);
-	setRightSpeedTunings(2, 0.01, 50); // DEBUG
+	setRightSpeedTunings(2, 0.01, 50);
 	//setRightSpeedTunings(kp, ki, kd);
 	enablePositionControl(false);
 	enableLeftSpeedControl(true);
@@ -742,7 +742,7 @@ void MotionControlSystem::testAsservVitesse(int speed, uint32_t duration, float 
 void MotionControlSystem::testAsservVitesseEtPosition(int speed, int length, float kp, float ki, float kd)
 {
 	setLeftSpeedTunings(kp, ki, kd);
-	setRightSpeedTunings(2, 0.01, 50); // DEBUG
+	setRightSpeedTunings(2, 0.01, 50);
 	//setRightSpeedTunings(kp, ki, kd);
 	enablePositionControl(true);
 	enableLeftSpeedControl(true);
