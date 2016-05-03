@@ -120,13 +120,18 @@ void Robot::waitForBegining()
 	blinkDelOnBoard(0, 1000);
 }
 
-void Robot::winMatch(uint32_t duration)
+void Robot::winMatch(uint32_t duration, Side side)
 {
 	uint32_t beginTime = millis();
+
+	driveAlongEdgeOfTable(side);
+	scriptCloseDoors(side);
+	scriptGoToTowelFromDoors(side);
+	scriptPushSand(side);
+
 	while (millis() - beginTime < duration)
 	{
-		Serial.println("Je gagne le match !!");
-		delay(100);
+		
 	}
 	Serial.println("Match fini !");
 }
@@ -136,9 +141,13 @@ void Robot::deployUmbrella()
 	uint8_t pinCommandeParasol = 28;
 
 	pinMode(pinCommandeParasol, OUTPUT);
-	digitalWrite(pinCommandeParasol, HIGH);
-	delay(1000);
-	digitalWrite(pinCommandeParasol, LOW);
+	for (int i = 0; i < 3; i++)
+	{
+		digitalWrite(pinCommandeParasol, HIGH);
+		delay(1000);
+		digitalWrite(pinCommandeParasol, LOW);
+		delay(1000);
+	}
 }
 
 bool Robot::goToPoint(const Position & destination)

@@ -30,7 +30,7 @@ void loop()
 	IntervalTimer sensorThread;
 	IntervalTimer battControlerThread;
 
-	CUnit test;
+	//CUnit test;
 
 	sensorMgr.powerON();
 
@@ -46,14 +46,14 @@ void loop()
 	battControlerThread.priority(80);
 	battControlerThread.begin(battControlerInterrupt, 50000);
 
-	//robot.waitForBegining();
-	robot.driveAlongEdgeOfTable(side);
-	robot.scriptCloseDoors(side);
-	robot.scriptGoToTowelFromDoors(side);
-	robot.scriptPushSand(side);
-	//robot.winMatch(90000);
-	//delay(2000);
-	//robot.deployUmbrella();
+	robot.waitForBegining();
+	//robot.driveAlongEdgeOfTable(side);
+	//robot.scriptCloseDoors(side);
+	//robot.scriptGoToTowelFromDoors(side);
+	//robot.scriptPushSand(side);
+	robot.winMatch(90000, side);
+	delay(1000);
+	robot.deployUmbrella();
 
 	//delay(500);
 	//test.dummyPathDingDing();

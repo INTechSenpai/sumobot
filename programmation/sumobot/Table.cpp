@@ -293,9 +293,6 @@ void Table::initObstacleMap(Side side)
 
 bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, Position & notrePosition, const Position & positionUncertainty)
 {
-	static uint32_t t1, t2;
-	t1 = micros();
-
 	bool positionModified = false;
 
 	if (enableUpdate)
@@ -352,7 +349,6 @@ bool Table::updateObstacleMap(const RelativeObstacleMap & relativeObstacleMap, P
 		forwardMoveAllowed = true;
 		backwardMoveAllowed = true;
 	}
-	t2 = micros();
 
 	return positionModified;
 }
@@ -759,6 +755,12 @@ void Table::moveObstaclesToMatchDetection(DetectionPoint tabDetection[NB_CAPTEUR
 				{
 					tofOppose = 6;
 					capteurFrontal = 1;
+				}
+				else
+				{
+					Serial.println("Table::moveObstaclesToMatchDetection::error");
+					tofOppose = 5;
+					capteurFrontal = 0;
 				}
 
 				float orientation = fmodulo(notrePosition.orientation + M_PI_4, 2 * PI);

@@ -62,7 +62,7 @@ public:
 		Fait fonctionner le robot pendant le temps indiqué, et le fait gagner le match si possible.
 		duration : durée d'exécution de la fonction, en ms
 	*/
-	void winMatch(uint32_t duration);
+	void winMatch(uint32_t duration, Side side);
 
 
 	/* Déploie le parasol */
