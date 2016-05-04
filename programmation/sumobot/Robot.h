@@ -130,6 +130,8 @@ public:
 	*/
 	void scriptPushSand(Side side);
 
+	void scriptYolo(Side side, uint32_t duration);
+
 
 	/*
 		Script qui part à la recherche de blocs de sable isolés abandonnés.

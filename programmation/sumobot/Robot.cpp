@@ -128,6 +128,7 @@ void Robot::winMatch(uint32_t duration, Side side)
 	scriptCloseDoors(side);
 	scriptGoToTowelFromDoors(side);
 	scriptPushSand(side);
+	scriptYolo(side, duration - millis() + beginTime);
 
 	while (millis() - beginTime < duration)
 	{
@@ -580,4 +581,109 @@ void Robot::scriptPushSand(Side side)
 	while (motionControlSystem.isMoving());
 
 	table.enableUpdateObstacleMap(true);
+}
+
+void Robot::scriptYolo(Side side, uint32_t duration)
+{
+	uint32_t beginTime = millis();
+
+	table.enableUpdateObstacleMap(true);
+
+	Position notrePosition;
+
+	// Recalage contre le bord de table (plus ou moins au niveau de la serviette)
+	Trajectory recalage;
+	UnitMove unitMove;
+	unitMove.setBendRadiusMm(INFINITE_RADIUS);
+	unitMove.setLengthMm(1500);
+	unitMove.setSpeedMm_S(350);
+	unitMove.stopAfterMove = false;
+	recalage.push_back(unitMove);
+
+	motionControlSystem.setTrajectory(recalage);
+
+	while (motionControlSystem.isMoving())
+	{
+		motionControlSystem.getPosition(notrePosition);
+		if (notrePosition.x > 1200 || notrePosition.x < -1200)
+		{
+			table.enableUpdateObstacleMap(false);
+		}
+
+		if (millis() - beginTime >= duration)
+		{
+			motionControlSystem.stop();
+			return;
+		}
+	}
+
+	if (side == GREEN)
+	{
+		notrePosition.x = 1437;
+		notrePosition.orientation = 0;
+	}
+	else
+	{
+		notrePosition.x = -1437;
+		notrePosition.orientation = M_PI;
+	}
+	motionControlSystem.setPosition(notrePosition);
+	Position uncertainty(40, 100, 0);
+	motionControlSystem.setPositionUncertainty(uncertainty);
+	// Fin du recalage
+
+	// Début de la trajectoire YOLO :D
+	Trajectory yoloTrajectory;
+	std::vector<Position> pointsDePassage;
+	Position point;
+	int mirror;
+	if (side == GREEN)
+	{
+		mirror = 1;
+	}
+	else
+	{
+		mirror = -1;
+	}
+
+	point.x = mirror * 1050;
+	point.y = 550;
+	pointsDePassage.push_back(point);
+
+	point.x = mirror * 1300;
+	point.y = 750;
+	pointsDePassage.push_back(point);
+
+	point.x = mirror * 1300;
+	point.y = 1200;
+	pointsDePassage.push_back(point);
+
+	point.x = mirror * 1000;
+	point.y = 200;
+	pointsDePassage.push_back(point);
+
+	point.x = mirror * 1300;
+	point.y = 450;
+	pointsDePassage.push_back(point);
+
+	point.x = mirror * 1300;
+	point.y = 1100;
+	pointsDePassage.push_back(point);
+
+	table.enableUpdateObstacleMap(true);
+
+	for (size_t i = 0; i < pointsDePassage.size(); i++)
+	{
+		motionControlSystem.getPosition(notrePosition);
+		yoloTrajectory = dummyPathFinding.computePath(notrePosition, pointsDePassage.at(i), 250, true);
+		motionControlSystem.setTrajectory(yoloTrajectory);
+		while (motionControlSystem.isMoving())
+		{
+			if (millis() - beginTime >= duration)
+			{
+				motionControlSystem.stop();
+				return;
+			}
+		}
+	}
 }
