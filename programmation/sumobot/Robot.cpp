@@ -125,9 +125,25 @@ void Robot::winMatch(uint32_t duration, Side side)
 	uint32_t beginTime = millis();
 
 	driveAlongEdgeOfTable(side);
+	if (millis() - beginTime > duration - 1000)
+	{
+		return;
+	}
+
 	scriptCloseDoors(side);
+	if (millis() - beginTime > duration - 5000)
+	{
+		return;
+	}
+
 	scriptGoToTowelFromDoors(side);
+	if (millis() - beginTime > duration - 3000)
+	{
+		return;
+	}
+
 	scriptPushSand(side);
+
 	scriptYolo(side, duration - millis() + beginTime);
 
 	while (millis() - beginTime < duration)
@@ -468,7 +484,7 @@ void Robot::scriptGoToTowelFromDoors(Side side)
 	if (side == GREEN)
 		unitMove.setBendRadiusMm(975);
 	else
-		unitMove.setBendRadiusMm(-975);
+		unitMove.setBendRadiusMm(-875);
 	unitMove.setLengthMm(1120);
 	unitMove.setSpeedMm_S(300);
 	unitMove.stopAfterMove = false;
@@ -488,7 +504,7 @@ void Robot::scriptGoToTowelFromDoors(Side side)
 	while (motionControlSystem.isMoving())
 	{
 		// Lorsque le premier unitMove est suffisamment entamé (= on est proche du bord de table) on désactive l'évitement
-		if (motionControlSystem.getMoveProgress() > 0.6)
+		if (motionControlSystem.getMoveProgress() > 0.4)
 		{
 			table.enableUpdateObstacleMap(false);
 		}
@@ -506,7 +522,7 @@ void Robot::scriptGoToTowelFromDoors(Side side)
 		ici.orientation = M_PI;
 	}
 	ici.y = 1100;
-	Position uncertainty(40, 80, 0);
+	Position uncertainty(80, 100, 0);
 	motionControlSystem.setPosition(ici);
 	motionControlSystem.setPositionUncertainty(uncertainty);
 
@@ -646,27 +662,27 @@ void Robot::scriptYolo(Side side, uint32_t duration)
 		mirror = -1;
 	}
 
-	point.x = mirror * 1050;
+	point.x = mirror * 1000;
 	point.y = 550;
 	pointsDePassage.push_back(point);
 
-	point.x = mirror * 1300;
+	point.x = mirror * 1250;
 	point.y = 750;
 	pointsDePassage.push_back(point);
 
-	point.x = mirror * 1300;
+	point.x = mirror * 1250;
 	point.y = 1200;
 	pointsDePassage.push_back(point);
 
-	point.x = mirror * 1000;
+	point.x = mirror * 950;
 	point.y = 200;
 	pointsDePassage.push_back(point);
 
-	point.x = mirror * 1300;
+	point.x = mirror * 1250;
 	point.y = 450;
 	pointsDePassage.push_back(point);
 
-	point.x = mirror * 1300;
+	point.x = mirror * 1250;
 	point.y = 1100;
 	pointsDePassage.push_back(point);
 
